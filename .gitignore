@@ -1,0 +1,10 @@
+# Intellij IDEA
+.idea
+
+# Gradle
+.gradle
+build
+
+# Documentation
+doc/*.html
+doc/*_files

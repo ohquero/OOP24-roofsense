@@ -155,9 +155,20 @@ Si noti che nel campo `object` del precedente listato sono state riportate tutte
 
 ## 2.1 - Architettura
 
+L'architettura dell'applicativo sviluppato è organizzata secondo il pattern ECB.
+
+La parte **controller**, che incapsula la business logic, è suddivisa nelle seguenti sottoparti:
+
+- **fetcher**: che si occupano di acquisire i dati senza però alterarli in alcun modo
+- **importer**: parte di business logic che si occupa di fare il parsing dei dati acquisiti;
+
 ## 2.2 - Design dettagliato
 
 ### Gestione dei processi in background
+
+Si è utilizzatato il pattern Observer sfruttando l'implementazione offerta dalla libreria "Reactive Extension", che permette di definire dichiarativamente delle operazioni da eseguire in modo asincrono. Sarà poi premura della libreria decidere come schedularle in thread fisici e virtuali.
+
+Si è quindi deciso di dotare ogni classe attiva di cui potrebbe essere necessario eseguire la logica in background del metodo `getObservable()`. Sarà cura di chi lo chiama istruire l'observable ad essere eseguito in bacgrkound o meno.
 
 # 3 - Sviluppo
 
