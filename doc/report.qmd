@@ -1,0 +1,174 @@
+---
+code-line-numbers: true
+---
+
+# 1 - Analisi
+
+Per il progetto europeo "LifeSuperhero", il cui scopo è quello di trovare soluzioni innovative per l'efficientamento energetico di edifici, un gruppo di ricerca della facoltà di ingegneria edile dell'Università Politecnica delle Marche ha scelto alcuni edifici nel comune di Reggio Emilia che necessitano di interventi di coibentazione del tetto. Nel corso del progetto, che ha durata di 5 anni, sui tetti di tali edifici saranno installate diverse soluzioni di coibentazione, monitorate tramite dei sensori con lo scopo di confrontarne la reale efficacia tenendo conto delle caratteristiche fisiche dello stabile e delle condizioni meteorologiche.
+
+## 1.1 - Requisiti
+
+Il gruppo di ricerca necessita di un applicativo atto a collezionare tutte le misure effettuate dai sensori installati dal gruppo di ricerca sui tetti da coibentare. Tali misure dovranno essere catalogate e storicizzate in modo da renderle accessibili al bisogno, sia tramite interfaccia grafica che tramite un endpoint REST, come interfaccia standard verso applicativi terzi.
+
+### Requisiti funzionali
+
+- L'applicativo permetterà di gestire un'anagrafica dei punti di misura dei tetti monitorati. Sarà possibile visionarli sia in vista tabulare che su mappa geografica.
+- L'applicativo permetterà di gestire uno storico dei sensori impiegati per singolo punto di misura.
+- L'applicativo dovrà acquisire i dati prodotti dai sensori, noti anche come "dati grezzi", fornendo la possibilità di consultarli sia in realtime che a posteriori tramite interfaccia grafica ed endpoint REST.
+- Successivamente all'acquisizione dei dati l'applicativo dovrà decodificarli per ottenere delle misure, che dovranno essere catalogate e storicizzate, permettendone la consultazione sia in realtime che a posteriori tramite interfaccia grafica ed endpoint REST.
+
+### Requisiti non funzionali
+
+- L'applicativo dovrà essere strutturato in modo da poter supportare diversi modelli di sensori, con la possibilità di essere aggiungerne di ulteriori in future release del software.
+- L'applicativo dovrà garantire l'esecuzione per lunghi periodi in soluzione di continuità. Ad esempio eventuali errori che incorreranno in sue sottoparti dovranno essere gestiti in modo da non compromettere l'esecuzione dell'intero applicativo, ove possibile.
+
+## 1.2 - Analisi e modello del dominio
+
+Su ogni tetto da monitorare il team definisce dei punti, chiamati *punti di misura*, nel quale saranno montati dei sensori designati al monitoraggio di alcuni indici ambientali. Ogni punto di misura è identificato tramite un codice univoco e si tiene conto della sua posizione geografica e direzione secondo punti cardinali e intercardinali per necessità del gruppo di ricerca. Gli indici ambientali monitorati sono:
+
+- temperatura a ~10 cm dalla superficie esterna del tetto in gradi Celsius;
+- temperatura della superficie esterna del tetto in gradi Celsius;
+- temperatura della superficie interna del tetto in gradi Celsius (soffitto della stanza sottostante);
+- flusso di calore entrante/uscente dal tetto in W/m².
+
+La sensoristica impiegata è gestita dal gruppo di ricerca, che si riserva la possibilità di modificare la configurazione utilizzata per ogni punto di misura per tutta la durata del progetto. Questo implica che alcuni indici potrebbero essere tralasciati, sia per tutta la durata del progetto che per determinati lassi temporali, in casi come danneggiamento dei sensori, impossibilità di installazione ed altri motivi, e simili.
+
+::: {#fig-sensors-topology-uml}
+```{mermaid}
+classDiagram
+  direction RL
+  MeeteringPoint "1" -- "0..n" AirTemperatureSensorAdoption
+  MeeteringPoint "1" -- "0..n" ExternalSurfaceTemperatureSensorAdoption
+  MeeteringPoint "1" -- "0..n" InternalSurfaceTemperatureSensorAdoption
+  MeeteringPoint "1" -- "0..n" HeatFluxSensorAdoption
+
+  AirTemperatureSensorAdoption --|> SensorAdoption
+  ExternalSurfaceTemperatureSensorAdoption --|> SensorAdoption
+  InternalSurfaceTemperatureSensorAdoption --|> SensorAdoption
+  HeatFluxSensorAdoption --|> SensorAdoption
+
+  AirTemperatureSensorAdoption "0..n" -- "1" SensorImpl
+  ExternalSurfaceTemperatureSensorAdoption "0..n" -- "1" SensorImpl
+  InternalSurfaceTemperatureSensorAdoption "0..n" -- "1" SensorImpl
+  HeatFluxSensorAdoption "0..n" -- "1" SensorImpl
+
+  class SensorAdoption {
+    <<Abstract>>
+    DateTime from
+    DateTime to
+  }
+
+  note for SensorImpl "Rappresenta l'implementazione di un certo modello di sensore"
+```
+Schema UML dei sensori utilizzati.
+:::
+
+Vista la varietà di modelli di sensori che potrebbe essere utilizzata ci si aspettano delle differenze nel metodo di trasmissione e la codifica con cui le misure dei sensori, ovvero i *dati grezzi*, saranno comunicate. Considerando i modelli di sensori che attualmente il gruppo di ricerca conta di utilizzare si possono definire le seguenti casistiche:
+
+Casistica      | Metodo di tramissione | Formato del payload |
+---------------|-----------------------|---------------------|
+Sensori Lastem | Upload su server FTP  | Molteplici file CSV |
+Sensori LoRa   | MQTT                  | JSON                |
+
+### Sensori Lastem
+
+I sensori a marchio Lastem utilizzati sono:
+
+- sonde di temperatura, che misurano la temperatura in gradi Celsius;
+- flussometri, che rilevano il flusso di calore in W/m².
+
+Le misure pervengono tramite file CSV caricati su server FTP. Quest'ultimo è gestito dal gruppo di ricerca.
+
+I sensori sono organizzati come segue:
+
+- ogni punto di misura sensorizzato con questi sensori è dotato di un set di sonde collegate ad un *logger* dedicato;
+- il logger campiona il segnale elettrico prodotto dalle sonde ogni minuto, e trasmette tali misure ad un *ricevitore* assieme a dati sull'alimentazione e temperatura interna;
+  - alcuni logger sono alimentati a batteria, altri tramite un alimentatore collegato alla rete elettrica.
+- il ricevitore ri-campiona le misure ricevute da tutti i logger al quale è collegato ad 1 minuto, così da eliminare le differenze di secondi tra le misure ricevute. A tali misure allega anche la propria tensione di alimentazione e temperatura interna, e serializza il tutto su dei file CSV che salva nella propria memoria interna e carica sul server FTP indicato in fase di configurazione tramite la connessione ad internet del quale è dotato.
+  - i ricevitori sono sempre alimentati tramite rete elettrica;
+  - ogni file CSV contiene le misure di uno slot orario della durata di 10 minuti. Questo significa che si avranno 6 file CSV per ogni ora.
+
+::: {#fig-lastem-sensors-uml}
+```{mermaid}
+classDiagram
+  Receiver "1" -- "1..*" Logger
+  Logger "1" -- "1..*" TemperatureProbe
+  Logger "1" -- "1..*" HeatFluxMeter
+
+  class Receiver {
+    ftpServerUrl
+    ftpServerCredentials
+  }
+```
+Schema UML della sensoristica Lastem.
+:::
+
+Il nome dei file CSV caricati dai ricevitori seguono il formato `<ID_RICEVITORE>_<TIMESTAMP_PRIMA_MISURA>.txt`, dove:
+
+- `<ID_RICEVITORE>` è una stringa che identifica il ricevitore che ha inviato i segnali;
+- `<TIMESTAMP_PRIMA_MISURA>` è il timestamp della prima misura registrata nel file.
+  - Il formato della data è `YYMMddHHmmss`.
+
+Le colonne che compongono tali file sono le seguenti:
+
+- `Timestamp`: timestamp della misura;
+- `TENSAlim`: tensione di alimentazione del ricevitore;
+- `T_ARIA_<LOGGER_ID>`: temperatura a 10cm dalla superficie esterna del tetto;
+- `T_SUP_<LOGGER_ID>`: temperatura alla superficie esterna del tetto;
+- `T_INF_<LOGGER_ID>`: temperatura alla superficie interna del tetto;
+- `T_INT_<LOGGER_ID>`: temperatura interna del logger;
+- `FLUX_<LOGGER_ID>`: flusso di calore entrante dal tetto;
+- `TENS_<LOGGER_ID>`: tensione di alimentazione del logger;
+- `LivBATT_<LOGGER_ID>`: SOC della batteria di alimentazione del logger;
+
+Si noti che:
+
+- le colonne `TENS_<LOGGER_ID>` e `LivBATT_<LOGGER_ID>` sono mutualmente esclusive, in base al tipo di alimentazione del logger.
+- il campo `<LOGGER_ID>` indica il numero identificativo che un ricevitore assegna ad ogni singolo logger ad esso collegato in fase di configurazione.
+
+Si deduce quindi che in caso siano installati nuovi logger in corso d'opera e collegati ad un ricevitore già in funzione i file CSV successivi all'installazione presenteranno delle nuove colonne. Similarmente in caso di dismissione di un logger le colonne ad esso relative scompariranno.
+
+### Sensori LoRa
+
+I sensori LoRa utilizzano la tecnologia LoRa per comunicare le proprie misure. In breve, i sensori comunicano ad una frequenza di 5 minuti le misure acquisite ad una serie di antenne LoRa poste nelle vicinanze; tali antenne, a loro volta, comunicano i dati inviati ad una istanza di Chirpstack[^https://www.chirpstack.io/] che funge da *network server LoRa*, che si occupa di decodificare i messaggi ricevuti e produrre un JSON con informazioni sul sensore e la misura inviata. Tali JSON saranno infine pubblicati su un broker MQTT messo a disposizione dal gruppo di ricerca.
+
+Possiamo quindi affermare che i JSON pubblicati costituiscono i dati grezzi prodotti dai sensori LoRa. Stando alla documentazione di Chirpstack e specifiche del gruppo di ricerca tali messaggi saranno composti come segue:
+
+```json
+{
+    "devEui": <DEVICE_EUID>,                                           // Identificativo del sensore (64 bit)
+    "confirmed": true,                                                 // Indica se il payload deve essere considerato come dati confermati o meno
+    "fPort": 10,                                                       // FPort da utilizzare (deve essere >= 10)
+    "data": <SENSOR_DATA>,                                             // Dati inviati dal sensore (plaintext in base64)
+    "object": {                                                        // Dati inviati dal sensore decodificati
+        "airTemperature": <AIR_TEMPERATURE>,                           // Temperatura (signed float)
+        "externalSurfaceTemperature": <EXTERNAL_SURFACE_TEMPERATURE>,  // Temperatura (signed float)
+        "internalSurfaceTemperature": <INTERNAL_SURFACE_TEMPERATURE>,  // Temperatura (signed float)
+        "incomingHeatFlux": <INCOMING_HEAT_FLUX>,                      // Flusso di calore entrante (signed float)
+    }
+}
+```
+
+Si noti che nel campo `object` del precedente listato sono state riportate tutte le possibili chiavi che potrebbero essere presenti. Tuttavia, è più probabile che solo alcune di queste lo saranno effettivamente, a seconda delle capacità del sensore (esempio: un sensore di temperatura montato a 10 cm dalla superficie esterna del tetto avrà nel campo `object` solo la chiave `airTemperature`).
+
+# 2 - Design
+
+## 2.1 - Architettura
+
+## 2.2 - Design dettagliato
+
+### Gestione dei processi in background
+
+# 3 - Sviluppo
+
+## 3.1 - Testing automatizzato
+
+## 3.2 - Note di sviluppo
+
+# 4 - Commenti finali
+
+## 4.1 - Autovalutazione e lavori futuri
+
+## 4.2 - Difficoltà incontrate e commenti per i docenti
+
+# Appendice A - Guida utente
