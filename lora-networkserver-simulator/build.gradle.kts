@@ -1,5 +1,7 @@
 plugins {
     application
+
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 repositories {
@@ -7,8 +9,18 @@ repositories {
 }
 
 dependencies {
-    testImplementation(libs.junit.jupiter)
+    implementation(libs.apachecommons.lang3)
 
+    implementation(libs.slf4j.api)
+    implementation(libs.logback.classic)
+
+    implementation(libs.rxjava3)
+
+    implementation(libs.paho.client.mqttv3)
+
+    implementation(libs.picocli)
+
+    testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -19,7 +31,7 @@ java {
 }
 
 application {
-    mainClass = "roofsense.lora.networkserver.simulator.Main"
+    mainClass = "roofsense.lora.networkserver.simulator.Simulator"
 }
 
 tasks.named<Test>("test") {

@@ -1,0 +1,13 @@
+FROM eclipse-mosquitto:latest
+
+# Copy the local mosquitto.conf file to the container
+COPY mosquitto.conf /mosquitto/config/mosquitto.conf
+
+# # Expose the default MQTT port
+# EXPOSE 1883
+
+# # Expose the default WebSockets port
+# EXPOSE 9001
+
+# # Run Mosquitto
+# CMD ["mosquitto", "-c", "/mosquitto/config/mosquitto.conf"]
