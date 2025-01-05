@@ -1,7 +1,7 @@
 plugins {
     application
-
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.danilopianini.gradle-java-qa") version "1.78.0"
 }
 
 repositories {
@@ -19,6 +19,8 @@ dependencies {
     implementation(libs.paho.client.mqttv3)
 
     implementation(libs.picocli)
+
+    implementation(libs.jackson.databind)
 
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

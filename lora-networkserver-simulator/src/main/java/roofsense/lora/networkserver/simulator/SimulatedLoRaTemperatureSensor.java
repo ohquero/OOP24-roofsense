@@ -1,43 +1,48 @@
 package roofsense.lora.networkserver.simulator;
 
+import io.reactivex.rxjava3.core.Observable;
 import org.apache.commons.lang3.Validate;
 
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 /**
- * The SimulatedLoRaTemperatureSensor class simulates a {@link SimulatedLoRaSensor} sensing temperature.
+ * The SimulatedLoRaTemperatureSensor class simulates a battery powered {@link SimulatedLoRaSensor} sensing
+ * temperature.
+ * <p>
+ * The temperature will fluctuate depending on the time of the day. The fluctuation baseline is determined by the
+ * current time of the year.
+ * <p>
+ * The battery level will decrease linearly over a specified time from the moment the sensor is started.
  */
 public class SimulatedLoRaTemperatureSensor extends SimulatedLoRaSensor {
 
-    private final Long dischargeTimeMillis;
+    private final Duration dischargeTime;
     private final Integer baseTemperature;
     private final Integer dayTemperatureDelta;
 
-    private SimulatedLoRaTemperatureSensor(final Builder builder) {
+    /**
+     * Constructor.
+     *
+     * @param builder the builder
+     */
+    protected SimulatedLoRaTemperatureSensor(final Builder builder) {
         super(builder);
-        this.dischargeTimeMillis = builder.dischargeTime.toMillis();
+        this.dischargeTime = builder.dischargeTime;
         this.baseTemperature = builder.baselineTemperature;
         this.dayTemperatureDelta = builder.dayTemperatureDelta;
     }
 
-    private Integer getBatteryLevel() {
-        final var calendar = Calendar.getInstance();
-        long currentTimeMillis = calendar.getTimeInMillis();
-        long millisSinceLastFullCharge = currentTimeMillis % dischargeTimeMillis;
-
-        return 100 - (int) (100 * ((double) millisSinceLastFullCharge / (double) dischargeTimeMillis));
-    }
-
-    private Float getTemperature() {
-        final var calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int month = calendar.get(Calendar.MONTH);
-
-        // This temperature simulates the difference of temperature between seasons
-        double seasonBaselineTemperature;
+    // CHECKSTYLE: MagicNumber OFF
+    // Hardcoded constants are not used in other parts of the code. Keeping them here for code readability.
+    private static double getPeriodBaselineTemperature(final LocalDate date) {
+        final int month = date.getMonthValue();
+        final double seasonBaselineTemperature;
         if (month >= 2 && month <= 4) {
             seasonBaselineTemperature = 10;
         } else if (month >= 5 && month <= 7) {
@@ -47,57 +52,137 @@ public class SimulatedLoRaTemperatureSensor extends SimulatedLoRaSensor {
         } else {
             seasonBaselineTemperature = 5;
         }
-
-        double temperatureFluctuation = Math.sin(Math.PI * hour / 24) * dayTemperatureDelta;
-        return (float) (baseTemperature + seasonBaselineTemperature + temperatureFluctuation);
+        return seasonBaselineTemperature;
     }
+    // CHECKSTYLE: MagicNumber ON
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Measurement getMeasurement() {
-        final var batteryLevel = getBatteryLevel();
-        final var temperature = getTemperature();
+    public Observable<Data> getDataStream() {
+        final var ticksForDischarge = dischargeTime.dividedBy(getSamplingRate());
 
-        final var batteryLevelBase64 = Base64.getEncoder()
-                .encodeToString(ByteBuffer.allocate(Integer.BYTES).putInt(batteryLevel).array());
-        final var temperatureBase64 = Base64.getEncoder()
-                .encodeToString(ByteBuffer.allocate(Float.BYTES).putFloat(temperature).array());
+        return Observable.interval(getSamplingRate().get(ChronoUnit.NANOS), TimeUnit.MILLISECONDS).map(tick -> {
+            // Calculating battery level
+            final var batteryLevel = 100 - (int) (100 * ((double) tick % ticksForDischarge / ticksForDischarge));
 
-        final var base64Data = String.format("10%b20%b", batteryLevelBase64, temperatureBase64);
-        final var jsonData = String.format("{\"battery\":%d,\"temperature\":%f}", getBatteryLevel(), getTemperature());
-        return new Measurement(base64Data, jsonData);
+            // Calculating temperature
+            final var now = LocalDateTime.now();
+            final var seasonBaselineTemperature = getPeriodBaselineTemperature(now.toLocalDate());
+            final var temperatureFluctuation = Math.sin(Math.PI * now.getHour() / 24) * dayTemperatureDelta;
+            final var temperature = (float) (baseTemperature + seasonBaselineTemperature + temperatureFluctuation);
+
+            // Encoding and sending data
+            final var batteryLevelBase64 = Base64.getEncoder()
+                    .encodeToString(ByteBuffer.allocate(Integer.BYTES).putInt(batteryLevel).array());
+            final var temperatureBase64 = Base64.getEncoder()
+                    .encodeToString(ByteBuffer.allocate(Float.BYTES).putFloat(temperature).array());
+            final var base64Data = String.format("10%b20%b", batteryLevelBase64, temperatureBase64);
+            final var jsonData = String.format("{\"battery\":%d,\"temperature\":%f}", batteryLevel, temperature);
+            return new Data(LocalDateTime.now(), getDevEui(), base64Data, jsonData);
+        });
     }
 
+    /**
+     * Returns the discharge time of the battery.
+     *
+     * @return the discharge time of the battery.
+     */
+    public Duration getDischargeTime() {
+        return dischargeTime;
+    }
+
+    /**
+     * Returns the minimum temperature that the sensor will report, at any time of the year.
+     *
+     * @return the baseline temperature.
+     */
+    public Integer getBaseTemperature() {
+        return baseTemperature;
+    }
+
+    /**
+     * Returns the maximum temperature fluctuation that the sensor will report during the day.
+     *
+     * @return the temperature fluctuation.
+     */
+    public Integer getDayTemperatureDelta() {
+        return dayTemperatureDelta;
+    }
+
+    /**
+     * Builder for {@link SimulatedLoRaTemperatureSensor}.
+     */
     public static class Builder extends SimulatedLoRaSensor.Builder<Builder, SimulatedLoRaTemperatureSensor> {
 
-        private Duration dischargeTime = Duration.ofHours(24);
-        private Integer baselineTemperature = 0;
-        private Integer dayTemperatureDelta = 5;
+        private static final Duration DEFAULT_DISCHARGE_TIME = Duration.ofMinutes(30);
+        private static final Integer DEFAULT_BASELINE_TEMPERATURE = 0;
+        private static final Integer DEFAULT_DAY_TEMPERATURE_DELTA = 5;
 
-        public Builder(String devEui) {
+        private Duration dischargeTime = DEFAULT_DISCHARGE_TIME;
+        private Integer baselineTemperature = DEFAULT_BASELINE_TEMPERATURE;
+        private Integer dayTemperatureDelta = DEFAULT_DAY_TEMPERATURE_DELTA;
+
+        /**
+         * Constructor.
+         *
+         * @param devEui the DevEUI of the sensor
+         */
+        public Builder(final String devEui) {
             super(devEui);
         }
 
+        /**
+         * Sets the discharge time of the battery.
+         *
+         * @param dischargeTime the discharge time of the battery
+         * @return this builder
+         */
         public Builder dischargeTime(final Duration dischargeTime) {
+            Validate.notNull(dischargeTime, "dischargeTime must not be null");
+            Validate.isTrue(dischargeTime.toNanos() > 0, "dischargeTime must be a positive duration");
             this.dischargeTime = dischargeTime;
             return self();
         }
 
+        /**
+         * Sets the minimum temperature that the sensor will report, at any time of the year.
+         *
+         * @param baselineTemperature the baseline temperature
+         * @return this builder
+         */
         public Builder baselineTemperature(final Integer baselineTemperature) {
+            Validate.notNull(baselineTemperature, "baselineTemperature must not be null");
+            Validate.isTrue(baselineTemperature >= 0, "baselineTemperature must be a positive integer");
             this.baselineTemperature = baselineTemperature;
             return self();
         }
 
+        /**
+         * Sets the maximum temperature fluctuation that the sensor will report during the day.
+         *
+         * @param dayTemperatureDelta the temperature fluctuation
+         * @return this builder
+         */
         public Builder dayTemperatureDelta(final Integer dayTemperatureDelta) {
-            Validate.isTrue(dayTemperatureDelta >= 0, "dayTemperatureDelta must be a positive integer");
+            Validate.notNull(dayTemperatureDelta, "dayTemperatureDelta must not be null");
+            Validate.isTrue(dayTemperatureDelta > 0, "dayTemperatureDelta must be greater than 0");
             this.dayTemperatureDelta = dayTemperatureDelta;
             return self();
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         protected Builder self() {
             return this;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public SimulatedLoRaTemperatureSensor build() {
             return new SimulatedLoRaTemperatureSensor(this);

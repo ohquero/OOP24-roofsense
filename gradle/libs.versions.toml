@@ -2,9 +2,11 @@
 paho-client-mqttv3 = "1.2.5"
 picocli = "4.7.6"
 slf4j = "2.0.16"
-logback = "1.5.12"
+logback = "1.5.15"
 junit-jupiter = "5.11.3"
 rxjava3 = "3.1.10"
+jackson = "2.18.2"
+apachecommons-lang3 = "3.17.0"
 
 [libraries]
 paho-client-mqttv3 = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "paho-client-mqttv3" }
@@ -13,4 +15,5 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava3" }
-apachecommons-lang3 = { module = "org.apache.commons:commons-lang3", version = "3.17.0" }
+apachecommons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "apachecommons-lang3" }
+jackson-databind = {module="com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson"}

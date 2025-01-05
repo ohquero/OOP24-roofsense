@@ -12,7 +12,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Simulator implements Runnable {
+/**
+ * The main class of the LoRa network server simulator.
+ */
+public final class Simulator implements Runnable {
 
     private static final String MQTT_CLIENT_ID = "lora-networkserver-simulator";
     private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
@@ -50,69 +53,69 @@ public class Simulator implements Runnable {
     )
     private Integer internalTemperatureSensorsCount;
 
-    public static void main(String[] args) {
-        int exitCode = new CommandLine(new Simulator()).execute(args);
+    /**
+     * The main method of the simulator.
+     *
+     * @param args the command-line arguments
+     */
+    public static void main(final String[] args) {
+        final int exitCode = new CommandLine(new Simulator()).execute(args);
         System.exit(exitCode);
     }
 
+    @Override
     public void run() {
         LOG.info("Creating the sensors to simulate...");
         final var sensorsSamplingRate = Duration.ofSeconds(sensorsSamplingRateSeconds);
         final List<SimulatedLoRaSensor> sensors = new ArrayList<>();
         for (int i = 0; i < airTemperatureSensorsCount; i++) {
             final var devEui = String.format("airtemp%09X", i);
-            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui)
-                    .baselineTemperature(2)
+            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui).baselineTemperature(2)
                     .dayTemperatureDelta(10)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
         for (int i = 0; i < externalTemperatureSensorsCount; i++) {
             final var devEui = String.format("extemp%010X", i);
-            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui)
-                    .baselineTemperature(0)
+            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
                     .dayTemperatureDelta(10)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
         for (int i = 0; i < internalTemperatureSensorsCount; i++) {
             final var devEui = String.format("intemp%010X", i);
-            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui)
-                    .baselineTemperature(0)
+            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
                     .dayTemperatureDelta(4)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
         LOG.debug("Created {} sensors", sensors.size());
 
-        LOG.info("Connecting to the MQTT broker...");
-        final MqttClient mqttClient;
         try {
-            mqttClient = new MqttClient(mqttServerURI, MQTT_CLIENT_ID, persistence);
+            LOG.info("Connecting to the MQTT broker...");
+            final var mqttClient = new MqttClient(mqttServerURI, MQTT_CLIENT_ID, persistence);
             mqttClient.connect();
-        } catch (final MqttException e) {
-            LOG.error("Connection to the MQTT broker failed", e);
-            return;
-        }
 
-        LOG.info("Creating the network server to simulate...");
-        final var networkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+            LOG.info("Creating the network server to simulate...");
+            final var networkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
 
-        LOG.info("Starting the network server...");
-        networkServer.start();
+            LOG.info("Starting the network server...");
+            networkServer.start();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOG.info("Stopping the network server...");
-            networkServer.stop();
-        }));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOG.info("Stopping the network server...");
+                networkServer.stop();
+            }));
 
-        try {
             networkServer.await();
+
+            LOG.info("The simulation has finished, bye!");
+
+        } catch (final MqttException e) {
+            LOG.error("A problem with the MQTT broker occurred", e);
         } catch (final InterruptedException e) {
             LOG.error("Network server termination await interrupted", e);
         }
-
-        LOG.info("The simulation has finished, bye!");
     }
 
 }
