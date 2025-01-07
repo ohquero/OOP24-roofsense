@@ -1,10 +1,10 @@
-package roofsense.lora.networkserver.simulator;
+package roofsense.chirpstacksimulator;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import roofsense.lora.networkserver.simulator.fakes.MqttClientMock;
-import roofsense.lora.networkserver.simulator.fakes.SimulatedLoRaSensorMock;
+import roofsense.chirpstacksimulator.mocks.FakeLoRaSensorMock;
+import roofsense.chirpstacksimulator.mocks.MqttClientMock;
 
 import java.time.Duration;
 import java.util.List;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-class SimulatedLoRaNetworkServerTest {
+class FakeChirpstackTest {
 
     private MqttClientMock mqttClient;
 
@@ -30,14 +30,14 @@ class SimulatedLoRaNetworkServerTest {
     @Test
     void constructor() {
         final var sensors = List.of(
-                new SimulatedLoRaSensorMock.Builder("0000000000000001").build()
+                new FakeLoRaSensorMock.Builder("0000000000000001").build()
         );
 
-        assertThrows(NullPointerException.class, () -> new SimulatedLoRaNetworkServer(null, null));
-        assertThrows(NullPointerException.class, () -> new SimulatedLoRaNetworkServer(null, sensors));
-        assertThrows(NullPointerException.class, () -> new SimulatedLoRaNetworkServer(mqttClient, null));
-        assertThrows(IllegalArgumentException.class, () -> new SimulatedLoRaNetworkServer(mqttClient, List.of()));
-        assertDoesNotThrow(() -> new SimulatedLoRaNetworkServer(mqttClient, sensors));
+        assertThrows(NullPointerException.class, () -> new FakeChirpstack(null, null));
+        assertThrows(NullPointerException.class, () -> new FakeChirpstack(null, sensors));
+        assertThrows(NullPointerException.class, () -> new FakeChirpstack(mqttClient, null));
+        assertThrows(IllegalArgumentException.class, () -> new FakeChirpstack(mqttClient, List.of()));
+        assertDoesNotThrow(() -> new FakeChirpstack(mqttClient, sensors));
     }
 
     @Test
@@ -47,16 +47,16 @@ class SimulatedLoRaNetworkServerTest {
         final var sensor2measurementsToEmitCount = 3;
         final var sensorsMeasurementsToEmitCount = sensor1measurementsToEmitCount + sensor2measurementsToEmitCount;
         final var sensors = List.of(
-                new SimulatedLoRaSensorMock.Builder("0000000000000001")
+                new FakeLoRaSensorMock.Builder("0000000000000001")
                         .measurementsToEmit(sensor1measurementsToEmitCount)
                         .samplingRate(samplingRate)
                         .build(),
-                new SimulatedLoRaSensorMock.Builder("0000000000000002")
+                new FakeLoRaSensorMock.Builder("0000000000000002")
                         .measurementsToEmit(sensor2measurementsToEmitCount)
                         .samplingRate(samplingRate)
                         .build()
         );
-        final var loraNetworkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
 
         loraNetworkServer.start();
         assertDoesNotThrow(loraNetworkServer::start);
@@ -69,8 +69,8 @@ class SimulatedLoRaNetworkServerTest {
 
     @Test
     void startWithMqttClientAlreadyConnected() throws MqttException {
-        final var sensors = List.of(new SimulatedLoRaSensorMock.Builder("0000000000000001").build());
-        final var loraNetworkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+        final var sensors = List.of(new FakeLoRaSensorMock.Builder("0000000000000001").build());
+        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
         mqttClient.connect();
 
         loraNetworkServer.start();
@@ -80,11 +80,11 @@ class SimulatedLoRaNetworkServerTest {
     @Test
     void stop() throws InterruptedException {
         final var sensors = List.of(
-                new SimulatedLoRaSensorMock.Builder("0000000000000001")
+                new FakeLoRaSensorMock.Builder("0000000000000001")
                         .samplingRate(Duration.ofSeconds(1))
                         .build()
         );
-        final var loraNetworkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
 
         assertDoesNotThrow(loraNetworkServer::stop);
         assertDoesNotThrow(loraNetworkServer::stop);
@@ -109,8 +109,8 @@ class SimulatedLoRaNetworkServerTest {
 
     @Test
     void isRunning() throws MqttException {
-        final var sensors = List.of(new SimulatedLoRaSensorMock.Builder("0000000000000001").build());
-        final var loraNetworkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+        final var sensors = List.of(new FakeLoRaSensorMock.Builder("0000000000000001").build());
+        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
 
         assertFalse(loraNetworkServer.isRunning());
 
@@ -128,12 +128,12 @@ class SimulatedLoRaNetworkServerTest {
         final var sensorsSamplingRate = Duration.ofSeconds(1);
         final var sensorsMeasurementsToEmitCount = 5;
         final var sensors = List.of(
-                new SimulatedLoRaSensorMock.Builder("0000000000000001")
+                new FakeLoRaSensorMock.Builder("0000000000000001")
                         .samplingRate(sensorsSamplingRate)
                         .measurementsToEmit(sensorsMeasurementsToEmitCount)
                         .build()
         );
-        final var loraNetworkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
 
         assertDoesNotThrow(loraNetworkServer::await);
 

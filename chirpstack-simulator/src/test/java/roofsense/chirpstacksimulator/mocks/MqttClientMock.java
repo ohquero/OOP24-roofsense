@@ -1,4 +1,4 @@
-package roofsense.lora.networkserver.simulator.fakes;
+package roofsense.chirpstacksimulator.mocks;
 
 import org.apache.commons.lang3.Validate;
 import org.eclipse.paho.client.mqttv3.IMqttClient;

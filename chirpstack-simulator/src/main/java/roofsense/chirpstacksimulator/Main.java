@@ -1,4 +1,4 @@
-package roofsense.lora.networkserver.simulator;
+package roofsense.chirpstacksimulator;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The main class of the LoRa network server simulator.
+ * The main class of the ChirpStack simulator.
  */
-public final class Simulator implements Runnable {
+public final class Main implements Runnable {
 
     private static final String MQTT_CLIENT_ID = "lora-networkserver-simulator";
-    private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private final MemoryPersistence persistence = new MemoryPersistence();
 
@@ -59,7 +59,7 @@ public final class Simulator implements Runnable {
      * @param args the command-line arguments
      */
     public static void main(final String[] args) {
-        final int exitCode = new CommandLine(new Simulator()).execute(args);
+        final int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
     }
 
@@ -67,24 +67,24 @@ public final class Simulator implements Runnable {
     public void run() {
         LOG.info("Creating the sensors to simulate...");
         final var sensorsSamplingRate = Duration.ofSeconds(sensorsSamplingRateSeconds);
-        final List<SimulatedLoRaSensor> sensors = new ArrayList<>();
+        final List<FakeLoRaSensor> sensors = new ArrayList<>();
         for (int i = 0; i < airTemperatureSensorsCount; i++) {
             final var devEui = String.format("airtemp%09X", i);
-            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui).baselineTemperature(2)
+            sensors.add(new FakeLoRaTemperatureSensor.Builder(devEui).baselineTemperature(2)
                     .dayTemperatureDelta(10)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
         for (int i = 0; i < externalTemperatureSensorsCount; i++) {
             final var devEui = String.format("extemp%010X", i);
-            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
+            sensors.add(new FakeLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
                     .dayTemperatureDelta(10)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
         for (int i = 0; i < internalTemperatureSensorsCount; i++) {
             final var devEui = String.format("intemp%010X", i);
-            sensors.add(new SimulatedLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
+            sensors.add(new FakeLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
                     .dayTemperatureDelta(4)
                     .samplingRate(sensorsSamplingRate)
                     .build());
@@ -97,7 +97,7 @@ public final class Simulator implements Runnable {
             mqttClient.connect();
 
             LOG.info("Creating the network server to simulate...");
-            final var networkServer = new SimulatedLoRaNetworkServer(mqttClient, sensors);
+            final var networkServer = new FakeChirpstack(mqttClient, sensors);
 
             LOG.info("Starting the network server...");
             networkServer.start();

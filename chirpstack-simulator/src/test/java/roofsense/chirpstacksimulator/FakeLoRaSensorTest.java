@@ -1,7 +1,7 @@
-package roofsense.lora.networkserver.simulator;
+package roofsense.chirpstacksimulator;
 
 import org.junit.jupiter.api.Test;
-import roofsense.lora.networkserver.simulator.fakes.SimulatedLoRaSensorMock;
+import roofsense.chirpstacksimulator.mocks.FakeLoRaSensorMock;
 
 import java.time.Duration;
 
@@ -9,17 +9,17 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class SimulatedLoRaSensorTest {
+class FakeLoRaSensorTest {
 
     @Test
     void builderConstructorTest() {
-        assertThrows(NullPointerException.class, () -> new SimulatedLoRaSensorMock.Builder(null));
-        assertThrows(IllegalArgumentException.class, () -> new SimulatedLoRaSensorMock.Builder(""));
-        assertThrows(IllegalArgumentException.class, () -> new SimulatedLoRaSensorMock.Builder("wrong-size-deui"));
+        assertThrows(NullPointerException.class, () -> new FakeLoRaSensorMock.Builder(null));
+        assertThrows(IllegalArgumentException.class, () -> new FakeLoRaSensorMock.Builder(""));
+        assertThrows(IllegalArgumentException.class, () -> new FakeLoRaSensorMock.Builder("wrong-size-deui"));
 
         final var devEui = "0000000000000001";
 
-        final var sensor = assertDoesNotThrow(() -> new SimulatedLoRaSensorMock.Builder(devEui).build());
+        final var sensor = assertDoesNotThrow(() -> new FakeLoRaSensorMock.Builder(devEui).build());
         assertEquals(devEui, sensor.getDevEui());
     }
 
@@ -27,7 +27,7 @@ class SimulatedLoRaSensorTest {
     void buildSensorWithCustomSamplingRateTest() {
         final var devEui = "0000000000000001";
 
-        final var builder = new SimulatedLoRaSensorMock.Builder(devEui);
+        final var builder = new FakeLoRaSensorMock.Builder(devEui);
         assertThrows(NullPointerException.class, () -> builder.samplingRate(null));
         assertThrows(IllegalArgumentException.class, () -> builder.samplingRate(Duration.ofSeconds(0)));
         assertThrows(IllegalArgumentException.class, () -> builder.samplingRate(Duration.ofSeconds(-1)));

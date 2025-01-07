@@ -1,4 +1,4 @@
-package roofsense.lora.networkserver.simulator;
+package roofsense.chirpstacksimulator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -10,20 +10,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SimulatedLoRaTemperatureSensorTest {
+class FakeLoRaTemperatureSensorTest {
 
     public static final String DEVEUI = "0000000000000000";
 
     @Test
     void builderCreationTest() {
-        assertThrows(NullPointerException.class, () -> new SimulatedLoRaTemperatureSensor.Builder(null));
-        assertThrows(IllegalArgumentException.class, () -> new SimulatedLoRaTemperatureSensor.Builder(""));
-        assertDoesNotThrow(() -> new SimulatedLoRaTemperatureSensor.Builder(DEVEUI));
+        assertThrows(NullPointerException.class, () -> new FakeLoRaTemperatureSensor.Builder(null));
+        assertThrows(IllegalArgumentException.class, () -> new FakeLoRaTemperatureSensor.Builder(""));
+        assertDoesNotThrow(() -> new FakeLoRaTemperatureSensor.Builder(DEVEUI));
     }
 
     @Test
     void buildSensorWithCustomDischargeTimeTest() {
-        final var builder = new SimulatedLoRaTemperatureSensor.Builder(DEVEUI);
+        final var builder = new FakeLoRaTemperatureSensor.Builder(DEVEUI);
 
         assertThrows(NullPointerException.class, () -> builder.dischargeTime(null));
         assertThrows(IllegalArgumentException.class, () -> builder.dischargeTime(Duration.ofSeconds(-1)));
@@ -40,7 +40,7 @@ class SimulatedLoRaTemperatureSensorTest {
         final var objectMapper = new ObjectMapper();
         final var batteryLevelValues = sensor.getDataStream()
                 .take(ticksForDischarge * completeDischargeToTestCount)
-                .map(SimulatedLoRaTemperatureSensor.Data::json)
+                .map(FakeLoRaTemperatureSensor.Data::json)
                 .map(json -> objectMapper.readTree(json).get("battery").asDouble())
                 .toList()
                 .blockingGet();
@@ -55,7 +55,7 @@ class SimulatedLoRaTemperatureSensorTest {
 
     @Test
     void buildSensorWithCustomBaseTemperatureTest() {
-        final var builder = new SimulatedLoRaTemperatureSensor.Builder(DEVEUI);
+        final var builder = new FakeLoRaTemperatureSensor.Builder(DEVEUI);
 
         assertThrows(NullPointerException.class, () -> builder.baselineTemperature(null));
         assertThrows(IllegalArgumentException.class, () -> builder.baselineTemperature(-1));
@@ -70,7 +70,7 @@ class SimulatedLoRaTemperatureSensorTest {
 
     @Test
     void buildSensorWithCustomDayTemperatureDeltaTest() {
-        final var builder = new SimulatedLoRaTemperatureSensor.Builder(DEVEUI);
+        final var builder = new FakeLoRaTemperatureSensor.Builder(DEVEUI);
 
         assertThrows(NullPointerException.class, () -> builder.dayTemperatureDelta(null));
         assertThrows(IllegalArgumentException.class, () -> builder.dayTemperatureDelta(-1));

@@ -1,19 +1,19 @@
-package roofsense.lora.networkserver.simulator.fakes;
+package roofsense.chirpstacksimulator.mocks;
 
 import io.reactivex.rxjava3.core.Observable;
-import roofsense.lora.networkserver.simulator.SimulatedLoRaSensor;
+import roofsense.chirpstacksimulator.FakeLoRaSensor;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A mock implementation of {@link SimulatedLoRaSensor} that allows to emit a specific number of measurements.
+ * A mock implementation of {@link FakeLoRaSensor} that allows to emit a specific number of measurements.
  */
-public final class SimulatedLoRaSensorMock extends SimulatedLoRaSensor {
+public final class FakeLoRaSensorMock extends FakeLoRaSensor {
 
     private final Integer measurementsToEmitCount;
 
-    private SimulatedLoRaSensorMock(final Builder builder) {
+    private FakeLoRaSensorMock(final Builder builder) {
         super(builder);
         this.measurementsToEmitCount = builder.measurementsToEmitCount;
     }
@@ -29,9 +29,9 @@ public final class SimulatedLoRaSensorMock extends SimulatedLoRaSensor {
     }
 
     /**
-     * Builder for {@link SimulatedLoRaSensorMock}.
+     * Builder for {@link FakeLoRaSensorMock}.
      */
-    public static final class Builder extends SimulatedLoRaSensor.Builder<Builder, SimulatedLoRaSensorMock> {
+    public static final class Builder extends FakeLoRaSensor.Builder<Builder, FakeLoRaSensorMock> {
 
         private Integer measurementsToEmitCount;
 
@@ -61,8 +61,8 @@ public final class SimulatedLoRaSensorMock extends SimulatedLoRaSensor {
         }
 
         @Override
-        public SimulatedLoRaSensorMock build() {
-            return new SimulatedLoRaSensorMock(this);
+        public FakeLoRaSensorMock build() {
+            return new FakeLoRaSensorMock(this);
         }
 
     }

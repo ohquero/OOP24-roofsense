@@ -5,4 +5,4 @@ plugins {
 
 rootProject.name = "OOP24-roofsense"
 
-include("lora-networkserver-simulator")
+include("chirpstack-simulator")

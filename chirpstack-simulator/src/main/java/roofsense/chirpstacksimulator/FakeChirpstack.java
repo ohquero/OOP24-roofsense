@@ -1,4 +1,4 @@
-package roofsense.lora.networkserver.simulator;
+package roofsense.chirpstacksimulator;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -14,29 +14,29 @@ import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * This class represents LoRa network server which is responsible for sending data from a collection of sensors to a
- * MQTT broker.
+ * This class simulates the ChirpStack LoRa network sever. At the moment only the down-link messages MQTT forwarding is
+ * simulated.
  * <p>
  * The business logic will be executed in a separate thread, so the calling thread will not be blocked.
  */
-public class SimulatedLoRaNetworkServer {
+public class FakeChirpstack {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimulatedLoRaNetworkServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FakeChirpstack.class);
 
     private final IMqttClient mqttClient;
-    private final Collection<? extends SimulatedLoRaSensor> sensors;
+    private final Collection<? extends FakeLoRaSensor> sensors;
     private Disposable disposable;
     private volatile CountDownLatch latch;
 
     /**
-     * Creates a new instance of SimulatedLoRaNetworkServer.
+     * Creates a new instance of FakeChirpstack.
      *
      * @param mqttClient the MQTT client which will be used to send data to the MQTT broker
      * @param sensors    the collection of sensors which will be monitored
      */
-    public SimulatedLoRaNetworkServer(
+    public FakeChirpstack(
             final IMqttClient mqttClient,
-            final Collection<? extends SimulatedLoRaSensor> sensors
+            final Collection<? extends FakeLoRaSensor> sensors
     ) {
         this.mqttClient = Validate.notNull(mqttClient, "mqttClient must not be null");
         this.sensors = Validate.notEmpty(sensors, "sensors must not be empty or null");
@@ -60,11 +60,11 @@ public class SimulatedLoRaNetworkServer {
 
         // Merging all sensors data streams into a single stream
         var sensorsDataStream = sensors.stream()
-                .map(SimulatedLoRaSensor::getDataStream)
+                .map(FakeLoRaSensor::getDataStream)
                 .reduce(Observable::merge)
                 .orElseThrow();
 
-        // Latch which will be used by other threads to wait for the SimulatedLoRaNetworkServer signal that no other
+        // Latch which will be used by other threads to wait for the FakeChirpstack signal that no other
         // data will be sent to the MQTT broker
         latch = new CountDownLatch(1);
         sensorsDataStream = sensorsDataStream.doOnDispose(latch::countDown);
@@ -105,7 +105,7 @@ public class SimulatedLoRaNetworkServer {
     /**
      * Returns {@code true} if the network server is running.
      *
-     * @return true if the simulated LoRa network server is running, false otherwise
+     * @return true if the simulated ChirpStack is running, false otherwise
      */
     public Boolean isRunning() {
         return disposable != null && !disposable.isDisposed();

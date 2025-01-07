@@ -1,4 +1,4 @@
-package roofsense.lora.networkserver.simulator;
+package roofsense.chirpstacksimulator;
 
 import io.reactivex.rxjava3.core.Observable;
 import org.apache.commons.lang3.Validate;
@@ -12,7 +12,7 @@ import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The SimulatedLoRaTemperatureSensor class simulates a battery powered {@link SimulatedLoRaSensor} sensing
+ * The FakeLoRaTemperatureSensor class simulates a battery powered {@link FakeLoRaSensor} sensing
  * temperature.
  * <p>
  * The temperature will fluctuate depending on the time of the day. The fluctuation baseline is determined by the
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * The battery level will decrease linearly over a specified time from the moment the sensor is started.
  */
-public class SimulatedLoRaTemperatureSensor extends SimulatedLoRaSensor {
+public class FakeLoRaTemperatureSensor extends FakeLoRaSensor {
 
     private final Duration dischargeTime;
     private final Integer baseTemperature;
@@ -31,7 +31,7 @@ public class SimulatedLoRaTemperatureSensor extends SimulatedLoRaSensor {
      *
      * @param builder the builder
      */
-    protected SimulatedLoRaTemperatureSensor(final Builder builder) {
+    protected FakeLoRaTemperatureSensor(final Builder builder) {
         super(builder);
         this.dischargeTime = builder.dischargeTime;
         this.baseTemperature = builder.baselineTemperature;
@@ -112,9 +112,9 @@ public class SimulatedLoRaTemperatureSensor extends SimulatedLoRaSensor {
     }
 
     /**
-     * Builder for {@link SimulatedLoRaTemperatureSensor}.
+     * Builder for {@link FakeLoRaTemperatureSensor}.
      */
-    public static class Builder extends SimulatedLoRaSensor.Builder<Builder, SimulatedLoRaTemperatureSensor> {
+    public static class Builder extends FakeLoRaSensor.Builder<Builder, FakeLoRaTemperatureSensor> {
 
         private static final Duration DEFAULT_DISCHARGE_TIME = Duration.ofMinutes(30);
         private static final Integer DEFAULT_BASELINE_TEMPERATURE = 0;
@@ -184,8 +184,8 @@ public class SimulatedLoRaTemperatureSensor extends SimulatedLoRaSensor {
          * {@inheritDoc}
          */
         @Override
-        public SimulatedLoRaTemperatureSensor build() {
-            return new SimulatedLoRaTemperatureSensor(this);
+        public FakeLoRaTemperatureSensor build() {
+            return new FakeLoRaTemperatureSensor(this);
         }
 
     }
