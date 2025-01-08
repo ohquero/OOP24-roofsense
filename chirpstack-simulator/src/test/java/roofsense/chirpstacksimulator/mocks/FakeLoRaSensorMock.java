@@ -29,6 +29,15 @@ public final class FakeLoRaSensorMock extends FakeLoRaSensor {
     }
 
     /**
+     * Returns the number of measurements to emit.
+     *
+     * @return the number of measurements to emit.
+     */
+    public int getMeasurementsToEmitCount() {
+        return measurementsToEmitCount;
+    }
+
+    /**
      * Builder for {@link FakeLoRaSensorMock}.
      */
     public static final class Builder extends FakeLoRaSensor.Builder<Builder, FakeLoRaSensorMock> {

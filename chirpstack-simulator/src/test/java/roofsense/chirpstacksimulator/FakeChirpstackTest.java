@@ -1,13 +1,16 @@
 package roofsense.chirpstacksimulator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import roofsense.chirpstacksimulator.mocks.FakeLoRaSensorMock;
 import roofsense.chirpstacksimulator.mocks.MqttClientMock;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
+//CHECKSTYLE: MagicNumber OFF
 class FakeChirpstackTest {
 
     private MqttClientMock mqttClient;
@@ -43,16 +47,13 @@ class FakeChirpstackTest {
     @Test
     void start() throws InterruptedException, MqttException {
         final var samplingRate = Duration.ofSeconds(1);
-        final var sensor1measurementsToEmitCount = 5;
-        final var sensor2measurementsToEmitCount = 3;
-        final var sensorsMeasurementsToEmitCount = sensor1measurementsToEmitCount + sensor2measurementsToEmitCount;
         final var sensors = List.of(
                 new FakeLoRaSensorMock.Builder("0000000000000001")
-                        .measurementsToEmit(sensor1measurementsToEmitCount)
+                        .measurementsToEmit(5)
                         .samplingRate(samplingRate)
                         .build(),
                 new FakeLoRaSensorMock.Builder("0000000000000002")
-                        .measurementsToEmit(sensor2measurementsToEmitCount)
+                        .measurementsToEmit(3)
                         .samplingRate(samplingRate)
                         .build()
         );
@@ -64,7 +65,29 @@ class FakeChirpstackTest {
         loraNetworkServer.await();
 
         assertFalse(loraNetworkServer.isRunning());
-        assertEquals(sensorsMeasurementsToEmitCount, mqttClient.getPublishedMessages().size());
+        final var measurementsCount = sensors.stream()
+                .map(FakeLoRaSensorMock::getMeasurementsToEmitCount)
+                .reduce(0, Integer::sum);
+        assertEquals(measurementsCount, mqttClient.getPublishedMessages().size());
+
+        // Testing that every message sent is correctly formed
+        for (final var message : mqttClient.getPublishedMessages()) {
+            final var topicRegex = Pattern.compile("application/1/device/(\\d{16})/command/down");
+            final var topicMatcher = topicRegex.matcher(message.topic());
+
+            assertTrue(topicMatcher.matches());
+
+            final var devEuiFromTopic = topicMatcher.group(1);
+            assertTrue(sensors.stream().anyMatch(sensor -> sensor.getDevEui().equals(devEuiFromTopic)));
+
+            final var decodedPayloadString = new String(message.payload(), StandardCharsets.UTF_8);
+            final var decodedPayload = assertDoesNotThrow(() -> new ObjectMapper().readTree(decodedPayloadString));
+            assertEquals(decodedPayload.get("devEui").asText(), devEuiFromTopic);
+            assertTrue(decodedPayload.get("confirmed").asBoolean());
+            assertEquals(10, decodedPayload.get("fPort").asInt());
+            assertEquals("base64", decodedPayload.get("data").asText());
+            assertEquals("json", decodedPayload.get("object").asText());
+        }
     }
 
     @Test

@@ -281,7 +281,7 @@ public final class MqttClientMock implements IMqttClient {
         }
 
         /**
-         * @return The timestamp of the message.
+         * @return the payload of the message.
          */
         @Override
         public byte[] payload() {

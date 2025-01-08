@@ -1,5 +1,6 @@
 package roofsense.chirpstacksimulator;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -73,10 +74,19 @@ public class FakeChirpstack {
                 sensorData -> {
                     LOG.info(
                             "Sensor {} sending data to MQTT broker...", sensorData.devEui());
+
+                    // Creating a Json object with the sensor data
+                    final var message = JsonNodeFactory.instance.objectNode();
+                    message.put("devEui", sensorData.devEui());
+                    message.put("confirmed", true);
+                    message.put("fPort", 10);
+                    message.put("data", sensorData.base64());
+                    message.put("object", sensorData.json());
+
                     // Publishing sensorData to MQTT broker
                     mqttClient.publish(
                             "application/1/device/" + sensorData.devEui() + "/command/down",
-                            sensorData.json().getBytes(StandardCharsets.UTF_8),
+                            message.toString().getBytes(StandardCharsets.UTF_8),
                             0,
                             false
                     );
