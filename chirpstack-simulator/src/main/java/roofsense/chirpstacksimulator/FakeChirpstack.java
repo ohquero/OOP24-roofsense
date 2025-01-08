@@ -25,6 +25,7 @@ public class FakeChirpstack {
     private static final Logger LOG = LoggerFactory.getLogger(FakeChirpstack.class);
 
     private final IMqttClient mqttClient;
+    private final String loraApplicationID;
     private final Collection<? extends FakeLoRaSensor> sensors;
     private Disposable disposable;
     private volatile CountDownLatch latch;
@@ -32,14 +33,17 @@ public class FakeChirpstack {
     /**
      * Creates a new instance of FakeChirpstack.
      *
-     * @param mqttClient the MQTT client which will be used to send data to the MQTT broker
-     * @param sensors    the collection of sensors which will be monitored
+     * @param mqttClient        the MQTT client which will be used to send data to the MQTT broker
+     * @param loraApplicationID the LoRa application ID under which the sensors will be registered
+     * @param sensors           the collection of sensors which will be monitored
      */
     public FakeChirpstack(
             final IMqttClient mqttClient,
+            final String loraApplicationID,
             final Collection<? extends FakeLoRaSensor> sensors
     ) {
         this.mqttClient = Validate.notNull(mqttClient, "mqttClient must not be null");
+        this.loraApplicationID = Validate.notEmpty(loraApplicationID, "loraApplicationID must not be empty or null");
         this.sensors = Validate.notEmpty(sensors, "sensors must not be empty or null");
     }
 
@@ -85,7 +89,7 @@ public class FakeChirpstack {
 
                     // Publishing sensorData to MQTT broker
                     mqttClient.publish(
-                            "application/1/device/" + sensorData.devEui() + "/command/down",
+                            "application/" + loraApplicationID + "/device/" + sensorData.devEui() + "/command/down",
                             message.toString().getBytes(StandardCharsets.UTF_8),
                             0,
                             false

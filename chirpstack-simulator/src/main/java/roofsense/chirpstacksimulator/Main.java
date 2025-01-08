@@ -17,13 +17,16 @@ import java.util.List;
  */
 public final class Main implements Runnable {
 
-    private static final String MQTT_CLIENT_ID = "lora-networkserver-simulator";
+    private static final String MQTT_CLIENT_ID = "chirpstack-simulator";
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private final MemoryPersistence persistence = new MemoryPersistence();
 
     @Option(names = {"-m", "--mqtt-server"}, defaultValue = "tcp://localhost:1883", description = "MQTT server URI")
     private String mqttServerURI;
+
+    @Option(names = {"--application-id"}, defaultValue = MQTT_CLIENT_ID, description = "LoRa sensors application ID")
+    private String loraApplicationID;
 
     @Option(
             names = {"-r", "--rate"},
@@ -97,7 +100,7 @@ public final class Main implements Runnable {
             mqttClient.connect();
 
             LOG.info("Creating the network server to simulate...");
-            final var networkServer = new FakeChirpstack(mqttClient, sensors);
+            final var networkServer = new FakeChirpstack(mqttClient, loraApplicationID, sensors);
 
             LOG.info("Starting the network server...");
             networkServer.start();

@@ -36,12 +36,14 @@ class FakeChirpstackTest {
         final var sensors = List.of(
                 new FakeLoRaSensorMock.Builder("0000000000000001").build()
         );
+        final var applicationID = "applicationID";
 
-        assertThrows(NullPointerException.class, () -> new FakeChirpstack(null, null));
-        assertThrows(NullPointerException.class, () -> new FakeChirpstack(null, sensors));
-        assertThrows(NullPointerException.class, () -> new FakeChirpstack(mqttClient, null));
-        assertThrows(IllegalArgumentException.class, () -> new FakeChirpstack(mqttClient, List.of()));
-        assertDoesNotThrow(() -> new FakeChirpstack(mqttClient, sensors));
+        assertThrows(NullPointerException.class, () -> new FakeChirpstack(null, applicationID, sensors));
+        assertThrows(NullPointerException.class, () -> new FakeChirpstack(mqttClient, null, sensors));
+        assertThrows(IllegalArgumentException.class, () -> new FakeChirpstack(mqttClient, "", sensors));
+        assertThrows(NullPointerException.class, () -> new FakeChirpstack(mqttClient, applicationID, null));
+        assertThrows(IllegalArgumentException.class, () -> new FakeChirpstack(mqttClient, applicationID, List.of()));
+        assertDoesNotThrow(() -> new FakeChirpstack(mqttClient, applicationID, sensors));
     }
 
     @Test
@@ -57,14 +59,15 @@ class FakeChirpstackTest {
                         .samplingRate(samplingRate)
                         .build()
         );
-        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
+        final var applicationID = "applicationID";
+        final var chirpstack = new FakeChirpstack(mqttClient, applicationID, sensors);
 
-        loraNetworkServer.start();
-        assertDoesNotThrow(loraNetworkServer::start);
+        chirpstack.start();
+        assertDoesNotThrow(chirpstack::start);
 
-        loraNetworkServer.await();
+        chirpstack.await();
 
-        assertFalse(loraNetworkServer.isRunning());
+        assertFalse(chirpstack.isRunning());
         final var measurementsCount = sensors.stream()
                 .map(FakeLoRaSensorMock::getMeasurementsToEmitCount)
                 .reduce(0, Integer::sum);
@@ -72,7 +75,7 @@ class FakeChirpstackTest {
 
         // Testing that every message sent is correctly formed
         for (final var message : mqttClient.getPublishedMessages()) {
-            final var topicRegex = Pattern.compile("application/1/device/(\\d{16})/command/down");
+            final var topicRegex = Pattern.compile("application/" + applicationID + "/device/(\\d{16})/command/down");
             final var topicMatcher = topicRegex.matcher(message.topic());
 
             assertTrue(topicMatcher.matches());
@@ -93,11 +96,11 @@ class FakeChirpstackTest {
     @Test
     void startWithMqttClientAlreadyConnected() throws MqttException {
         final var sensors = List.of(new FakeLoRaSensorMock.Builder("0000000000000001").build());
-        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
+        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
         mqttClient.connect();
 
-        loraNetworkServer.start();
-        assertTrue(loraNetworkServer.isRunning());
+        chirpstack.start();
+        assertTrue(chirpstack.isRunning());
     }
 
     @Test
@@ -107,43 +110,43 @@ class FakeChirpstackTest {
                         .samplingRate(Duration.ofSeconds(1))
                         .build()
         );
-        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
+        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
 
-        assertDoesNotThrow(loraNetworkServer::stop);
-        assertDoesNotThrow(loraNetworkServer::stop);
+        assertDoesNotThrow(chirpstack::stop);
+        assertDoesNotThrow(chirpstack::stop);
 
-        assertDoesNotThrow(loraNetworkServer::start);
-        assertTrue(loraNetworkServer.isRunning());
+        assertDoesNotThrow(chirpstack::start);
+        assertTrue(chirpstack.isRunning());
 
         new Thread(() -> {
             try {
                 // CHECKSTYLE: MagicNumber OFF
                 Thread.sleep(2000);
                 // CHECKSTYLE: MagicNumber ON
-                loraNetworkServer.stop();
+                chirpstack.stop();
             } catch (final InterruptedException e) {
                 fail();
             }
         }).start();
-        loraNetworkServer.await();
+        chirpstack.await();
 
-        assertFalse(loraNetworkServer.isRunning());
+        assertFalse(chirpstack.isRunning());
     }
 
     @Test
     void isRunning() throws MqttException {
         final var sensors = List.of(new FakeLoRaSensorMock.Builder("0000000000000001").build());
-        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
+        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
 
-        assertFalse(loraNetworkServer.isRunning());
+        assertFalse(chirpstack.isRunning());
 
-        loraNetworkServer.start();
+        chirpstack.start();
 
-        assertTrue(loraNetworkServer.isRunning());
+        assertTrue(chirpstack.isRunning());
 
-        loraNetworkServer.stop();
+        chirpstack.stop();
 
-        assertFalse(loraNetworkServer.isRunning());
+        assertFalse(chirpstack.isRunning());
     }
 
     @Test
@@ -156,20 +159,20 @@ class FakeChirpstackTest {
                         .measurementsToEmit(sensorsMeasurementsToEmitCount)
                         .build()
         );
-        final var loraNetworkServer = new FakeChirpstack(mqttClient, sensors);
+        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
 
-        assertDoesNotThrow(loraNetworkServer::await);
+        assertDoesNotThrow(chirpstack::await);
 
-        loraNetworkServer.start();
+        chirpstack.start();
 
         assertTimeout(
                 sensorsSamplingRate.multipliedBy(sensorsMeasurementsToEmitCount).plusSeconds(1),
-                loraNetworkServer::await
+                chirpstack::await
         );
 
-        loraNetworkServer.stop();
+        chirpstack.stop();
 
-        assertDoesNotThrow(loraNetworkServer::await);
+        assertDoesNotThrow(chirpstack::await);
 
     }
 
