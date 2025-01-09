@@ -173,7 +173,6 @@ class FakeChirpstackTest {
         chirpstack.stop();
 
         assertDoesNotThrow(chirpstack::await);
-
     }
 
 }
