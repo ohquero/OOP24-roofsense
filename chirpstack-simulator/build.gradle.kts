@@ -1,7 +1,7 @@
 plugins {
     application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.danilopianini.gradle-java-qa") version "1.78.0"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.gradlejavaqa)
 }
 
 repositories {
@@ -11,8 +11,7 @@ repositories {
 dependencies {
     implementation(libs.apachecommons.lang3)
 
-    implementation(libs.slf4j.api)
-    implementation(libs.logback.classic)
+    implementation(libs.bundles.logging)
 
     implementation(libs.rxjava3)
 
@@ -22,8 +21,7 @@ dependencies {
 
     implementation(libs.jackson.databind)
 
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.bundles.junit)
 }
 
 java {
