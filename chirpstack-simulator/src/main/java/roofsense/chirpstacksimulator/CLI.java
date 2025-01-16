@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The main class of the ChirpStack simulator.
+ * The Command Line Interface (CLI) for this application.
  */
-public final class Main implements Runnable {
+public final class CLI implements Runnable {
 
     private static final String MQTT_CLIENT_ID = "chirpstack-simulator";
-    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CLI.class);
 
     private final MemoryPersistence persistence = new MemoryPersistence();
 
@@ -30,7 +30,7 @@ public final class Main implements Runnable {
 
     @Option(
             names = {"-r", "--rate"},
-            defaultValue = "10",
+            defaultValue = "100",
             description = "Rate at which each sensor emits measurements (in seconds)"
     )
     private Integer sensorsSamplingRateSeconds;
@@ -62,62 +62,61 @@ public final class Main implements Runnable {
      * @param args the command-line arguments
      */
     public static void main(final String[] args) {
-        final int exitCode = new CommandLine(new Main()).execute(args);
+        final int exitCode = new CommandLine(new CLI()).execute(args);
         System.exit(exitCode);
     }
 
     @Override
     public void run() {
-        LOG.info("Creating the sensors to simulate...");
+        LOG.info("Creating sensors simulators...");
         final var sensorsSamplingRate = Duration.ofSeconds(sensorsSamplingRateSeconds);
-        final List<FakeLoRaSensor> sensors = new ArrayList<>();
+        final List<LoRaSensorSimulator> sensors = new ArrayList<>();
         for (int i = 0; i < airTemperatureSensorsCount; i++) {
             final var devEui = String.format("airtemp%09X", i);
-            sensors.add(new FakeLoRaTemperatureSensor.Builder(devEui).baselineTemperature(2)
-                    .dayTemperatureDelta(10)
-                    .samplingRate(sensorsSamplingRate)
-                    .build());
+            sensors.add(
+                    new LoRaTemperatureSensorSimulator.Builder(devEui).baselineTemperature(2)
+                        .dayTemperatureDelta(10)
+                        .samplingRate(sensorsSamplingRate)
+                        .build()
+            );
         }
         for (int i = 0; i < externalTemperatureSensorsCount; i++) {
             final var devEui = String.format("extemp%010X", i);
-            sensors.add(new FakeLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
+            sensors.add(new LoRaTemperatureSensorSimulator.Builder(devEui).baselineTemperature(0)
                     .dayTemperatureDelta(10)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
         for (int i = 0; i < internalTemperatureSensorsCount; i++) {
             final var devEui = String.format("intemp%010X", i);
-            sensors.add(new FakeLoRaTemperatureSensor.Builder(devEui).baselineTemperature(0)
+            sensors.add(new LoRaTemperatureSensorSimulator.Builder(devEui).baselineTemperature(0)
                     .dayTemperatureDelta(4)
                     .samplingRate(sensorsSamplingRate)
                     .build());
         }
-        LOG.debug("Created {} sensors", sensors.size());
+        LOG.debug("Created {} sensors simulators", sensors.size());
 
         try {
             LOG.info("Connecting to the MQTT broker...");
             final var mqttClient = new MqttClient(mqttServerURI, MQTT_CLIENT_ID, persistence);
             mqttClient.connect();
 
-            LOG.info("Creating the network server to simulate...");
-            final var networkServer = new FakeChirpstack(mqttClient, loraApplicationID, sensors);
+            LOG.info("Creating the network server simulator...");
+            final var networkServer = new ChirpstackSimulator(mqttClient, loraApplicationID, sensors);
 
-            LOG.info("Starting the network server...");
+            LOG.info("Starting the network server simulator...");
             networkServer.start();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                LOG.info("Stopping the network server...");
+                LOG.info("Stopping the network server simulator...");
                 networkServer.stop();
             }));
 
             networkServer.await();
-
-            LOG.info("The simulation has finished, bye!");
-
         } catch (final MqttException e) {
             LOG.error("A problem with the MQTT broker occurred", e);
         } catch (final InterruptedException e) {
-            LOG.error("Network server termination await interrupted", e);
+            LOG.error("Problem occurred during the network server simulator operations", e);
         }
     }
 

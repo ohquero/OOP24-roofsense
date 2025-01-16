@@ -12,7 +12,7 @@ import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The FakeLoRaTemperatureSensor class simulates a battery powered {@link FakeLoRaSensor} sensing
+ * The LoRaTemperatureSensorSimulator class simulates a battery powered {@link LoRaSensorSimulator} sensing
  * temperature.
  * <p>
  * The temperature will fluctuate depending on the time of the day. The fluctuation baseline is determined by the
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * The battery level will decrease linearly over a specified time from the moment the sensor is started.
  */
-public class FakeLoRaTemperatureSensor extends FakeLoRaSensor {
+public class LoRaTemperatureSensorSimulator extends LoRaSensorSimulator {
 
     private final Duration dischargeTime;
     private final Integer baseTemperature;
@@ -31,7 +31,7 @@ public class FakeLoRaTemperatureSensor extends FakeLoRaSensor {
      *
      * @param builder the builder
      */
-    protected FakeLoRaTemperatureSensor(final Builder builder) {
+    protected LoRaTemperatureSensorSimulator(final Builder builder) {
         super(builder);
         this.dischargeTime = builder.dischargeTime;
         this.baseTemperature = builder.baselineTemperature;
@@ -112,9 +112,9 @@ public class FakeLoRaTemperatureSensor extends FakeLoRaSensor {
     }
 
     /**
-     * Builder for {@link FakeLoRaTemperatureSensor}.
+     * Builder for {@link LoRaTemperatureSensorSimulator}.
      */
-    public static class Builder extends FakeLoRaSensor.Builder<Builder, FakeLoRaTemperatureSensor> {
+    public static class Builder extends LoRaSensorSimulator.Builder<Builder, LoRaTemperatureSensorSimulator> {
 
         private static final Duration DEFAULT_DISCHARGE_TIME = Duration.ofMinutes(30);
         private static final Integer DEFAULT_BASELINE_TEMPERATURE = 0;
@@ -184,8 +184,8 @@ public class FakeLoRaTemperatureSensor extends FakeLoRaSensor {
          * {@inheritDoc}
          */
         @Override
-        public FakeLoRaTemperatureSensor build() {
-            return new FakeLoRaTemperatureSensor(this);
+        public LoRaTemperatureSensorSimulator build() {
+            return new LoRaTemperatureSensorSimulator(this);
         }
 
     }

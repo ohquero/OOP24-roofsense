@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import roofsense.chirpstacksimulator.mocks.FakeLoRaSensorMock;
+import roofsense.chirpstacksimulator.mocks.LoRaSensorSimulatorMock;
 import roofsense.chirpstacksimulator.mocks.MqttClientMock;
 
 import java.nio.charset.StandardCharsets;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 //CHECKSTYLE: MagicNumber OFF
-class FakeChirpstackTest {
+class ChirpstackSimulatorTest {
 
     private MqttClientMock mqttClient;
 
@@ -34,33 +34,33 @@ class FakeChirpstackTest {
     @Test
     void constructor() {
         final var sensors = List.of(
-                new FakeLoRaSensorMock.Builder("0000000000000001").build()
+                new LoRaSensorSimulatorMock.Builder("0000000000000001").build()
         );
         final var applicationID = "applicationID";
 
-        assertThrows(NullPointerException.class, () -> new FakeChirpstack(null, applicationID, sensors));
-        assertThrows(NullPointerException.class, () -> new FakeChirpstack(mqttClient, null, sensors));
-        assertThrows(IllegalArgumentException.class, () -> new FakeChirpstack(mqttClient, "", sensors));
-        assertThrows(NullPointerException.class, () -> new FakeChirpstack(mqttClient, applicationID, null));
-        assertThrows(IllegalArgumentException.class, () -> new FakeChirpstack(mqttClient, applicationID, List.of()));
-        assertDoesNotThrow(() -> new FakeChirpstack(mqttClient, applicationID, sensors));
+        assertThrows(NullPointerException.class, () -> new ChirpstackSimulator(null, applicationID, sensors));
+        assertThrows(NullPointerException.class, () -> new ChirpstackSimulator(mqttClient, null, sensors));
+        assertThrows(IllegalArgumentException.class, () -> new ChirpstackSimulator(mqttClient, "", sensors));
+        assertThrows(NullPointerException.class, () -> new ChirpstackSimulator(mqttClient, applicationID, null));
+        assertThrows(IllegalArgumentException.class, () -> new ChirpstackSimulator(mqttClient, applicationID, List.of()));
+        assertDoesNotThrow(() -> new ChirpstackSimulator(mqttClient, applicationID, sensors));
     }
 
     @Test
     void start() throws InterruptedException, MqttException {
         final var samplingRate = Duration.ofSeconds(1);
         final var sensors = List.of(
-                new FakeLoRaSensorMock.Builder("0000000000000001")
+                new LoRaSensorSimulatorMock.Builder("0000000000000001")
                         .measurementsToEmit(5)
                         .samplingRate(samplingRate)
                         .build(),
-                new FakeLoRaSensorMock.Builder("0000000000000002")
+                new LoRaSensorSimulatorMock.Builder("0000000000000002")
                         .measurementsToEmit(3)
                         .samplingRate(samplingRate)
                         .build()
         );
         final var applicationID = "applicationID";
-        final var chirpstack = new FakeChirpstack(mqttClient, applicationID, sensors);
+        final var chirpstack = new ChirpstackSimulator(mqttClient, applicationID, sensors);
 
         chirpstack.start();
         assertDoesNotThrow(chirpstack::start);
@@ -69,7 +69,7 @@ class FakeChirpstackTest {
 
         assertFalse(chirpstack.isRunning());
         final var measurementsCount = sensors.stream()
-                .map(FakeLoRaSensorMock::getMeasurementsToEmitCount)
+                .map(LoRaSensorSimulatorMock::getMeasurementsToEmitCount)
                 .reduce(0, Integer::sum);
         assertEquals(measurementsCount, mqttClient.getPublishedMessages().size());
 
@@ -95,8 +95,8 @@ class FakeChirpstackTest {
 
     @Test
     void startWithMqttClientAlreadyConnected() throws MqttException {
-        final var sensors = List.of(new FakeLoRaSensorMock.Builder("0000000000000001").build());
-        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
+        final var sensors = List.of(new LoRaSensorSimulatorMock.Builder("0000000000000001").build());
+        final var chirpstack = new ChirpstackSimulator(mqttClient, "applicationID", sensors);
         mqttClient.connect();
 
         chirpstack.start();
@@ -106,11 +106,11 @@ class FakeChirpstackTest {
     @Test
     void stop() throws InterruptedException {
         final var sensors = List.of(
-                new FakeLoRaSensorMock.Builder("0000000000000001")
+                new LoRaSensorSimulatorMock.Builder("0000000000000001")
                         .samplingRate(Duration.ofSeconds(1))
                         .build()
         );
-        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
+        final var chirpstack = new ChirpstackSimulator(mqttClient, "applicationID", sensors);
 
         assertDoesNotThrow(chirpstack::stop);
         assertDoesNotThrow(chirpstack::stop);
@@ -135,8 +135,8 @@ class FakeChirpstackTest {
 
     @Test
     void isRunning() throws MqttException {
-        final var sensors = List.of(new FakeLoRaSensorMock.Builder("0000000000000001").build());
-        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
+        final var sensors = List.of(new LoRaSensorSimulatorMock.Builder("0000000000000001").build());
+        final var chirpstack = new ChirpstackSimulator(mqttClient, "applicationID", sensors);
 
         assertFalse(chirpstack.isRunning());
 
@@ -154,12 +154,12 @@ class FakeChirpstackTest {
         final var sensorsSamplingRate = Duration.ofSeconds(1);
         final var sensorsMeasurementsToEmitCount = 5;
         final var sensors = List.of(
-                new FakeLoRaSensorMock.Builder("0000000000000001")
+                new LoRaSensorSimulatorMock.Builder("0000000000000001")
                         .samplingRate(sensorsSamplingRate)
                         .measurementsToEmit(sensorsMeasurementsToEmitCount)
                         .build()
         );
-        final var chirpstack = new FakeChirpstack(mqttClient, "applicationID", sensors);
+        final var chirpstack = new ChirpstackSimulator(mqttClient, "applicationID", sensors);
 
         assertDoesNotThrow(chirpstack::await);
 

@@ -7,12 +7,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
- * The FakeLoRaSensor class represents a dummy LoRa sensor.
+ * The LoRaSensorSimulator class represents a dummy LoRa sensor.
  * <p>
  * The sensor emits data at a specified sampling rate. The data stream is represented by an {@link Observable} of
  * {@link Data} objects.
  */
-public abstract class FakeLoRaSensor {
+public abstract class LoRaSensorSimulator {
 
     private final String devEui;
     private final Duration samplingRate;
@@ -22,7 +22,7 @@ public abstract class FakeLoRaSensor {
      *
      * @param builder the builder
      */
-    protected FakeLoRaSensor(final Builder<? extends Builder<?, ?>, ? extends FakeLoRaSensor> builder) {
+    protected LoRaSensorSimulator(final Builder<? extends Builder<?, ?>, ? extends LoRaSensorSimulator> builder) {
         this.devEui = builder.devEui;
         this.samplingRate = builder.samplingRate;
     }
@@ -76,7 +76,7 @@ public abstract class FakeLoRaSensor {
     }
 
     /**
-     * The builder class for {@link FakeLoRaSensor}.
+     * The builder class for {@link LoRaSensorSimulator}.
      *
      * @param <B> the builder type
      * @param <T> the sensor type

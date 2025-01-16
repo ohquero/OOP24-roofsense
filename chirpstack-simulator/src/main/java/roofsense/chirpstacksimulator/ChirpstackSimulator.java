@@ -20,27 +20,27 @@ import java.util.concurrent.CountDownLatch;
  * <p>
  * The business logic will be executed in a separate thread, so the calling thread will not be blocked.
  */
-public class FakeChirpstack {
+public class ChirpstackSimulator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FakeChirpstack.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ChirpstackSimulator.class);
 
     private final IMqttClient mqttClient;
     private final String loraApplicationID;
-    private final Collection<? extends FakeLoRaSensor> sensors;
+    private final Collection<? extends LoRaSensorSimulator> sensors;
     private Disposable disposable;
     private volatile CountDownLatch latch;
 
     /**
-     * Creates a new instance of FakeChirpstack.
+     * Creates a new instance of ChirpstackSimulator.
      *
      * @param mqttClient        the MQTT client which will be used to send data to the MQTT broker
      * @param loraApplicationID the LoRa application ID under which the sensors will be registered
      * @param sensors           the collection of sensors which will be monitored
      */
-    public FakeChirpstack(
+    public ChirpstackSimulator(
             final IMqttClient mqttClient,
             final String loraApplicationID,
-            final Collection<? extends FakeLoRaSensor> sensors
+            final Collection<? extends LoRaSensorSimulator> sensors
     ) {
         this.mqttClient = Validate.notNull(mqttClient, "mqttClient must not be null");
         this.loraApplicationID = Validate.notEmpty(loraApplicationID, "loraApplicationID must not be empty or null");
@@ -65,11 +65,11 @@ public class FakeChirpstack {
 
         // Merging all sensors data streams into a single stream
         var sensorsDataStream = sensors.stream()
-                .map(FakeLoRaSensor::getDataStream)
+                .map(LoRaSensorSimulator::getDataStream)
                 .reduce(Observable::merge)
                 .orElseThrow();
 
-        // Latch which will be used by other threads to wait for the FakeChirpstack signal that no other
+        // Latch which will be used by other threads to wait for the ChirpstackSimulator signal that no other
         // data will be sent to the MQTT broker
         latch = new CountDownLatch(1);
         sensorsDataStream = sensorsDataStream.doOnDispose(latch::countDown);

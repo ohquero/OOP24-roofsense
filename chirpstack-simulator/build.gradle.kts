@@ -31,10 +31,9 @@ java {
 }
 
 application {
-    mainClass = "roofsense.lora.networkserver.simulator.Simulator"
+    mainClass = "roofsense.chirpstacksimulator.CLI"
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
