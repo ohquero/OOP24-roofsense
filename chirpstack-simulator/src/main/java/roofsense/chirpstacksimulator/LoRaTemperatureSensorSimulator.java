@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +62,7 @@ public class LoRaTemperatureSensorSimulator extends LoRaSensorSimulator {
     public Observable<Data> getDataStream() {
         final var ticksForDischarge = dischargeTime.dividedBy(getSamplingRate());
 
-        return Observable.interval(getSamplingRate().get(ChronoUnit.NANOS), TimeUnit.MILLISECONDS).map(tick -> {
+        return Observable.interval(getSamplingRate().toNanos(), TimeUnit.NANOSECONDS).map(tick -> {
             // Calculating battery level
             final var batteryLevel = 100 - (int) (100 * ((double) tick % ticksForDischarge / ticksForDischarge));
 
