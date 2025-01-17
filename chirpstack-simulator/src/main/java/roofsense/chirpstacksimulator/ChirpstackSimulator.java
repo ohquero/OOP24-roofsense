@@ -74,6 +74,7 @@ public class ChirpstackSimulator {
         latch = new CountDownLatch(1);
         sensorsDataStream = sensorsDataStream.doOnDispose(latch::countDown);
 
+        LOG.debug("Subscribing to sensors data stream...");
         disposable = sensorsDataStream.subscribeOn(Schedulers.io()).subscribe(
                 sensorData -> {
                     LOG.info("Sending sensor {} data to the MQTT broker...", sensorData.devEui());
@@ -104,6 +105,7 @@ public class ChirpstackSimulator {
                     latch.countDown();
                 }
         );
+        LOG.info("Subscribed to sensors data stream");
     }
 
     /**
