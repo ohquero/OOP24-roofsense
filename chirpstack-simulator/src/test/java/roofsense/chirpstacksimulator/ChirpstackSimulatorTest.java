@@ -48,7 +48,7 @@ class ChirpstackSimulatorTest {
 
     @Test
     void start() throws InterruptedException, MqttException {
-        final var samplingRate = Duration.ofSeconds(1);
+        final var samplingRate = Duration.ofNanos(1);
         final var sensors = List.of(
                 new LoRaSensorSimulatorMock.Builder("0000000000000001")
                         .measurementsToEmit(5)
@@ -107,7 +107,7 @@ class ChirpstackSimulatorTest {
     void stop() throws InterruptedException {
         final var sensors = List.of(
                 new LoRaSensorSimulatorMock.Builder("0000000000000001")
-                        .samplingRate(Duration.ofSeconds(1))
+                        .samplingRate(Duration.ofMillis(5))
                         .build()
         );
         final var chirpstack = new ChirpstackSimulator(mqttClient, "applicationID", sensors);
@@ -121,7 +121,7 @@ class ChirpstackSimulatorTest {
         new Thread(() -> {
             try {
                 // CHECKSTYLE: MagicNumber OFF
-                Thread.sleep(2000);
+                Thread.sleep(20);
                 // CHECKSTYLE: MagicNumber ON
                 chirpstack.stop();
             } catch (final InterruptedException e) {
@@ -151,7 +151,7 @@ class ChirpstackSimulatorTest {
 
     @Test
     void await() throws MqttException {
-        final var sensorsSamplingRate = Duration.ofSeconds(1);
+        final var sensorsSamplingRate = Duration.ofNanos(1);
         final var sensorsMeasurementsToEmitCount = 5;
         final var sensors = List.of(
                 new LoRaSensorSimulatorMock.Builder("0000000000000001")
