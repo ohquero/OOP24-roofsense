@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FakeLoRaTemperatureSensorTest {
+class LoRaTemperatureSensorSimulatorTest {
 
     public static final String DEVEUI = "0000000000000000";
 
@@ -25,32 +25,31 @@ class FakeLoRaTemperatureSensorTest {
     void buildSensorWithCustomDischargeTimeTest() {
         final var builder = new LoRaTemperatureSensorSimulator.Builder(DEVEUI);
 
+        // Ensuring that builder method does not accept illegal arguments
         assertThrows(NullPointerException.class, () -> builder.dischargeTime(null));
         assertThrows(IllegalArgumentException.class, () -> builder.dischargeTime(Duration.ofSeconds(-1)));
         assertThrows(IllegalArgumentException.class, () -> builder.dischargeTime(Duration.ofSeconds(0)));
 
-        final var correctDischargeTime = Duration.ofSeconds(10);
-        final var correctBuilder = assertDoesNotThrow(() -> builder.dischargeTime(correctDischargeTime));
+        // Creating a sensor with a custom discharge time and sampling rate tuned accordingly in order to check
+        // the battery level multiple times during the discharge
+        final var dischargeTime = Duration.ofNanos(6);
+        final var samplingRate = Duration.ofNanos(1);
+        final var sensor = builder.dischargeTime(dischargeTime).samplingRate(samplingRate).build();
+        assertEquals(dischargeTime, sensor.getDischargeTime());
 
-        final var ticksForDischarge = 5;
-        final var sensor = correctBuilder.samplingRate(correctDischargeTime.dividedBy(ticksForDischarge)).build();
-        assertEquals(correctDischargeTime, sensor.getDischargeTime());
-
-        final var completeDischargeToTestCount = 2;
-        final var objectMapper = new ObjectMapper();
+        // Ensuring that the sensor discharges the battery in the expected time
+        final var jsonParser = new ObjectMapper();
+        final var batteryLevelValuesToValidate = dischargeTime.dividedBy(sensor.getSamplingRate()) + 1;
         final var batteryLevelValues = sensor.getDataStream()
-                .take(ticksForDischarge * completeDischargeToTestCount)
+                .take(batteryLevelValuesToValidate)
                 .map(LoRaTemperatureSensorSimulator.Data::json)
-                .map(json -> objectMapper.readTree(json).get("battery").asDouble())
+                .map(json -> jsonParser.readTree(json).get("battery").asDouble())
                 .toList()
                 .blockingGet();
-        assertEquals(ticksForDischarge * completeDischargeToTestCount, batteryLevelValues.size());
-        // Check if the battery level decreases linearly
-        for (int i = 0; i < batteryLevelValues.size() - 1; i++) {
-            assertTrue(
-                    batteryLevelValues.get(i) > batteryLevelValues.get(i + 1)
-                            || batteryLevelValues.get(i + 1) == 100);
+        for (int i = 0; i < batteryLevelValues.size() - 2; i++) {
+            assertTrue(batteryLevelValues.get(i) > batteryLevelValues.get(i + 1));
         }
+        assertEquals(100, batteryLevelValues.get(batteryLevelValues.size() - 1));
     }
 
     @Test
