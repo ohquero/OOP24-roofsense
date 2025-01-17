@@ -76,8 +76,7 @@ public class ChirpstackSimulator {
 
         disposable = sensorsDataStream.subscribeOn(Schedulers.io()).subscribe(
                 sensorData -> {
-                    LOG.info(
-                            "Sensor {} sending data to MQTT broker...", sensorData.devEui());
+                    LOG.info("Sending sensor {} data to the MQTT broker...", sensorData.devEui());
 
                     // Creating a Json object with the sensor data
                     final var message = JsonNodeFactory.instance.objectNode();

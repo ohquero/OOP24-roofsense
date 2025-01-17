@@ -30,7 +30,7 @@ public final class CLI implements Runnable {
 
     @Option(
             names = {"-r", "--rate"},
-            defaultValue = "100",
+            defaultValue = "5",
             description = "Rate at which each sensor emits measurements (in seconds)"
     )
     private Integer sensorsSamplingRateSeconds;
