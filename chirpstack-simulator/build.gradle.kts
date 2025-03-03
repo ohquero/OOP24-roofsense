@@ -2,6 +2,7 @@ plugins {
     application
     alias(libs.plugins.shadow)
     alias(libs.plugins.gradlejavaqa)
+    alias(libs.plugins.integrationtest)
 }
 
 repositories {
@@ -22,6 +23,8 @@ dependencies {
     implementation(libs.jackson.databind)
 
     testImplementation(libs.bundles.junit)
+
+    integrationImplementation(libs.testcontainers)
 }
 
 java {
