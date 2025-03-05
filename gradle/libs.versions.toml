@@ -1,35 +1,5 @@
 [versions]
-paho-client-mqttv3 = "1.2.5"
 picocli = "4.7.6"
-slf4j = "2.0.16"
-logback = "1.5.15"
-junit-jupiter = "5.11.3"
-junit-platform-launcher = "1.11.4"
-rxjava3 = "3.1.10"
-jackson = "2.18.2"
-apachecommons-lang3 = "3.17.0"
-shadow = "8.1.1"
-gradlejavaqa = "1.78.0"
-integrationtest = "2.2.2"
-testcontainers = "1.20.4"
 
 [libraries]
-paho-client-mqttv3 = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "paho-client-mqttv3" }
 picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform-launcher" }
-rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava3" }
-apachecommons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "apachecommons-lang3" }
-jackson-databind = {module="com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson"}
-testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
-
-[bundles]
-logging = ["slf4j-api", "logback-classic"]
-junit = ["junit-jupiter", "junit-platform-launcher"]
-
-[plugins]
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
-gradlejavaqa = { id = "org.danilopianini.gradle-java-qa", version.ref = "gradlejavaqa" }
-integrationtest = { id = "com.coditory.integration-test", version.ref = "integrationtest" }
