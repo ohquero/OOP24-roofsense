@@ -1,5 +1,5 @@
-[versions]
-picocli = "4.7.6"
-
 [libraries]
-picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
+picocli = { module = "info.picocli:picocli", version = "4.7.6" }
+
+[plugins]
+javafxplugin = { id = "org.openjfx.javafxplugin", version = "0.1.0" }

@@ -5,4 +5,4 @@ plugins {
 }
 
 includeBuild("build-conventions")
-include("chirpstack-simulator")
+include("chirpstack-simulator", "dashboard")
