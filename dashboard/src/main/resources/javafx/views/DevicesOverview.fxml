@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<Accordion fx:id="rootNode" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="400.0"
+           stylesheets="@../style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="roofsense.dashboard.boundary.javafxview.DevicesOverviewJavaFXView">
+    <panes>
+        <TitledPane animated="false" text="Internal temperature sensors">
+        </TitledPane>
+        <TitledPane animated="false" text="Roof temperature sensors">
+        </TitledPane>
+        <TitledPane animated="false" text="External temperature sensors">
+        </TitledPane>
+        <TitledPane animated="false" text="Unknown devices">
+            <content>
+                <AnchorPane fx:id="unknownDevicesPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="180.0" prefWidth="200.0"/>
+            </content>
+        </TitledPane>
+
+    </panes>
+</Accordion>

@@ -1,0 +1,32 @@
+.h1 {
+    -fx-font-size: 1.5em;
+}
+
+.placeholder-text {
+    -fx-font-size: 2em;
+    -fx-text-fill: grey;
+}
+
+FlowPane, GridPane.form {
+     -fx-hgap: 10;
+     -fx-vgap: 10;
+}
+
+.form HBox {
+     -fx-spacing: 10;
+}
+
+FlowPane {
+     -fx-row-valignment: top;
+}
+
+.device-state-card {
+     -fx-border-color: black;
+}
+
+.right-pane {
+    -fx-background-color: -fx-background;
+    -fx-border-color: -fx-outer-border;
+    -fx-border-width: 0 0 0 1;
+    -fx-padding: 10;
+}
