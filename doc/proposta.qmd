@@ -1,0 +1,17 @@
+# Proposta di progetto
+
+L'obiettivo è realizzare un applicativo per monitorare l'efficienza energetica del tetto di alcuni edifici, con lo scopo di verificare l'efficacia di diverse soluzioni di coibentazione.
+
+Funzionalità minime ritenute obbligatorie:
+- gestione anagrafica dei punti di misura;
+- acquisizione e storicizzazione dei dati pervenuti dai sensori installati sui tetti degli edifici monitorati;
+- decodifica dei dati pervenuti dai sensori in misure, che saranno successivamente catalogate e storicizzate;
+- possibilità di consultare i dati pervenuti dai sensori e le misure decodificate sia in realtime che a posteriori tramite interfaccia grafica e API REST, fornita dall'applicativo stesso.
+
+Funzionalità opzionali
+- detect automatico dei malfunzionamenti dei sensori secondo criteri specificati dall'utente;
+- possibilità di definire dei grafici personalizzati in cui poter confrontare più indici di diversi punti di misura.
+
+Challenge principali:
+- l'applicativo deve essere strutturato in modo da poter supportare più tecnologie di trasmissione dei dati da parte dei sensori e la possibilità di aggiungere più tipologie di sensori nel corso delle future release;
+- l'applicativo dovrà garantire l'esecuzione per lunghi periodi in soluzione di continuità. Ad esempio eventuali errori che incorreranno in sue sottoparti dovranno essere gestiti in modo da non compromettere l'esecuzione dell'intero applicativo, ove possibile.
