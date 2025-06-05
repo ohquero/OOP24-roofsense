@@ -2,39 +2,26 @@
 
 ## EPIC: Analisi tecnica e setup del progetto
 
-- US: **Come** team di sviluppo **vogliamo** definire l'architettura a package del monolita Java **per** organizzare il codice in modo manutenibile e scalabile
-  - [ ] È stata definita l'architettura implementativa dell'applicativo
-  - [ ] È stata definita la struttura dei package (es. presentation, business, data, integration)
-  - [ ] Sono state definite le regole di dipendenza tra i package
-  - [ ] È stata documentata l'architettura con diagrammi dei package
+- US: **Come** team di sviluppo **vogliamo** definire l'architettura dell'applicativo **per** organizzare il codice in modo manutenibile e scalabile
+  - [x] È stata definita l'architettura implementativa dell'applicativo
+  - [x] È stata definita la struttura dei package (es. presentation, business, data, integration)
+  - [x] Sono state definite le regole di dipendenza tra i package
 
 - US: **Come** team di sviluppo **vogliamo** scegliere la strategia di persistenza **per** mantenere i dati tra i riavvii dell'applicazione
-  - [ ] È stato scelto il tipo di database (relazionale, NoSQL, embedded)
-  - [ ] È stato scelto il prodotto specifico (PostgreSQL, H2, SQLite, etc.)
-  - [ ] È stata definita la strategia di connessione e configurazione
-  - [ ] Sono stati definiti i requisiti di backup e ripristino
-  - [ ] È stato validato il setup con un database di test
-
-- US: **Come** team di sviluppo **vogliamo** scegliere il framework Java **per** accelerare lo sviluppo e standardizzare l'implementazione
-  - [ ] È stato scelto il framework principale (Spring Boot, Quarkus, plain Java)
-  - [ ] Sono state scelte le librerie per persistenza (JPA/Hibernate, JDBC, etc.)
-  - [ ] È stata definita la strategia di dependency injection se applicabile
-  - [ ] È stata configurata la struttura base del progetto
-  - [ ] È stato creato un "Hello World" funzionante
+  - [x] È stato scelto il tipo di database (OO, relazionale, NoSQL, misto, ...)
+  - [x] È stato scelto il prodotto specifico
+  - [x] È stata definita la strategia di connessione e configurazione
 
 - US: **Come** team di sviluppo **vogliamo** scegliere la tecnologia per l'interfaccia utente **per** soddisfare i requisiti di usabilità e deployment
-  - [ ] È stata scelta la tipologia di interfaccia (web, desktop, mista)
-  - [ ] È stata scelta la tecnologia specifica (Thymeleaf, JSF, JavaFX, React+API, etc.)
-  - [ ] È stata scelta la soluzione per la visualizzazione delle mappe
-  - [ ] È stata definita la strategia di packaging dell'interfaccia nel jar
-  - [ ] È stato creato un prototipo base dell'interfaccia
+  - [x] È stata scelta la tipologia di interfaccia (web, desktop, mista)
+  - [x] È stata scelta la tecnologia specifica
+  - [x] È stata definita la strategia di packaging dell'interfaccia nel jar
 
 - US: **Come** team di sviluppo **vogliamo** configurare l'ambiente di sviluppo **per** iniziare l'implementazione
-  - [ ] È stato configurato il repository di codice con struttura del progetto
-  - [ ] Sono stati definiti gli standard di codifica e documentazione
-  - [ ] È stata configurata la build (Maven/Gradle) per generare il jar
-  - [ ] È stato configurato l'IDE con i plugin necessari
-  - [ ] Sono stati definiti gli standard per i test
+  - [x] È stato configurato il repository di codice con struttura del progetto
+  - [x] È stato creato un progetto Gradle
+  - [x] È stato aggiunto il plugin per il download automatico della JRE sul quale eseguire l'applicativo
+  - [x] Sono stati aggiunti i plugin di quality assurance
 
 ## EPIC: Gestione anagrafica punti di misura
 
@@ -106,4 +93,12 @@
 
 - US: **Come** ricercatore **voglio** visualizzare i sensori associati ad un punto di misura **per** avere informazioni complete sul punto di misura
 
-- US: **Come** ricercatore **voglio** visualizzare lo storico dei sensori di un punto di misura **per** vedere l'evoluzione nel tempo dei sensori installati
+- US: **Come** ricercatore **voglio** visualizzare lo storico dei sensori adottati in un punto di misura **per** vedere l'evoluzione nel tempo dei sensori installati
+
+## EPIC: Acquisizione dati sensori
+
+## EPIC: API REST per applicativi terzi
+
+## EPIC: Packaging e redistribuzione
+
+- US: **Come** team di sviluppo **voglio** pacchettizzare l'applicativo in un unico JAR **per** poterlo redistribuire secondo requisiti di progetto

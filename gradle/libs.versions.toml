@@ -1,0 +1,26 @@
+[versions]
+mockito = "5.17.0"
+commons-lang3 = "3.17.0"
+slf4j-api = "2.0.16"
+logback-classic = "1.5.15"
+paho-mqttv3 = "1.2.5"
+jackson = "2.18.2"
+javafxplugin = "0.1.0"
+spotbugs = "4.9.3"
+junit-jupiter = "5.7.1"
+objectdb = "2.9.3"
+gradlejavaqa = "1.118.0"
+
+[libraries]
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+spotbugs-annotations = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "latest" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
+
+[plugins]
+gradlejavaqa = { id="org.danilopianini.gradle-java-qa", version.ref = "gradlejavaqa" }
+javafxplugin = { id = "org.openjfx.javafxplugin", version.ref = "javafxplugin" }

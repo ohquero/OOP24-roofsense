@@ -90,9 +90,26 @@ Attualmente si prevede di utilizzare i seguenti sensori LoRa:
 
 ## 2.1 - Architettura
 
+Per strutturare questo applicativo ho scelto di utilizzare l'architettura "Clean Architecture" in quanto non sapevo dove mettere la parte di accesso a DB nel pattern MVC, in quanto non era parte del model da un punto di vista semantico ma rendere dipendente il model sul controller non sembrava nemmeno la soluzione migliore. Inoltre introduce delle ottime regole per il decoupling, più specifiche (almeno per quello che ne ho capito io) di quelle dell'architetura MVC. La clean architecture rimane comunque una evoluzione, a mio avviso, di MVC, qundi la scelta non si è orientata verso una architettura diversa, quanto una sua versione più formale.
+
 ## 2.2 - Design dettagliato
 
-### Gestione dei processi in background
+### Database
+
+Come database ho deciso di utilizzare "ObjectDB" con database memorizzato su un unico file per i seguenti motivi:
+- è un OODBMS, quindi evita tutta la problematica 
+- è embeddable, quindi permette all'applicativo di utilizzare un database senza richiedere che venga deployato, quindi evita di dover deployare una istanza di DMBS sulla macchina dove viene eseguito l'applicativo o dover gestire una istanza accessibile da rete
+- mi interessava provare questo tipo di DMBS per vedere fino a dove ci si potesse spingere, motivo per il quale vorrei utilizzarlo anche per memorizzare timeseries, almeno in prima battuta
+
+Ovviamente questa scelta ha i suoi limiti, che possono essere problematici per questo applicativo:
+- molto probabilmente non sarà la soluzione migliore vista la mole di dati che l'applicativo dovrà gestire
+- pensare di gestire una importante mole di dati con un database che viene salvato in un unico file non è la scelta migliore secondo in termini di affidabilità e resilienza
+
+Comunque il fatto che aderisca allo standard JPA è stato quello che infine mi ha fatto decidere di provarlo: essendo uno standard adottato da molti altri DBMS, anche di tipo relazionale o NoSQL, mi ha assicurato che il passaggio ad altro tipo di database anche in corso d'opera non sarebbe stato traumatico come per una soluzione che non aderisse allo standard.
+
+### View
+
+Ho deciso di impelmentare la view in JavaFX, in quanto è una soluzione moderna e mi piace l'approccio che ha. Non ho esplorato estensivamente altre soluzioni, visto che grazie alla sua forte adozione conta di un ottimo quantitativo di estensioni disponibili (vedi https://github.com/mhrimaz/AwesomeJavaFX) con cui sono riuscito a soddisfare tutti i requisiti progettuali.
 
 # 3 - Sviluppo
 
