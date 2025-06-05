@@ -3,12 +3,9 @@ mockito = "5.17.0"
 commons-lang3 = "3.17.0"
 slf4j-api = "2.0.16"
 logback-classic = "1.5.15"
-paho-mqttv3 = "1.2.5"
-jackson = "2.18.2"
 javafxplugin = "0.1.0"
 spotbugs = "4.9.3"
 junit-jupiter = "5.7.1"
-objectdb = "2.9.3"
 gradlejavaqa = "1.118.0"
 
 [libraries]
