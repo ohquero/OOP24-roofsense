@@ -26,9 +26,14 @@
   - [x] È stato aggiunto il plugin per il download automatico della JRE sul quale eseguire l'applicativo
   - [x] Sono stati aggiunti i plugin di quality assurance
 
+- US#6: **Come** team di sviluppo **vogliamo** capire come utilizzare il pattern Validation **per** fornire più
+  informazioni possibili all'utente finale sui vincoli di dominio
+  - [ ] Capire come andrebbe usato per non rompere l'architettura
+  - [ ] Riscrivere questa US in linguaggio comprensibile
+
 ## EPIC: Gestione anagrafica punti di misura
 
-- US: **Come** ricercatore **voglio** creare un nuovo tetto **per** poter definire i tetti da monitorare
+- US#5: **Come** ricercatore **voglio** creare un nuovo tetto **per** poter definire i tetti da monitorare
   - [ ] Posso inserire un codice univoco per il tetto
   - [ ] Posso specificare l'area geografica occupata dal tetto come una lista di coordinate geografiche (latitudine,
     longitudine) che definiscono un poligono
