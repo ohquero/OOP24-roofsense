@@ -4,6 +4,7 @@
       <option name="GENERATE_FINAL_LOCALS" value="true" />
       <option name="GENERATE_FINAL_PARAMETERS" value="true" />
       <option name="ANNOTATION_PARAMETER_WRAP" value="5" />
+      <option name="ENUM_FIELD_ANNOTATION_WRAP" value="5" />
       <option name="NEW_LINE_AFTER_LPAREN_IN_ANNOTATION" value="true" />
       <option name="RPAREN_ON_NEW_LINE_IN_ANNOTATION" value="true" />
       <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="20" />
@@ -35,6 +36,8 @@
       <option name="THROWS_KEYWORD_WRAP" value="1" />
       <option name="METHOD_CALL_CHAIN_WRAP" value="5" />
       <option name="WRAP_FIRST_METHOD_IN_CALL_CHAIN" value="true" />
+      <option name="BINARY_OPERATION_WRAP" value="1" />
+      <option name="TERNARY_OPERATION_WRAP" value="5" />
       <option name="KEEP_SIMPLE_LAMBDAS_IN_ONE_LINE" value="true" />
       <option name="KEEP_SIMPLE_CLASSES_IN_ONE_LINE" value="true" />
       <option name="FOR_STATEMENT_WRAP" value="5" />
@@ -49,6 +52,8 @@
       <option name="FOR_BRACE_FORCE" value="3" />
       <option name="WRAP_LONG_LINES" value="true" />
       <option name="PARAMETER_ANNOTATION_WRAP" value="1" />
+      <option name="VARIABLE_ANNOTATION_WRAP" value="5" />
+      <option name="ENUM_CONSTANTS_WRAP" value="5" />
     </codeStyleSettings>
   </code_scheme>
 </component>
