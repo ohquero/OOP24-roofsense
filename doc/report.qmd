@@ -12,7 +12,7 @@ Il gruppo di ricerca necessita di un applicativo atto a collezionare tutte le mi
 
 ### Requisiti funzionali
 
-- L'applicativo permetterà di gestire un'anagrafica dei punti di misura dei tetti monitorati. Sarà possibile visionarli sia in vista tabulare che su mappa geografica.
+- L'applicativo permetterà di gestire un'anagrafica dei punti di misura dei tetti monitorati.
 - L'applicativo permetterà di gestire uno storico dei sensori impiegati per singolo punto di misura.
 - L'applicativo dovrà acquisire i dati prodotti dai sensori, noti anche come "dati grezzi", fornendo la possibilità di consultarli sia in realtime che a posteriori tramite interfaccia grafica ed endpoint REST.
 - Successivamente all'acquisizione dei dati l'applicativo dovrà decodificarli per ottenere delle misure, che dovranno essere catalogate e storicizzate, permettendone la consultazione sia in realtime che a posteriori tramite interfaccia grafica ed endpoint REST.

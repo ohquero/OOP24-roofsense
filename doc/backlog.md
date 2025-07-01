@@ -26,58 +26,46 @@
   - [x] È stato aggiunto il plugin per il download automatico della JRE sul quale eseguire l'applicativo
   - [x] Sono stati aggiunti i plugin di quality assurance
 
-- US#6: **Come** team di sviluppo **vogliamo** capire come utilizzare il pattern Validation **per** fornire più
-  informazioni possibili all'utente finale sui vincoli di dominio
-  - [ ] Capire come andrebbe usato per non rompere l'architettura
-  - [ ] Riscrivere questa US in linguaggio comprensibile
-
 ## EPIC: Gestione anagrafica punti di misura
 
 - US#5: **Come** ricercatore **voglio** creare un nuovo tetto **per** poter definire i tetti da monitorare
-  - [ ] Posso inserire un codice univoco per il tetto
-  - [ ] Posso specificare l'area geografica occupata dal tetto come una lista di coordinate geografiche (latitudine,
-    longitudine) che definiscono un poligono
-  - [ ] Posso specificare l'indirizzo dell'edificio al quale il tetto appartiene
-  - [ ] Posso specificare il colore con il quale il tetto e i suoi punti di misura verranno visualizzati sulla mappa
-  - [ ] Il sistema valida l'unicità del codice
-  - [ ] Il sistema valida che l'area geografica sia un poligono valido e che non si sovrapponga con altre aree già
-    definite
-  - [ ] Il tetto viene salvato nel database
+  - [ ] Sono obbligato a specificare il codice identificativo
+  - [ ] Sono obbligato a specificare l'indirizzo dell'edificio al quale appartiene
+  - [ ] La creazione include la persistenza dello stesso
+  - [ ] L'unicità è garantita dal solo codice identificativo
+  - [ ] Posso eseguire l'operazione tramite interfaccia grafica
+  - [ ] L'interfaccia grafica fornisce feedback in caso di compilazione errata dei campi
 
 - US: **Come** ricercatore **voglio** creare un nuovo punto di misura **per** poter definire i punti in cui un tetto è
   monitorato
-  - [ ] Posso inserire un codice univoco per il punto di misura
-  - [ ] Posso specificarne le coordinate geografiche (latitudine, longitudine)
-  - [ ] Posso specificarne l'orientamento tra punti cardinali e intercardinali
-  - [ ] Il sistema valida l'unicità del codice
-  - [ ] Il sistema valida che le coordinate siano all'interno dell'area geografica di un tetto già definito e che non
-    si sovrappongano con altri punti di misura già definiti
-  - [ ] Il punto di misura viene salvato nel database
+  - [ ] Sono obbligato a specificare il codice identificativo
+  - [ ] Sono obbligato a specificare l'edificio al quale appartiene
+  - [ ] Sono obbligato a specificare l'orientamento utilizzando punti cardinali e intercardinali
+  - [ ] La creazione include la persistenza dello stesso
+  - [ ] L'unicità è garantita dal solo codice identificativo
+  - [ ] Posso eseguire l'operazione tramite interfaccia grafica
+  - [ ] L'interfaccia grafica fornisce feedback in caso di compilazione errata dei campi
 
 - US: **Come** ricercatore **voglio** visualizzare tutti i tetti in formato tabellare **per** averne una panoramica
   completa
-  - [ ] È possibile consultare la tabella
+  - [ ] Posso consultare la tabella tramite interfaccia grafica
   - [ ] La tabella mostra per ogni tetto: codice, dimensione dell'area geografica, punti di misura associati
   - [ ] Posso ordinare per ogni colonna
   - [ ] Posso filtrare per ogni colonna
 
 - US: **Come** ricercatore **voglio** visualizzare tutti i punti di misura in formato tabellare **per** averne una
   panoramica completa
-  - [ ] È possibile consultare la tabella
+  - [ ] Posso consultare la tabella tramite interfaccia grafica
   - [ ] La tabella mostra per ogni punto di misura: codice, coordinate, orientamento, tetto associato
   - [ ] Posso ordinare per ogni colonna
   - [ ] Posso filtrare per ogni colonna
 
-- US: **Come** ricercatore **voglio** visualizzare i tetti e i relativi punti di misura su una mappa geografica **per**
-  averne una vista spaziale
-  - [ ] Vedo una mappa interattiva con aree colorate per ogni tetto e marker per ogni punto di misura
-  - [ ] I marker mostrano visivamente l'orientamento del punto
-  - [ ] Per ogni tetto vedo il suo codice
-  - [ ] Per ogni punto di misura vedo il suo codice
-  - [ ] Posso zoomare e muovere la mappa
+- US: **Come** ricercatore **voglio** eliminare un tetto **per** rimuovere quelli creati per errore
+  - [ ] Posso selezionare il tetto da eliminare tramite l'interfaccia grafica
+  - [ ] Il sistema nega l'eliminazione se il tetto ha dei punti di misura
 
-- US: **Come** ricercatore **voglio** eliminare un punto di misura **per** rimuovere punti creati per errore
-  - [ ] Posso selezionare un punto di misura per l'eliminazione
+- US: **Come** ricercatore **voglio** eliminare un punto di misura **per** rimuovere quelli creati per errore
+  - [ ] Posso selezionare il punto di misura da eliminare tramite l'interfaccia grafica
   - [ ] Il sistema nega l'eliminazione se il punto ha delle misure associate
 
 ## EPIC: Gestione anagrafica sensori
