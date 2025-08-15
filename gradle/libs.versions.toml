@@ -7,6 +7,12 @@ javafxplugin = "0.1.0"
 spotbugs = "4.9.3"
 junit-jupiter = "5.7.1"
 gradlejavaqa = "1.118.0"
+jakarta-validation = "3.1.1"
+hibernate-validator = "8.0.2.Final"
+jakarta-el = "4.0.2"
+jakarta-persistence = "3.2.0"
+hibernate-core = "7.0.4.Final"
+h2-database = "2.3.232"
 
 [libraries]
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
@@ -17,6 +23,12 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
+jakarta-validation-api = { module = "jakarta.validation:jakarta.validation-api", version.ref = "jakarta-validation" }
+hibernate-validator = { module = "org.hibernate.validator:hibernate-validator", version.ref = "hibernate-validator" }
+jakarta-el = { module = "org.glassfish:jakarta.el", version.ref = "jakarta-el" }
+jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence" }
+hibernate-core = { module = "org.hibernate:hibernate-core", version.ref = "hibernate-core" }
+h2-database = { module = "com.h2database:h2", version.ref = "h2-database" }
 
 [plugins]
 gradlejavaqa = { id="org.danilopianini.gradle-java-qa", version.ref = "gradlejavaqa" }

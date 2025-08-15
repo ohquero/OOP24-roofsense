@@ -90,7 +90,73 @@ Attualmente si prevede di utilizzare i seguenti sensori LoRa:
 
 ## 2.1 - Architettura
 
-Per strutturare questo applicativo ho scelto di utilizzare l'architettura "Clean Architecture" in quanto non sapevo dove mettere la parte di accesso a DB nel pattern MVC, in quanto non era parte del model da un punto di vista semantico ma rendere dipendente il model sul controller non sembrava nemmeno la soluzione migliore. Inoltre introduce delle ottime regole per il decoupling, più specifiche (almeno per quello che ne ho capito io) di quelle dell'architetura MVC. La clean architecture rimane comunque una evoluzione, a mio avviso, di MVC, qundi la scelta non si è orientata verso una architettura diversa, quanto una sua versione più formale.
+Per strutturare questo applicativo ho scelto di utilizzare l'architettura "Clean Architecture" (ispirata a Robert Martin) in quanto non sapevo dove mettere la parte di accesso a DB nel pattern MVC, in quanto non era parte del model da un punto di vista semantico ma rendere dipendente il model sul controller non sembrava nemmeno la soluzione migliore. Inoltre introduce delle ottime regole per il decoupling, a mio avviso più specifiche di quelle dell'architetura MVC. I vantaggi si possono quindi riassumere in:
+
+1. **Testabilità**: il core business è isolato da framework esterni
+2. **Estensibilità**: aggiungere nuovi sensori non impatta il core
+3. **Decoupling**: i layer esterni possono dipendere solo dai loro pari o da quelli più interni. Se si necessita del contrario occorre utilizzare il pattern dependency inversion, che obbliga quindi all'utilizzo di interfacce di mediazione.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Frameworks & Drivers                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
+│  │   JavaFX    │  │     JPA     │  │  FTP/MQTT Clients   │   │
+│  │     UI      │  │  Database   │  │    Connectors       │   │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
+├──────────────────────────────────────────────────────────────┤
+│                Interface Adapters                            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
+│  │   JavaFX    │  │ Repository  │  │    Sensor           │   │
+│  │ Controllers │  │ Impl        │  │   Adapters          │   │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
+├──────────────────────────────────────────────────────────────┤
+│                  Use Cases                                   │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │  ManageRoofs, ManageSensors, ProcessMeasurements        │ │
+│  └─────────────────────────────────────────────────────────┘ │
+├──────────────────────────────────────────────────────────────┤
+│                   Entities                                   │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │    Roof, MeasurementPoint, Sensor, Measurement          │ │
+│  └─────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+La clean architecture rimane comunque una evoluzione, a mio avviso, di MVC, qundi la scelta non si è orientata verso una architettura diversa, quanto una sua versione più formale.
+
+---
+
+Esempio di organizzazione del codice **<u>(DA RIMUOVERE)</u>**
+
+```
+src/main/java/
+├── entities/                    # Entità del dominio (centro)
+│   ├── Roof.java
+│   ├── MeasurementPoint.java
+│   ├── Sensor.java
+│   └── Measurement.java
+├── usecases/                    # Casi d'uso (logica business)
+│   ├── ManageRoofs.java
+│   ├── ManageSensors.java
+│   ├── ProcessMeasurements.java
+│   └── ports/                   # Interfacce (dependency inversion)
+│       ├── RoofRepository.java
+│       ├── SensorAdapter.java
+│       └── DataProcessor.java
+├── adapters/                    # Implementazioni concrete
+│   ├── ui/                      # JavaFX Controllers
+│   │   ├── RoofController.java
+│   │   └── MapController.java
+│   ├── persistence/             # JPA Repositories
+│   │   └── JpaRoofRepository.java
+│   └── sensors/                 # Sensor Adapters
+│       ├── LastemAdapter.java
+│       └── LoRaAdapter.java
+└── frameworks/                  # Framework specifici
+    ├── javafx/                  # JavaFX setup
+    ├── database/                # JPA configuration
+    └── sensors/                 # FTP/MQTT clients
+```
 
 ## 2.2 - Design dettagliato
 
@@ -111,7 +177,27 @@ Comunque il fatto che aderisca allo standard JPA è stato quello che infine mi h
 
 Ho deciso di impelmentare la view in JavaFX, in quanto è una soluzione moderna e mi piace l'approccio che ha. Non ho esplorato estensivamente altre soluzioni, visto che grazie alla sua forte adozione conta di un ottimo quantitativo di estensioni disponibili (vedi https://github.com/mhrimaz/AwesomeJavaFX) con cui sono riuscito a soddisfare tutti i requisiti progettuali.
 
+JavaFX si basa su MVC e si integra con la clean architecture come segue:
+
+```
+JavaFX Controllers ──► Use Cases ──► Entities
+      ▲                                 │
+      │                                 │
+   JavaFX Views ◄───────────────────────┘
+```
+
 # 3 - Sviluppo
+
+### Utilizzato il pattern Notification per la validazione dello stato delle entità di dominio
+
+- exceptions signal something outside the expected bounds of behavior of the code in question. *if a failure is expected behavior, then you shouldn't be using exceptions*
+- it fails with the first error it detects, but usually it's better to report all errors with the incoming data
+
+My preferred way to deal with reporting validation issues like this is the [Notification pattern](https://martinfowler.com/eaaDev/Notification.html). A notification is an object that collects errors, each validation failure adds an error to the notification.
+
+- non indica che si debba forzatamente avere la classe in uno stato invalido
+
+https://martinfowler.com/articles/replaceThrowWithNotification.html
 
 ## 3.1 - Testing automatizzato
 

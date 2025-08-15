@@ -28,11 +28,10 @@
 
 ## EPIC: Gestione anagrafica punti di misura
 
-- US#5: **Come** ricercatore **voglio** creare un nuovo tetto **per** poter definire i tetti da monitorare
-  - [ ] Sono obbligato a specificare il codice identificativo
-  - [ ] Sono obbligato a specificare l'indirizzo dell'edificio al quale appartiene
-  - [ ] La creazione include la persistenza dello stesso
-  - [ ] L'unicità è garantita dal solo codice identificativo
+- US#5: **Come** ricercatore **voglio** aggiungere un nuovo tetto **per** poter definire i tetti da monitorare
+  - [x] Sono obbligato a specificare il codice identificativo
+  - [x] Sono obbligato a specificare l'indirizzo dell'edificio al quale appartiene
+  - [x] L'unicità è garantita dal solo codice identificativo
   - [ ] Posso eseguire l'operazione tramite interfaccia grafica
   - [ ] L'interfaccia grafica fornisce feedback in caso di compilazione errata dei campi
 
