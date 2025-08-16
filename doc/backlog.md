@@ -25,6 +25,7 @@
   - [x] È stato creato un progetto Gradle
   - [x] È stato aggiunto il plugin per il download automatico della JRE sul quale eseguire l'applicativo
   - [x] Sono stati aggiunti i plugin di quality assurance
+  - [x] Sono state aggiunte le dipendenze necessarie allo sviluppo di interfacce grafiche JavaFX
 
 ## EPIC: Gestione anagrafica punti di misura
 

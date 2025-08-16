@@ -15,6 +15,11 @@ java {
     }
 }
 
+javafx {
+    version = "21"
+    modules("javafx.controls", "javafx.controls", "javafx.fxml", "javafx.swing", "javafx.graphics")
+}
+
 val mockitoAgent = configurations.create("mockitoAgent")
 
 dependencies {
@@ -48,10 +53,24 @@ dependencies {
 
 }
 
-tasks.test {
-    useJUnitPlatform()
+
+//
+// Tests configuration
+//
+
+val viewDisplayTestsTag = "view-display"
+tasks.named<Test>("test") {
+    useJUnitPlatform {
+        excludeTags(viewDisplayTestsTag)
+    }
+
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
     jvmArgs = jvmArgs!!.toMutableList().apply {
         add("-javaagent:${mockitoAgent.asPath}")
+    }
+}
+tasks.register<Test>("showView") {
+    useJUnitPlatform {
+        includeTags(viewDisplayTestsTag)
     }
 }
