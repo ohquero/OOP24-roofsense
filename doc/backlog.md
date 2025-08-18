@@ -35,7 +35,7 @@
   - [ ] La UI può mostrare hint relativi alla validazione degli attributi di tetti e punti di misura
   - [ ] La UI può mostrare messaggi di successo ed errore relativi all'esito delle operazioni richieste
 
-- US#9: **Come** ricercatore **voglio** aggiungere un nuovo tetto **per** poter definire i tetti da monitorare
+- US#5: **Come** ricercatore **voglio** aggiungere un nuovo tetto **per** poter definire i tetti da monitorare
   - [x] Sono obbligato a specificare il codice identificativo
   - [x] Sono obbligato a specificare l'indirizzo dell'edificio al quale appartiene
   - [x] L'unicità è garantita dal solo codice identificativo
