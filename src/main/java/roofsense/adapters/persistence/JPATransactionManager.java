@@ -8,17 +8,36 @@ import org.apache.commons.lang3.Validate;
 import roofsense.usecases.ports.TransactionManager;
 
 /**
- * Implementation of {@link TransactionManager} that uses {@link AbstractJPARepository} objects.
+ * Implementation of {@link TransactionManager} providing transaction management capabilities using the JPA API. It
+ * manages the lifecycle of {@link EntityManager} objects and ensures that all transactional operations are executed
+ * within a single transaction.
  */
 public class JPATransactionManager implements TransactionManager {
 
     private static final ThreadLocal<EntityManager> currentEntityManager = new ThreadLocal<>();
     private final EntityManagerFactory entityManagerFactory;
 
+    /**
+     * Constructs an instance of {@code JPATransactionManager}.
+     *
+     * @param entityManagerFactory the {@link EntityManagerFactory} used to create {@link EntityManager} instances.
+     *                             Must not be {@code null}.
+     */
     public JPATransactionManager(final EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = Validate.notNull(entityManagerFactory, "entityManagerFactory must not be null.");
     }
 
+    /**
+     * Retrieves the {@link EntityManager} associated with the executing thread.
+     *
+     * <p>
+     * This method ensures that the {@link EntityManager} is retrieved only within the context of a transaction.
+     * If called outside a transaction, it throws an {@link IllegalStateException}.
+     *
+     * @return the current {@link EntityManager} for the active transaction.
+     *
+     * @throws IllegalStateException if no transaction is active when this method is called.
+     */
     public static EntityManager getEntityManager() {
         final EntityManager em = currentEntityManager.get();
         if (em == null) {

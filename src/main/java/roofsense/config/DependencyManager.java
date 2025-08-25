@@ -19,6 +19,9 @@ public class DependencyManager implements AutoCloseable {
     private final RoofRepository roofRepository;
     private final ManageRoof manageRoof;
 
+    /**
+     * Default constructor.
+     */
     public DependencyManager() {
         this.entityManagerFactory = Persistence.createEntityManagerFactory("roofsense-pu");
 
@@ -29,14 +32,29 @@ public class DependencyManager implements AutoCloseable {
         this.manageRoof = new ManageRoof(this.transactionManager, this.roofRepository);
     }
 
+    /**
+     * Provides access to the {@link ManageRoof} instance used for managing roof-related operations.
+     *
+     * @return the instance of {@link ManageRoof} responsible for handling roof management operations.
+     */
     public ManageRoof getManageRoof() {
         return manageRoof;
     }
 
+    /**
+     * Retrieves the {@link TransactionManager} instance associated with the repository layer.
+     *
+     * @return the {@link TransactionManager} used for handling transactional operations.
+     */
     public TransactionManager getRepositoryTransactionManager() {
         return transactionManager;
     }
 
+    /**
+     * Retrieves the {@link RoofRepository} instance used for accessing and managing roof entities.
+     *
+     * @return the instance of {@link RoofRepository} responsible for handling roof-related data operations.
+     */
     public RoofRepository getRoofRepository() {
         return roofRepository;
     }

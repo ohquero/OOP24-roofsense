@@ -1,11 +1,22 @@
 package roofsense;
 
-import roofsense.config.DependencyManager;
-
+/**
+ * This class serves as the entry point for the application.
+ */
 public class Main {
 
+    private Main() {
+    }
+
+    /**
+     * The entry point of the application. This method is executed when the program starts.
+     *
+     * @param args an array of command-line arguments for the application
+     */
     public static void main(final String[] args) {
-        final var dependencyManager = new DependencyManager();
+//        try (final var dependencyManager = new DependencyManager()) {
+//            ...
+//        }
     }
 
 }

@@ -35,9 +35,9 @@ class ManageRoofTest {
     }
 
     @Test
-    void add() {
+    void addNew() {
         final var roof = new Roof("roof_code", "roof_building_address");
-        manageRoof.add(roof);
+        manageRoof.addNew(roof);
 
         final var operationCaptor = ArgumentCaptor.forClass(Runnable.class);
         final var operationIdCaptor = ArgumentCaptor.forClass(String.class);

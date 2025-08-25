@@ -39,6 +39,12 @@ public class Roof {
         // Required by JPA
     }
 
+    /**
+     * Creates a new instance of {@code Roof}.
+     *
+     * @param code            the unique code identifying the roof
+     * @param buildingAddress the address of the building associated with the roof
+     */
     public Roof(final String code, final String buildingAddress) {
         this.code = code;
         this.buildingAddress = buildingAddress;

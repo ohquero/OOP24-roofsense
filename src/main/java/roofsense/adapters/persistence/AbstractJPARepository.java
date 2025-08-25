@@ -8,10 +8,10 @@ import java.util.Optional;
 
 /**
  * Abstract class for JPA {@link Repository} implementations.
+ *
  * <p>
- * All the operations, including retrieval ones, must be executed in a {@link JPATransactionManager}, which
- * handles
- * the transaction.
+ * All the operations, including retrieval ones, must be executed inside
+ * {@link JPATransactionManager#executeInTransaction}, which handles the transaction.
  *
  * @param <E> type of the entity managed by this repository.
  */
@@ -19,6 +19,12 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
 
     private final Class<E> entityClass;
 
+    /**
+     * Constructs an instance of {@code AbstractJPARepository}.
+     *
+     * @param entityClass the {@code Class} object representing the type of the entity
+     *                    managed by this repository. Must not be {@code null}.
+     */
     public AbstractJPARepository(final Class<E> entityClass) {
         this.entityClass = entityClass;
     }
