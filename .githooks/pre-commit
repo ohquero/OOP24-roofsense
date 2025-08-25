@@ -1,8 +1,10 @@
-#!/bin/bash
+#!/usr/bin/sh
+#
+# PRE-COMMIT SCRIPT
+#
+# This script runs Gradle "check" task on project if committing to main, develop or release branches.
 
-#
-# Script running Gradle "check" task on project if committing to main, develop or release branches.
-#
+echo "Welcome to Gradle check commit hook"
 
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
