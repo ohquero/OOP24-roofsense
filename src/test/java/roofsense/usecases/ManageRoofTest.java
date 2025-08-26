@@ -20,7 +20,7 @@ class ManageRoofTest {
     private ManageRoof manageRoof;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         transactionManager = mock(TransactionManager.class);
         //noinspection unchecked
         repository = mock(Repository.class);

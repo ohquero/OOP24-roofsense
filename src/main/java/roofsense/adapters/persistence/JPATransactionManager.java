@@ -48,26 +48,24 @@ public class JPATransactionManager implements TransactionManager {
         return em;
     }
 
-    private static RuntimeException wrapPersistenceException(
+    private static void wrapAndThrowPersistenceException(
             final PersistenceException exception,
             final String unitOfWorkName
     ) {
-        final var exceptionMessagePrefix = unitOfWorkName + " unit of work execution failed : ";
+        final var exceptionMessagePrefix = unitOfWorkName + " unit of work execution failed: ";
         final var cause = exception.getCause();
-        if (cause != null) {
-            // Code for handling specific exception scenarios
-            if (cause instanceof ConstraintViolationException
-                    || cause instanceof org.hibernate.exception.ConstraintViolationException) {
-                return new IllegalArgumentException(exceptionMessagePrefix + "invalid entity provided.", exception);
-            }
+        if (cause instanceof ConstraintViolationException
+                || cause instanceof org.hibernate.exception.ConstraintViolationException) {
+            throw new IllegalArgumentException(exceptionMessagePrefix + "invalid entity provided.", exception);
         }
-        return new IllegalStateException(exceptionMessagePrefix + "unexpected exception occurred.", exception);
+        throw new IllegalStateException(exceptionMessagePrefix + "unexpected exception occurred.", exception);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
     public void executeInTransaction(final String operationId, final Runnable operation) {
         if (CURRENT_ENTITY_MANAGER.get() != null) {
             throw new IllegalStateException("Nested transactions are not supported.");
@@ -83,7 +81,7 @@ public class JPATransactionManager implements TransactionManager {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            throw wrapPersistenceException(e, operationId);
+            wrapAndThrowPersistenceException(e, operationId);
         } finally {
             CURRENT_ENTITY_MANAGER.remove();
             em.close();

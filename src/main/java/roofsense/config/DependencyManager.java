@@ -1,5 +1,6 @@
 package roofsense.config;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import roofsense.adapters.persistence.JPARoofRepository;
@@ -12,6 +13,7 @@ import roofsense.usecases.ports.TransactionManager;
  * Application composition root. This class is responsible for creating and injecting all the dependencies of the
  * application.
  */
+@SuppressFBWarnings("EI_EXPOSE_REP")
 public class DependencyManager implements AutoCloseable {
 
     private final EntityManagerFactory entityManagerFactory;
