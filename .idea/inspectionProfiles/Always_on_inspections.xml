@@ -60,6 +60,7 @@
         <option name="m_maxLength" value="32" />
       </extension>
     </inspection_tool>
+    <inspection_tool class="NonFinalUtilityClass" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NonSerializableFieldInSerializableClass" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignorableAnnotations">
         <value />
@@ -81,6 +82,7 @@
       <option name="ignoreParenthesesOnConditionals" value="false" />
       <option name="ignoreParenthesesOnLambdaParameter" value="false" />
     </inspection_tool>
+    <inspection_tool class="UtilityClassWithPublicConstructor" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="UtilityClassWithoutPrivateConstructor" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignorableAnnotations">
         <value />

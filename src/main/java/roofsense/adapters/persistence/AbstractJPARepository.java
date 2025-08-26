@@ -29,30 +29,50 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
         this.entityClass = entityClass;
     }
 
+    /**
+     * Returns the {@link EntityManager} instance that must be used to perform operations against the persistence unit.
+     *
+     * @return the {@link EntityManager} instance that must be used to perform operations against the persistence unit.
+     */
     protected EntityManager getEntityManager() {
         return JPATransactionManager.getEntityManager();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void add(final E entity) {
         getEntityManager().persist(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public E update(final E entity) {
         return getEntityManager().merge(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<E> get(final String repositoryId) {
         return Optional.ofNullable(getEntityManager().find(entityClass, repositoryId));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<E> getAll() {
         return getEntityManager().createQuery("from " + entityClass.getSimpleName(), entityClass).getResultList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void remove(final E entity) {
         getEntityManager().remove(getEntityManager().contains(entity) ? entity : getEntityManager().merge(entity));

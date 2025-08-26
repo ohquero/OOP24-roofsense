@@ -1,6 +1,5 @@
 package roofsense.adapters.persistence;
 
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,8 @@ class H2PersistenceUnitTest {
 
     @Test
     void testEntityManagerFactory() {
-        try (final EntityManagerFactory entityManagerFactory = H2PersistenceUnit.getEntityManagerFactory()) {
+        //noinspection LocalCanBeFinal
+        try (var entityManagerFactory = H2PersistenceUnit.getEntityManagerFactory()) {
             assertNotNull(entityManagerFactory);
             assertTrue(entityManagerFactory.isOpen());
 

@@ -6,7 +6,7 @@ import jakarta.persistence.Persistence;
 /**
  * Configuration class for H2 database setup.
  */
-public class H2PersistenceUnit {
+public final class H2PersistenceUnit {
 
     private static final String NAME = "H2";
 

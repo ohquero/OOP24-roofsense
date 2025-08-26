@@ -14,7 +14,7 @@ import roofsense.usecases.ports.TransactionManager;
  */
 public class JPATransactionManager implements TransactionManager {
 
-    private static final ThreadLocal<EntityManager> currentEntityManager = new ThreadLocal<>();
+    private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<>();
     private final EntityManagerFactory entityManagerFactory;
 
     /**
@@ -39,11 +39,11 @@ public class JPATransactionManager implements TransactionManager {
      * @throws IllegalStateException if no transaction is active when this method is called.
      */
     public static EntityManager getEntityManager() {
-        final EntityManager em = currentEntityManager.get();
+        final EntityManager em = CURRENT_ENTITY_MANAGER.get();
         if (em == null) {
             throw new IllegalStateException(
-                    "Statement called outside of a transaction. Use inTransaction() method to wrap it in a " +
-                            "transaction.");
+                    "Statement called outside of a transaction. Use inTransaction() method to wrap it in a "
+                            + "transaction.");
         }
         return em;
     }
@@ -56,22 +56,25 @@ public class JPATransactionManager implements TransactionManager {
         final var cause = exception.getCause();
         if (cause != null) {
             // Code for handling specific exception scenarios
-            if (cause instanceof ConstraintViolationException ||
-                    cause instanceof org.hibernate.exception.ConstraintViolationException) {
+            if (cause instanceof ConstraintViolationException
+                    || cause instanceof org.hibernate.exception.ConstraintViolationException) {
                 return new IllegalArgumentException(exceptionMessagePrefix + "invalid entity provided.", exception);
             }
         }
         return new IllegalStateException(exceptionMessagePrefix + "unexpected exception occurred.", exception);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void executeInTransaction(final String operationId, final Runnable operation) {
-        if (currentEntityManager.get() != null) {
+        if (CURRENT_ENTITY_MANAGER.get() != null) {
             throw new IllegalStateException("Nested transactions are not supported.");
         }
 
         final EntityManager em = entityManagerFactory.createEntityManager();
-        currentEntityManager.set(em);
+        CURRENT_ENTITY_MANAGER.set(em);
         try {
             em.getTransaction().begin();
             operation.run();
@@ -82,7 +85,7 @@ public class JPATransactionManager implements TransactionManager {
             }
             throw wrapPersistenceException(e, operationId);
         } finally {
-            currentEntityManager.remove();
+            CURRENT_ENTITY_MANAGER.remove();
             em.close();
         }
     }

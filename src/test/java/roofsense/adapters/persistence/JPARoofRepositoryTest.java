@@ -17,17 +17,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JPARoofRepositoryTest {
 
-    private static final EntityManagerFactory emf = H2PersistenceUnit.getEntityManagerFactory();
-    private static final JPARoofRepositoryForTesting repository = new JPARoofRepositoryForTesting();
+    private static final EntityManagerFactory ENTITY_MANAGER_FACTORY = H2PersistenceUnit.getEntityManagerFactory();
 
     private Roof roof;
     private EntityManager em;
+    private JPARoofRepositoryForTesting repository;
 
     @BeforeEach
     void setUp() {
         roof = new Roof("roof_code", "roof_address");
-        em = emf.createEntityManager();
-        repository.setEntityManager(em);
+        em = ENTITY_MANAGER_FACTORY.createEntityManager();
+        repository = new JPARoofRepositoryForTesting(em);
         em.getTransaction().begin(); // Avvia la transazione qui
     }
 
@@ -52,12 +52,12 @@ class JPARoofRepositoryTest {
 
     @Test
     void addInvalidRoof() {
-        final var roof = new Roof(null, "address");
+        final var invalidRoof = new Roof(null, "address");
 
         final var exception = assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    repository.add(roof);
+                    repository.add(invalidRoof);
                     em.flush();
                 }
         );
@@ -66,7 +66,7 @@ class JPARoofRepositoryTest {
 
         assertEquals(1, constraintViolations.size());
         final var constraintViolation = constraintViolations.iterator().next();
-        assertEquals(roof, constraintViolation.getRootBean());
+        assertEquals(invalidRoof, constraintViolation.getRootBean());
         assertEquals("code", constraintViolation.getPropertyPath().toString());
         assertEquals(NotNull.class, constraintViolation.getConstraintDescriptor().getAnnotation().annotationType());
     }
@@ -93,15 +93,16 @@ class JPARoofRepositoryTest {
 
     private static class JPARoofRepositoryForTesting extends JPARoofRepository {
 
-        private EntityManager entityManager;
+        private final EntityManager entityManager;
+
+        JPARoofRepositoryForTesting(final EntityManager em) {
+            super();
+            this.entityManager = em;
+        }
 
         @Override
         protected EntityManager getEntityManager() {
             return entityManager;
-        }
-
-        public void setEntityManager(final EntityManager entityManager) {
-            this.entityManager = entityManager;
         }
 
     }

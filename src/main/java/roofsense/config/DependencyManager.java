@@ -59,6 +59,9 @@ public class DependencyManager implements AutoCloseable {
         return roofRepository;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() {
         if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
