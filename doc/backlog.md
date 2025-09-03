@@ -24,6 +24,8 @@
   - [x] Sono stati aggiunti i plugin di quality assurance
   - [x] Sono state aggiunte le dipendenze necessarie allo sviluppo di interfacce grafiche JavaFX
 
+- US: **Come** team di sviluppo **vogliamo** assicurare una test coverage almeno dell'85% ad ogni commit sui branch main, develop e release **per** aumentare la qualità del codice
+
 ## EPIC: Gestione anagrafica tetti
 
 ### FASE 1: Progettazione UI Mock
