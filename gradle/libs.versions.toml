@@ -1,6 +1,6 @@
 [versions]
 mockito = "5.17.0"
-commons-lang3 = "3.17.0"
+commons-lang3 = "3.18.0"
 slf4j-api = "2.0.16"
 logback-classic = "1.5.15"
 javafxplugin = "0.1.0"
