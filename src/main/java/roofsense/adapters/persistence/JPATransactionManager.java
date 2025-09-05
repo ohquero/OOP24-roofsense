@@ -1,5 +1,6 @@
 package roofsense.adapters.persistence;
 
+import com.google.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
@@ -23,6 +24,7 @@ public class JPATransactionManager implements TransactionManager {
      * @param entityManagerFactory the {@link EntityManagerFactory} used to create {@link EntityManager} instances.
      *                             Must not be {@code null}.
      */
+    @Inject
     public JPATransactionManager(final EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = Validate.notNull(entityManagerFactory, "entityManagerFactory must not be null.");
     }

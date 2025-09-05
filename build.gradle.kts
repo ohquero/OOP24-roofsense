@@ -27,6 +27,9 @@ dependencies {
 
     implementation(libs.commons.lang3)
 
+    // Google Guice for dependency injection
+    implementation(libs.google.guice)
+
     // Logging
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)

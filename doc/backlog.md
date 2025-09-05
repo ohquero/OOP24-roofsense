@@ -26,6 +26,13 @@
 
 - US: **Come** team di sviluppo **vogliamo** assicurare una test coverage almeno dell'85% ad ogni commit sui branch main, develop e release **per** aumentare la qualità del codice
 
+- US#8: **Come** team di sviluppo **vogliamo** migrare da DependencyManager manuale a Google Guice **per** smettere di hardcodare le classi al DependencyManager, rendendo più semplice l'iniezione di dipendenze diverse nei test
+  - [x] È stata aggiunta la dipendenza Google Guice al progetto
+  - [x] È stato creato un modulo Guice (RoofSenseModule) per configurare i binding delle dipendenze
+  - [x] Sono state aggiunte le annotazioni @Inject ai costruttori delle classi che necessitano iniezione di dipendenza
+  - [x] È stata aggiornata la classe Main per utilizzare l'Injector di Guice
+  - [x] È stata rimossa la classe DependencyManager sostituita dalla gestione automatica di Guice
+
 ## EPIC: Gestione anagrafica tetti
 
 ### FASE 1: Progettazione UI Mock

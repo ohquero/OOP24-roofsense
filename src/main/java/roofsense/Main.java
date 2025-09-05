@@ -14,9 +14,7 @@ public final class Main {
      * @param args an array of command-line arguments for the application
      */
     public static void main(final String[] args) {
-        // try (final var dependencyManager = new DependencyManager()) {
-        //    ...
-        // }
+        //Guice.createInjector(new RoofSenseModule());
     }
 
 }

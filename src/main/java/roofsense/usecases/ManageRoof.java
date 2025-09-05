@@ -1,5 +1,6 @@
 package roofsense.usecases;
 
+import com.google.inject.Inject;
 import org.apache.commons.lang3.Validate;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.Repository;
@@ -21,6 +22,7 @@ public class ManageRoof {
      * @param repository         the {@link Repository} instance for managing {@link Roof} entities. Must not be
      *                           {@code null}.
      */
+    @Inject
     public ManageRoof(
             final TransactionManager transactionManager,
             final Repository<Roof> repository

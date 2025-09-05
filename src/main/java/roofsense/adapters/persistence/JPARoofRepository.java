@@ -1,5 +1,6 @@
 package roofsense.adapters.persistence;
 
+import com.google.inject.Inject;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.RoofRepository;
 
@@ -12,6 +13,7 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
     /**
      * Constructs a new instance of {@code JPARoofRepository}.
      */
+    @Inject
     public JPARoofRepository() {
         super(Roof.class);
     }
