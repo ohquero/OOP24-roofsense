@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import org.apache.commons.lang3.Validate;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.Repository;
+import roofsense.usecases.ports.RoofRepository;
 import roofsense.usecases.ports.TransactionManager;
 
 /**
@@ -23,10 +24,7 @@ public class ManageRoof {
      *                           {@code null}.
      */
     @Inject
-    public ManageRoof(
-            final TransactionManager transactionManager,
-            final Repository<Roof> repository
-    ) {
+    public ManageRoof(final TransactionManager transactionManager, final RoofRepository repository) {
         this.transactionManager = Validate.notNull(transactionManager, "transactionManager must not be null.");
         this.repository = Validate.notNull(repository, "repository must not be null.");
     }
@@ -35,9 +33,23 @@ public class ManageRoof {
      * Adds a new {@link Roof} entity to the repository.
      *
      * @param roof the {@link Roof} entity to be added. Must not be {@code null}.
+     *
+     * @throws IllegalArgumentException if the roof is invalid.
+     * @throws IllegalStateException    if an unexpected error occurs during the operation.
      */
     public void addNew(final Roof roof) {
         transactionManager.executeInTransaction("ManageRoof.addNew", () -> repository.add(roof));
+    }
+
+    /**
+     * Checks if the given {@link Roof} entity exists in the repository.
+     *
+     * @param roof the {@link Roof} entity to be checked. Must not be {@code null}.
+     *
+     * @return {@code true} if the roof exists, {@code false} otherwise.
+     */
+    public boolean exists(final Roof roof) {
+        return transactionManager.executeInTransaction("ManageRoof.exists", () -> repository.exists(roof));
     }
 
 }

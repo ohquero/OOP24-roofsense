@@ -4,7 +4,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RoofTest {
 
-    private static final String ROOF_CORRECT_CODE = "test_code";
+    private static final String ROOF_CORRECT_CODE = "test-code";
     private static final String ROOF_CORRECT_ADDRESS = "123 Test Street";
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
@@ -100,9 +99,6 @@ class RoofTest {
                 "CODE",
                 "a",
                 "code-with-dashes",
-                "code_with_underscores",
-                "code.with.dots",
-                "code@symbol",
                 "123456",
         };
 
@@ -128,7 +124,7 @@ class RoofTest {
 
         final var violation = violations.iterator().next();
         assertEquals("code", violation.getPropertyPath().toString());
-        assertEquals(NotNull.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+        assertEquals(ValidCode.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
     @Test
@@ -137,6 +133,9 @@ class RoofTest {
 
         final String[] invalidCodes = {
                 "",
+                "code.with.dots",
+                "code@symbol",
+                "code_with_underscores",
                 "code with space",
                 " codeWithLeadingSpace",
                 "codeWithTrailingSpace ",

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import roofsense.entities.Roof;
-import roofsense.usecases.ports.Repository;
+import roofsense.usecases.ports.RoofRepository;
 import roofsense.usecases.ports.TransactionManager;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -16,14 +16,13 @@ import static org.mockito.Mockito.verify;
 class ManageRoofTest {
 
     private TransactionManager transactionManager;
-    private Repository<Roof> repository;
+    private RoofRepository repository;
     private ManageRoof manageRoof;
 
     @BeforeEach
     void setUp() {
         transactionManager = mock(TransactionManager.class);
-        //noinspection unchecked
-        repository = mock(Repository.class);
+        repository = mock(RoofRepository.class);
         manageRoof = new ManageRoof(transactionManager, repository);
     }
 

@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import roofsense.usecases.ports.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Abstract class for JPA {@link Repository} implementations.
@@ -42,6 +41,22 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * {@inheritDoc}
      */
     @Override
+    public List<E> getAll() {
+        return getEntityManager().createQuery("from " + entityClass.getSimpleName(), entityClass).getResultList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean exists(final E entity) {
+        return getEntityManager().contains(entity);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void add(final E entity) {
         getEntityManager().persist(entity);
     }
@@ -52,22 +67,6 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
     @Override
     public E update(final E entity) {
         return getEntityManager().merge(entity);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Optional<E> get(final String repositoryId) {
-        return Optional.ofNullable(getEntityManager().find(entityClass, repositoryId));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<E> getAll() {
-        return getEntityManager().createQuery("from " + entityClass.getSimpleName(), entityClass).getResultList();
     }
 
     /**

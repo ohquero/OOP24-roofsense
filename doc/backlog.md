@@ -37,39 +37,35 @@
 
 ### FASE 1: Progettazione UI Mock
 
-- US: **Come** UX designer **voglio** creare un mock della UI di gestione dell'anagrafica tetti **per** permettere ai ricercatori di visualizzare tutte le funzioni previste
-  - [ ] È stata prevista una vista di tutti i tetti con layout tabellare
-  - [ ] È possibile inserire un nuovo tetto
-  - [ ] È possibile modificare i dettagli di un tetto
-  - [ ] È possibile eliminare un tetto
-  - [ ] È possibile cercare tra i tetti registrati
-  - [ ] È possibile ordinare i tetti mostrati sulla vista
-
+- US#6: **Come** UX designer **voglio** creare un mock della UI di gestione dell'anagrafica tetti **per** permettere ai ricercatori di visualizzare tutte le funzioni previste
+  - [x] È possibile visualizzare la UI
+  - [x] È stata prevista una vista di tutti i tetti con layout tabellare
+  - [x] È possibile inserire un nuovo tetto
+  - [x] È possibile modificare i dettagli di un tetto
+  - [x] È possibile eliminare un tetto
+  - [x] È possibile cercare tra i tetti registrati
+  - [x] È possibile ordinare i tetti mostrati sulla vista
 - US: **Come** ricercatore **voglio** visualizzare tutti i tetti **per** averne una panoramica completa
   - [ ] Il sistema recupera tutti i tetti dal database
   - [ ] Il sistema supporta ordinamento per ogni attributo del tetto
   - [ ] Il sistema registra l'operazione nei log
-
 - US: **Come** ricercatore **voglio** cercare tra i tetti tramite ricerca testuale **per** visualizzare soltanto alcuni tetti
   - [ ] Il sistema supporta ricerca testuale sui valori degli attributi
   - [ ] Il sistema supporta ordinamento per ogni attributo del tetto
   - [ ] Il sistema registra l'operazione nei log
-
 - US#5: **Come** ricercatore **voglio** aggiungere un nuovo tetto **per** poter definire i tetti da monitorare
   - [x] Sono obbligato a specificare il codice identificativo
   - [x] Sono obbligato a specificare l'indirizzo dell'edificio al quale appartiene
   - [x] L'unicità è garantita dal solo codice identificativo
-  - [ ] L'aggiunta di un tetto include la persistenza nel database
-  - [ ] La form di aggiunta del nuovo tetto non permette di effettuare l'operazione se gli attributi del tetto non sono correttamente compilati o esistono tetti con lo stesso codice identificativo
-  - [ ] Dopo l'aggiunta del nuovo tetto la schermata la vista tabellare viene aggiornata
-  - [ ] Il sistema registra l'esito delle operazioni effettuate nei log
-
+  - [x] La form di aggiunta del nuovo tetto non permette di effettuare l'operazione se gli attributi del tetto non sono correttamente compilati
+  - [x] La form mostra l'esito della validazione degli attributi del tetto
+  - [x] L'aggiunta di un tetto include la persistenza nel database
+  - [x] La form avvisa l'utente dell'esito dell'operazione
 - US: **Come** ricercatore **voglio** visualizzare e modificare i dettagli di un tetto **per** aggiornarne le informazioni
   - [ ] Il sistema permette la modifica di tutti gli attributi eccetto il codice identificativo
   - [ ] Il sistema valida i dati modificati prima del salvataggio
   - [ ] Il sistema persiste le modifiche nel database
   - [ ] Il sistema registra l'operazione nei log
-
 - US: **Come** ricercatore **voglio** eliminare un tetto **per** rimuovere quelli non più utili
   - [ ] Il sistema elimina il tetto dal database
   - [ ] Il sistema registra l'operazione nei log

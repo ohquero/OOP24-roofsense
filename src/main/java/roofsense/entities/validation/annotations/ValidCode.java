@@ -21,9 +21,14 @@ import java.lang.annotation.Target;
 public @interface ValidCode {
 
     /**
-     * @return the error message template for validation failures
+     * @return the error message template for blank code validation failures
      */
-    String message() default "{validation.code.invalid}";
+    String messageForBlank() default "{validation.not-blank}";
+
+    /**
+     * @return the default error message template for code validation failures.
+     */
+    String message() default "{validation.contains-invalid-characters}";
 
     /**
      * @return the validation groups to which this constraint belongs

@@ -3,11 +3,11 @@ package roofsense.adapters.persistence;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import roofsense.entities.Roof;
+import roofsense.entities.validation.annotations.ValidCode;
 
 import static org.hibernate.exception.ConstraintViolationException.ConstraintKind.UNIQUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +25,7 @@ class JPARoofRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        roof = new Roof("roof_code", "roof_address");
+        roof = new Roof("roofcode", "roofaddress");
         em = ENTITY_MANAGER_FACTORY.createEntityManager();
         repository = new JPARoofRepositoryForTesting(em);
         em.getTransaction().begin(); // Avvia la transazione qui
@@ -68,7 +68,7 @@ class JPARoofRepositoryTest {
         final var constraintViolation = constraintViolations.iterator().next();
         assertEquals(invalidRoof, constraintViolation.getRootBean());
         assertEquals("code", constraintViolation.getPropertyPath().toString());
-        assertEquals(NotNull.class, constraintViolation.getConstraintDescriptor().getAnnotation().annotationType());
+        assertEquals(ValidCode.class, constraintViolation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
     @Test

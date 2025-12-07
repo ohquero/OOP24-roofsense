@@ -1,7 +1,6 @@
 package roofsense.usecases.ports;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents a generic repository interface for performing CRUD (Create, Read, Update, Delete) operations
@@ -13,20 +12,20 @@ import java.util.Optional;
 public interface Repository<E> {
 
     /**
-     * Retrieves an entity from the repository corresponding to the given repository ID.
-     *
-     * @param repositoryId the unique identifier of the entity in the repository; must not be {@code null} or empty.
-     *
-     * @return an {@link Optional} containing the entity if it exists, or an empty {@link Optional} otherwise.
-     */
-    Optional<E> get(String repositoryId);
-
-    /**
      * Retrieves all entities managed by the repository.
      *
      * @return a list containing all entities of type {@code E}; the list may be empty if no entities are present.
      */
     List<E> getAll();
+
+    /**
+     * Checks if the given entity exists in the repository.
+     *
+     * @param entity the entity to check; must not be {@code null}.
+     *
+     * @return {@code true} if the entity exists, {@code false} otherwise.
+     */
+    boolean exists(E entity);
 
     /**
      * Adds a new entity to the repository.
@@ -40,6 +39,7 @@ public interface Repository<E> {
      * and any modifications to its state will be persisted.
      *
      * @param entity the entity to be updated; must not be {@code null} and must exist in the repository.
+     *
      * @return the updated entity, which reflects the saved state in the repository.
      */
     E update(E entity);

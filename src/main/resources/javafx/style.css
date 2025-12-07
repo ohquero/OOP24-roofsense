@@ -1,0 +1,43 @@
+.root {
+    -fx-padding: 1em;
+}
+
+.h1 {
+    -fx-font-size: 1.5em;
+}
+
+.h2 {
+    -fx-font-size: 1.2em;
+}
+
+.placeholder-text {
+    -fx-font-size: 2em;
+    -fx-fill: grey;
+}
+
+.form {
+    -fx-hgap: 0.5em;
+    -fx-vgap: 0.5em;
+}
+
+.form .validation-result-label {
+    -fx-text-fill: #d23f31;
+    -fx-font-size: 0.8em;
+}
+
+Label .success {
+    -fx-text-fill: #75d075;
+}
+
+FlowPane, GridPane {
+    -fx-hgap: 1em;
+    -fx-vgap: 1em;
+}
+
+VBox, HBox {
+    -fx-spacing: 1em;
+}
+
+SplitPane VBox {
+    -fx-padding: 1em;
+}

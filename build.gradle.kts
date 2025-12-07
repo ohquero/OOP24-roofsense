@@ -2,6 +2,7 @@ plugins {
     application
     alias(libs.plugins.gradlejavaqa)
     alias(libs.plugins.javafxplugin)
+    alias(libs.plugins.integrationtest)
 }
 
 repositories {
@@ -51,9 +52,11 @@ dependencies {
     mockitoAgent(libs.mockito.core) { isTransitive = false }
     testImplementation(libs.mockito.junit)
 
-    // Test database (H2 anche per i test)
-    testRuntimeOnly(libs.h2.database)
-
+    // JavaFX test dependencies
+    testImplementation(libs.testfx)
+    testImplementation(libs.testfx.junit5)
+    testImplementation(libs.hamcrest)
+    testImplementation(libs.testfx.openjfx.monocle)
 }
 
 
@@ -61,19 +64,39 @@ dependencies {
 // Tests configuration
 //
 
-val viewDisplayTestsTag = "view-display"
+val showNodeTestsTag = "show-node"
+
 tasks.named<Test>("test") {
     useJUnitPlatform {
-        excludeTags(viewDisplayTestsTag)
+        excludeTags(showNodeTestsTag)
     }
 
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
     jvmArgs = jvmArgs!!.toMutableList().apply {
         add("-javaagent:${mockitoAgent.asPath}")
+        add("-Djava.awt.headless=true")
+        add("-Dtestfx.robot=glass")
+        add("-Dtestfx.headless=true")
+        add("-Dprism.order=sw")
     }
 }
-tasks.register<Test>("showView") {
+
+tasks.named<Test>("integration") {
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    jvmArgs = jvmArgs!!.toMutableList().apply {
+        add("-Djava.awt.headless=true")
+        add("-Dtestfx.robot=glass")
+        add("-Dtestfx.headless=true")
+        add("-Dprism.order=sw")
+    }
+}
+
+tasks.register<Test>("runShowNodeTest") {
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+
     useJUnitPlatform {
-        includeTags(viewDisplayTestsTag)
+        includeTags(showNodeTestsTag)
     }
 }

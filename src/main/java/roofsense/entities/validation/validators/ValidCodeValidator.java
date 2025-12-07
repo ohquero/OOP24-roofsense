@@ -4,25 +4,53 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import roofsense.entities.validation.annotations.ValidCode;
 
+import java.util.regex.Pattern;
+
 /**
- * Validator for {@link ValidCode} constraint annotation.
- * Validates that a string code does not contain unallowed characters.
+ * Validator for {@link ValidCode} annotation.
  */
 public class ValidCodeValidator implements ConstraintValidator<ValidCode, String> {
 
+    private static final Pattern CODE_VALIDATION_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-]*$");
+
+    private String message;
+    private String messageForBlank;
+
     /**
-     * Validates if the given code string does not contain unallowed characters.
+     * Initializes the validator with constraint annotation parameters.
+     * Subclasses can override this method to customize initialization behavior.
      *
-     * @param value   the code string to validate
-     * @param context context in which the constraint is evaluated
-     *
-     * @return true if the code is null (delegating null validation to @NotNull) or contains no unallowed characters,
-     *         false otherwise
+     * @param constraintAnnotation the annotation instance
      */
     @Override
-    public boolean isValid(final String value, final ConstraintValidatorContext context) {
-        // If code is null, we leverage the validation to the @NotNull annotation
-        return value == null || value.matches("^\\S+$");
+    public final void initialize(final ValidCode constraintAnnotation) {
+        this.message = constraintAnnotation.message();
+        this.messageForBlank = constraintAnnotation.messageForBlank();
+    }
+
+    /**
+     * Validates the code string value.
+     *
+     * @param value   the value to validate
+     * @param context the constraint validator context
+     *
+     * @return true if valid, false otherwise
+     */
+    @Override
+    public final boolean isValid(final String value, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+
+        if (value == null || value.isBlank()) {
+            context.buildConstraintViolationWithTemplate(this.messageForBlank).addConstraintViolation();
+            return false;
+        }
+
+        if (!CODE_VALIDATION_PATTERN.matcher(value).matches()) {
+            context.buildConstraintViolationWithTemplate(this.message).addConstraintViolation();
+            return false;
+        }
+
+        return true;
     }
 
 }

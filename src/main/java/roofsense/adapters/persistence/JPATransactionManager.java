@@ -8,6 +8,8 @@ import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.Validate;
 import roofsense.usecases.ports.TransactionManager;
 
+import java.util.function.Supplier;
+
 /**
  * Implementation of {@link TransactionManager} providing transaction management capabilities using the JPA API. It
  * manages the lifecycle of {@link EntityManager} objects and ensures that all transactional operations are executed
@@ -84,6 +86,36 @@ public class JPATransactionManager implements TransactionManager {
                 em.getTransaction().rollback();
             }
             wrapAndThrowPersistenceException(e, operationId);
+            throw new AssertionError("This line should not be reachable.", e);
+        } finally {
+            CURRENT_ENTITY_MANAGER.remove();
+            em.close();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("PMD.UseTryWithResources")
+    public <T> T executeInTransaction(final String operationId, final Supplier<T> operation) {
+        if (CURRENT_ENTITY_MANAGER.get() != null) {
+            throw new IllegalStateException("Nested transactions are not supported.");
+        }
+
+        final EntityManager em = entityManagerFactory.createEntityManager();
+        CURRENT_ENTITY_MANAGER.set(em);
+        try {
+            em.getTransaction().begin();
+            final T result = operation.get();
+            em.getTransaction().commit();
+            return result;
+        } catch (final PersistenceException e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            wrapAndThrowPersistenceException(e, operationId);
+            throw new AssertionError("This line should not be reachable.", e);
         } finally {
             CURRENT_ENTITY_MANAGER.remove();
             em.close();

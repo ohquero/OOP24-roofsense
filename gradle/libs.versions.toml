@@ -14,6 +14,10 @@ jakarta-persistence = "3.2.0"
 hibernate-core = "7.0.4.Final"
 h2-database = "2.3.232"
 google-guice = "7.0.0"
+testfx = "4.0.18"
+hamcrest = "3.0"
+testfx-openjfx-monocle = "21.0.2"
+integrationtest = "2.2.5"
 
 [libraries]
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
@@ -31,7 +35,12 @@ jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-ap
 hibernate-core = { module = "org.hibernate:hibernate-core", version.ref = "hibernate-core" }
 h2-database = { module = "com.h2database:h2", version.ref = "h2-database" }
 google-guice = { module = "com.google.inject:guice", version.ref = "google-guice" }
+testfx = { module = "org.testfx:testfx-core", version.ref = "testfx" }
+testfx-junit5 = { module = "org.testfx:testfx-junit5", version.ref = "testfx" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+testfx-openjfx-monocle = { module = "org.testfx:openjfx-monocle", version.ref = "testfx-openjfx-monocle" }
 
 [plugins]
 gradlejavaqa = { id = "org.danilopianini.gradle-java-qa", version.ref = "gradlejavaqa" }
 javafxplugin = { id = "org.openjfx.javafxplugin", version.ref = "javafxplugin" }
+integrationtest = { id = "com.coditory.integration-test", version.ref = "integrationtest" }

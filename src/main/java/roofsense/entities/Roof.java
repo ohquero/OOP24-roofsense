@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import roofsense.entities.validation.annotations.ValidCode;
 
 import java.util.Objects;
@@ -23,12 +22,11 @@ public class Roof {
     @GeneratedValue
     private Long id;
 
-    @NotNull(message = "{validation.notnull}")
     @ValidCode
     @Column(name = "code", nullable = false, unique = true)
     private String code;
 
-    @NotBlank(message = "{validation.notblank}")
+    @NotBlank(message = "{validation.not-blank}")
     @Column(name = "building_address", nullable = false)
     private String buildingAddress;
 
@@ -48,6 +46,17 @@ public class Roof {
     public Roof(final String code, final String buildingAddress) {
         this.code = code;
         this.buildingAddress = buildingAddress;
+    }
+
+    /**
+     * Creates a new instance of {@code Roof} as a copy of an existing one.
+     *
+     * @param other the instance to copy data from.
+     */
+    public Roof(final Roof other) {
+        this.id = other.id;
+        this.code = other.code;
+        this.buildingAddress = other.buildingAddress;
     }
 
     /**
