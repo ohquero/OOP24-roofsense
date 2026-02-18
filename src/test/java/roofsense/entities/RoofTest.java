@@ -40,6 +40,22 @@ class RoofTest {
     }
 
     @Test
+    void testDefaultConstructorWithDefaultParameters() {
+        final var roof = new Roof();
+
+        assertNull(roof.getCode());
+        assertNull(roof.getBuildingAddress());
+    }
+
+    @Test
+    void testDefaultConstructorWithParameters() {
+        final var roof = new Roof(ROOF_CORRECT_CODE, ROOF_CORRECT_ADDRESS);
+
+        assertEquals(ROOF_CORRECT_CODE, roof.getCode());
+        assertEquals(ROOF_CORRECT_ADDRESS, roof.getBuildingAddress());
+    }
+
+    @Test
     void testCode() {
         final var roof = new Roof();
         assertNull(roof.getCode());
@@ -60,24 +76,64 @@ class RoofTest {
     }
 
     @Test
-    void testEqualsAndHashCode() {
+    void testEqualsWithNull() {
+        final var roof = createValidRoof();
+        assertNotEquals(roof, null);
+    }
+
+    @Test
+    void testEqualsWithDifferentType() {
+        final var roof = createValidRoof();
+        assertNotEquals(roof, new Object());
+    }
+
+    @Test
+    void testEqualsHashCodeRoofsWithSameCode() {
         final var roof1 = new Roof();
+        roof1.setCode(ROOF_CORRECT_CODE);
+        roof1.setBuildingAddress("Address 1");
+
         final var roof2 = new Roof();
+        roof2.setCode(ROOF_CORRECT_CODE);
+        roof2.setBuildingAddress("Address 2");
 
         assertEquals(roof1, roof2);
         assertEquals(roof1.hashCode(), roof2.hashCode());
+    }
 
-        roof1.setCode(ROOF_CORRECT_CODE);
+    @Test
+    void testEqualsHashCodeRoofsWithDifferentCodes() {
+        final var roof1 = new Roof();
+        roof1.setCode("code1");
+        roof1.setBuildingAddress(ROOF_CORRECT_ADDRESS);
+
+        final var roof2 = new Roof();
+        roof2.setCode("code2");
+        roof2.setBuildingAddress(ROOF_CORRECT_ADDRESS);
 
         assertNotEquals(roof1, roof2);
         assertNotEquals(roof1.hashCode(), roof2.hashCode());
+    }
 
-        roof2.setCode(ROOF_CORRECT_CODE);
-        roof2.setBuildingAddress(ROOF_CORRECT_ADDRESS);
+    @Test
+    void testEqualHashCodeBothRoofsWithNullCode() {
+        final var roof1 = new Roof();
+        roof1.setBuildingAddress(ROOF_CORRECT_ADDRESS);
+        final var roof2 = new Roof();
+        roof2.setBuildingAddress("Different Address");
 
         assertEquals(roof1, roof2);
         assertEquals(roof1.hashCode(), roof2.hashCode());
-        assertNotEquals(roof1.getBuildingAddress(), roof2.getBuildingAddress());
+    }
+
+    @Test
+    void testEqualsHashCodeOnlyOneRoofWithNullCode() {
+        final var roof1 = createValidRoof();
+        final var roof2 = new Roof();
+        roof2.setCode(null);
+
+        assertNotEquals(roof1, roof2);
+        assertNotEquals(roof1.hashCode(), roof2.hashCode());
     }
 
     @Test

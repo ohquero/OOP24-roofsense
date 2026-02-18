@@ -5,27 +5,26 @@ import org.apache.commons.lang3.Validate;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.Repository;
 import roofsense.usecases.ports.RoofRepository;
-import roofsense.usecases.ports.TransactionManager;
+import roofsense.usecases.ports.UnitOfWork;
 
 /**
  * Class providing access to {@link Roof} related use cases.
  */
 public class ManageRoof {
 
-    private final TransactionManager transactionManager;
+    private final UnitOfWork unitOfWork;
     private final Repository<Roof> repository;
 
     /**
      * Constructor for the {@code ManageRoof} class.
      *
-     * @param transactionManager the {@link TransactionManager} responsible for managing transactional operations. Must
-     *                           not be {@code null}.
-     * @param repository         the {@link Repository} instance for managing {@link Roof} entities. Must not be
-     *                           {@code null}.
+     * @param unitOfWork the {@link UnitOfWork}. Must not be {@code null}.
+     * @param repository  the {@link Repository} instance for managing {@link Roof} entities. Must not be
+     *                    {@code null}.
      */
     @Inject
-    public ManageRoof(final TransactionManager transactionManager, final RoofRepository repository) {
-        this.transactionManager = Validate.notNull(transactionManager, "transactionManager must not be null.");
+    public ManageRoof(final UnitOfWork unitOfWork, final RoofRepository repository) {
+        this.unitOfWork = Validate.notNull(unitOfWork, "unit of work must not be null");
         this.repository = Validate.notNull(repository, "repository must not be null.");
     }
 
@@ -38,7 +37,7 @@ public class ManageRoof {
      * @throws IllegalStateException    if an unexpected error occurs during the operation.
      */
     public void addNew(final Roof roof) {
-        transactionManager.executeInTransaction("ManageRoof.addNew", () -> repository.add(roof));
+        unitOfWork.execute(() -> repository.add(roof));
     }
 
     /**
@@ -49,7 +48,7 @@ public class ManageRoof {
      * @return {@code true} if the roof exists, {@code false} otherwise.
      */
     public boolean exists(final Roof roof) {
-        return transactionManager.executeInTransaction("ManageRoof.exists", () -> repository.exists(roof));
+        return unitOfWork.execute(() -> repository.exists(roof));
     }
 
 }

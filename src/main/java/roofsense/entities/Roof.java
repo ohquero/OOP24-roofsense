@@ -49,17 +49,6 @@ public class Roof {
     }
 
     /**
-     * Creates a new instance of {@code Roof} as a copy of an existing one.
-     *
-     * @param other the instance to copy data from.
-     */
-    public Roof(final Roof other) {
-        this.id = other.id;
-        this.code = other.code;
-        this.buildingAddress = other.buildingAddress;
-    }
-
-    /**
      * Returns the id of the associated database record, or {@code null} if this entity has not been persisted yet.
      *
      * @return the id of the associated database record.

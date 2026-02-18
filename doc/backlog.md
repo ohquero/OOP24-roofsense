@@ -24,7 +24,18 @@
   - [x] Sono stati aggiunti i plugin di quality assurance
   - [x] Sono state aggiunte le dipendenze necessarie allo sviluppo di interfacce grafiche JavaFX
 
-- US: **Come** team di sviluppo **vogliamo** assicurare una test coverage almeno dell'85% ad ogni commit sui branch main, develop e release **per** aumentare la qualità del codice
+- US#7: **Come** team di sviluppo **vogliamo** assicurare una test coverage almeno del 70% a ogni commit sui branch main, develop e release **per** aumentare la qualità del codice
+  - [x] è stato deciso quale strategia utilizzare per misurare la test coverage (JaCoCo integrato nel plugin gradle-java-qa già in uso)
+  - [x] è stato configurato JaCoCo per assicurare la soglia di coverage definita
+  - [x] a ogni commit sulle branch identificate si richiama il task jacocoTestCoverageVerification
+  - [x] sono stati aggiunti i test di AbstractJPARepository
+  - [x] è stata tolta la dipendenza diretta dei repository e UnitOfWork su una specifica persistence unit
+  - [x] sono state rimosse le dipendenze dirette su UnitOfWork
+  - [x] sono stati completati i test di ManageRoof
+  - [x] sono stati completati i test su UnitOfWork
+  - [x] sono stati decommentati e testati i metodi commentati di Repository
+  - [ ] sono stati risolti tutti i problemi segnalati dal task gradle `check`
+  - [ ] è stata modificata la unit of work come descritto nel libro di martin fowler
 
 - US#8: **Come** team di sviluppo **vogliamo** migrare da DependencyManager manuale a Google Guice **per** smettere di hardcodare le classi al DependencyManager, rendendo più semplice l'iniezione di dipendenze diverse nei test
   - [x] È stata aggiunta la dipendenza Google Guice al progetto
@@ -32,6 +43,8 @@
   - [x] Sono state aggiunte le annotazioni @Inject ai costruttori delle classi che necessitano iniezione di dipendenza
   - [x] È stata aggiornata la classe Main per utilizzare l'Injector di Guice
   - [x] È stata rimossa la classe DependencyManager sostituita dalla gestione automatica di Guice
+
+- US: **Come** team di sviluppo **vogliamo** rimuovere il metodo getId dalle entità di dominio **per** ???
 
 ## EPIC: Gestione anagrafica tetti
 

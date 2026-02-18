@@ -2,14 +2,16 @@ package roofsense.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import jakarta.persistence.EntityManagerFactory;
-import roofsense.adapters.persistence.H2PersistenceUnit;
+import jakarta.persistence.Persistence;
+import roofsense.adapters.persistence.EntityManagerProvider;
 import roofsense.adapters.persistence.JPARoofRepository;
-import roofsense.adapters.persistence.JPATransactionManager;
+import roofsense.adapters.persistence.JPAUnitOfWork;
 import roofsense.adapters.ui.CreateRoofForm;
 import roofsense.usecases.ManageRoof;
 import roofsense.usecases.ports.RoofRepository;
-import roofsense.usecases.ports.TransactionManager;
+import roofsense.usecases.ports.UnitOfWork;
 
 /**
  * Google Guice module defining how to create and inject all the dependencies of the application.
@@ -18,7 +20,8 @@ public final class RoofSenseModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(TransactionManager.class).to(JPATransactionManager.class);
+        bind(UnitOfWork.class).to(JPAUnitOfWork.class);
+        bind(EntityManagerProvider.class).to(JPAUnitOfWork.class);
         bind(RoofRepository.class).to(JPARoofRepository.class);
     }
 
@@ -40,8 +43,9 @@ public final class RoofSenseModule extends AbstractModule {
      * @return the EntityManagerFactory instance
      */
     @Provides
+    @Singleton
     public EntityManagerFactory provideEntityManagerFactory() {
-        return H2PersistenceUnit.getEntityManagerFactory();
+        return Persistence.createEntityManagerFactory("H2");
     }
 
 }

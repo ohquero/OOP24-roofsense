@@ -88,103 +88,41 @@ Attualmente si prevede di utilizzare i seguenti sensori LoRa:
 
 # 2 - Design
 
-## 2.1 - Architettura
+## 2.1 Architettura
 
-Per strutturare questo applicativo ho scelto di utilizzare l'architettura "Clean Architecture" (ispirata a Robert Martin) in quanto non sapevo dove mettere la parte di accesso a DB nel pattern MVC, in quanto non era parte del model da un punto di vista semantico ma rendere dipendente il model sul controller non sembrava nemmeno la soluzione migliore. Inoltre introduce delle ottime regole per il decoupling, a mio avviso più specifiche di quelle dell'architetura MVC. I vantaggi si possono quindi riassumere in:
+L'architettura dell'applicativo segue il pattern architetturale **Clean Architecture**, teorizzato da Robert C. Martin. Il motivo di questa scelta risiede nel fatto che il pattern MVC, pur rappresentando un fondamentale punto di riferimento, non offre linee guida sufficientemente granulari per garantire un netto disaccoppiamento tra la logica di business e i dettagli implementativi. Entrambi i pattern condividono i principi di base: la separazione delle responsabilità, l'isolamento della logica di dominio, e l'indipendenza della presentazione. Non si è quindi scelto di utilizzare un'architettura radicalmente diversa, quanto piuttosto una versione più aggiornata e rigorosa di MVC, che fornisce regole più precise su come organizzare le dipendenze tra i componenti.
 
-1. **Testabilità**: il core business è isolato da framework esterni
-2. **Estensibilità**: aggiungere nuovi sensori non impatta il core
-3. **Decoupling**: i layer esterni possono dipendere solo dai loro pari o da quelli più interni. Se si necessita del contrario occorre utilizzare il pattern dependency inversion, che obbliga quindi all'utilizzo di interfacce di mediazione.
+Seguendo le regole della Clean Architecture l'applicativo è organizzato in strati concentrici, il cui livello , ovvero:
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                    Frameworks & Drivers                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │   JavaFX    │  │     JPA     │  │  FTP/MQTT Clients   │   │
-│  │     UI      │  │  Database   │  │    Connectors       │   │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
-├──────────────────────────────────────────────────────────────┤
-│                Interface Adapters                            │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-│  │   JavaFX    │  │ Repository  │  │    Sensor           │   │
-│  │ Controllers │  │ Impl        │  │   Adapters          │   │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
-├──────────────────────────────────────────────────────────────┤
-│                  Use Cases                                   │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │  ManageRoofs, ManageSensors, ProcessMeasurements        │ │
-│  └─────────────────────────────────────────────────────────┘ │
-├──────────────────────────────────────────────────────────────┤
-│                   Entities                                   │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │    Roof, MeasurementPoint, Sensor, Measurement          │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────┘
-```
+- **Enterprise Business Rules**: qui risiede il nucleo dell'applicazione, contenente la logica del dominio reale  (punti di misura, sensori, indici ambientali, ecc.). Questo strato è composto dalle entità identificate in fase di analisi; risulta quindi essere la parte più astratta e stabile dell'applicativo, indipendente da qualsiasi dettaglio tecnologico. Nel contesto MVC, questo strato corrisponde al Model;
 
-La clean architecture rimane comunque una evoluzione, a mio avviso, di MVC, qundi la scelta non si è orientata verso una architettura diversa, quanto una sua versione più formale.
+- **Application Business Rules**: contiene i casi d'uso dell'applicativo, ovvero le operazioni che l'utente vuole eseguire tramite di esso: gestione anagrafica dei punti di misura, storico dei sensori, acquisizione e decodifica dei dati. Mentre in MVC questa logica spesso finisce nel Model o nel Controller in base alle scelte del progettista, la Clean Architecture la isola in uno strato dedicato;
 
----
+- **Interface Adapters**: questo strato funge da adattatore tra il mondo esterno e la logica applicativa, convertendo i dati provenienti dall'esterno in strutture comprensibili ai casi d'uso. Paragonandolo ad MVC la sua logica comprende sia parte del Controller che della View. Secondo la Clean Architecture questo strato si suddivide in:
+  - **Controller**: gestiscono le richieste provenienti dall'interfaccia utente o altri endpoint esposti verso l'esterno, traducendole in chiamate ai casi d'uso;
+  - **Gateway**: permettono ai casi d'uso l'accesso alle risorse esterne;
+  - **Presenter**: formatta i risultati dei casi d'uso per la presentazione all'utente, separando così la logica di formattazione dalla vista vera e propria.
+- **Frameworks & Drivers**: questo è lo strato più esterno dell'architettura, dove risiedono tutti i dettagli tecnici e gli strumenti di terze parti. In questa sezione si collocano i database, i web framework, i server FTP per lo scaricamento dei file CSV dei dispositivi Lastem e i broker MQTT (come Chirpstack) per i sensori LoRa.
 
-Esempio di organizzazione del codice **<u>(DA RIMUOVERE)</u>**
+Le modalità in cui tali strati possono interagire sono definite da uno dei principi più importanti di tale interfaccia, la *Dependency Rule*. Tale regola stabilisce che le dipendenze del codice possono puntare solo dai strati più esterni verso gli strati più interni, ovvero verso i livelli a più alta astrazione. Questo garantisce che uno strato di più alta astrazione, ovvero uno strato interno, non venga mai "sporcato" da dettagli di un livello di astrazione minore, appartenenti quindi ad uno strato più esterno. Ad esempio un'entità non potrà mai chiamare un caso d'uso, ma un caso d'uso può (e se necessario, deve) utilizzare le entità per portare a termine un determinato compito; oppure il formato dei dati inviati da un sensore non potrà mai influire direttamente su come i suoi dati saranno poi rappresentati a livello di entità.
 
-```
-src/main/java/
-├── entities/                    # Entità del dominio (centro)
-│   ├── Roof.java
-│   ├── MeasurementPoint.java
-│   ├── Sensor.java
-│   └── Measurement.java
-├── usecases/                    # Casi d'uso (logica business)
-│   ├── ManageRoofs.java
-│   ├── ManageSensors.java
-│   ├── ProcessMeasurements.java
-│   └── ports/                   # Interfacce (dependency inversion)
-│       ├── RoofRepository.java
-│       ├── SensorAdapter.java
-│       └── DataProcessor.java
-├── adapters/                    # Implementazioni concrete
-│   ├── ui/                      # JavaFX Controllers
-│   │   ├── RoofController.java
-│   │   └── MapController.java
-│   ├── persistence/             # JPA Repositories
-│   │   └── JpaRoofRepository.java
-│   └── sensors/                 # Sensor Adapters
-│       ├── LastemAdapter.java
-│       └── LoRaAdapter.java
-└── frameworks/                  # Framework specifici
-    ├── javafx/                  # JavaFX setup
-    ├── database/                # JPA configuration
-    └── sensors/                 # FTP/MQTT clients
-```
+Per consentire la comunicazione tra gli strati interni e il mondo esterno senza violare la dependency rule, la Clean Architecture adotta il concetto di **Port** (o Porta), derivato dal pattern *Ports and Adapters*. All'interno dello strato Application Business Rules si definiscono delle interfacce che stabiliscono come il nucleo dell'applicazione debba interagire con l'esterno:
+
+- **Input Ports**: sono interfacce che definiscono le operazioni che l'applicazione può eseguire. Esse vengono chiamate dai *Controller* (nello strato *Interface Adapters*) per avviare un caso d'uso, agendo come unico punto di ingresso verso la logica di business.
+- **Output Ports**: sono interfacce che il caso d'uso chiama quando ha bisogno di delegare un'azione verso l'esterno, come il salvataggio di una misura decodificata sul database o l'invio di una notifica.
+
+L'uso delle Port nello strato degli Use Cases è fondamentale per garantire che la logica di business non dipenda mai dalle implementazioni concrete. Ad esempio, il caso d'uso "Acquisizione Misure" chiamerà un'interfaccia di output per persistere i dati; sarà poi un **Gateway** nello strato degli *Interface Adapters* a implementare tale interfaccia, gestendo i dettagli tecnici della comunicazione con il database o con il server FTP. In questo modo, se in futuro si decidesse di cambiare la tecnologia di archiviazione, la logica di business rimarrebbe totalmente invariata, poiché il "contratto" definito dalla Port non subirebbe modifiche.
+
+![](report.assets/clean-architecture.png)
 
 ## 2.2 - Design dettagliato
 
 ### Database
 
-Come database ho deciso di utilizzare "ObjectDB" con database memorizzato su un unico file per i seguenti motivi:
-- è un OODBMS, quindi evita tutta la problematica 
-- è embeddable, quindi permette all'applicativo di utilizzare un database senza richiedere che venga deployato, quindi evita di dover deployare una istanza di DMBS sulla macchina dove viene eseguito l'applicativo o dover gestire una istanza accessibile da rete
-- mi interessava provare questo tipo di DMBS per vedere fino a dove ci si potesse spingere, motivo per il quale vorrei utilizzarlo anche per memorizzare timeseries, almeno in prima battuta
-
-Ovviamente questa scelta ha i suoi limiti, che possono essere problematici per questo applicativo:
-- molto probabilmente non sarà la soluzione migliore vista la mole di dati che l'applicativo dovrà gestire
-- pensare di gestire una importante mole di dati con un database che viene salvato in un unico file non è la scelta migliore secondo in termini di affidabilità e resilienza
-
-Comunque il fatto che aderisca allo standard JPA è stato quello che infine mi ha fatto decidere di provarlo: essendo uno standard adottato da molti altri DBMS, anche di tipo relazionale o NoSQL, mi ha assicurato che il passaggio ad altro tipo di database anche in corso d'opera non sarebbe stato traumatico come per una soluzione che non aderisse allo standard.
-
+Come database ho deciso di utilizzare "H2" perché è relazionale ma embeddable, quindi posso deployare il db direttamente all'avvio dell'applicativo.
 ### View
 
-Ho deciso di impelmentare la view in JavaFX, in quanto è una soluzione moderna e mi piace l'approccio che ha. Non ho esplorato estensivamente altre soluzioni, visto che grazie alla sua forte adozione conta di un ottimo quantitativo di estensioni disponibili (vedi https://github.com/mhrimaz/AwesomeJavaFX) con cui sono riuscito a soddisfare tutti i requisiti progettuali.
-
-JavaFX si basa su MVC e si integra con la clean architecture come segue:
-
-```
-JavaFX Controllers ──► Use Cases ──► Entities
-      ▲                                 │
-      │                                 │
-   JavaFX Views ◄───────────────────────┘
-```
+Ho deciso di implementare la view in JavaFX, in quanto è una soluzione moderna e mi piace l'approccio che ha. Non ho esplorato estensivamente altre soluzioni, visto che grazie alla sua forte adozione conta di un ottimo quantitativo di estensioni disponibili (vedi https://github.com/mhrimaz/AwesomeJavaFX) con cui sono riuscito a soddisfare tutti i requisiti progettuali.
 
 # 3 - Sviluppo
 
@@ -200,6 +138,8 @@ My preferred way to deal with reporting validation issues like this is the [Noti
 https://martinfowler.com/articles/replaceThrowWithNotification.html
 
 ## 3.1 - Testing automatizzato
+
+Si è scelto di seguire il **Template Method Pattern** creando delle test class anche per le classi astratte. Secondo tale pattern il test della classe base garantisce il comportamento comune e i test delle classi concrete verificano solo le specializzazioni.
 
 ## 3.2 - Note di sviluppo
 

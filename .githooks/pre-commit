@@ -1,10 +1,4 @@
-#!/usr/bin/sh
-#
-# PRE-COMMIT SCRIPT
-#
-# This script runs Gradle "check" task on project if committing to main, develop or release branches.
-
-echo "Welcome to Gradle check commit hook"
+#!/usr/bin/bash
 
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
@@ -12,15 +6,21 @@ if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "develop" && "$BRANCH_NAME" 
     exit 0
 fi
 
-echo "Running Gradle 'check' task on branch: $BRANCH_NAME..."
-./gradlew check
+run_gradle_task() {
+    local task_name=$1
+    echo "Running Gradle '$task_name' task on branch: $BRANCH_NAME..."
+    ./gradlew "$task_name"
 
-if [ $? -ne 0 ]; then
-    echo -e "\033[31m"
-    echo -e "----------------------------------------"
-    echo -e "COMMIT ABORTED. Please solve reported issues before retrying."
-    echo -e "----------------------------------------\033[0m"
-    exit 1
-fi
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31m"
+        echo -e "-------------------------------------------------------------"
+        echo -e "COMMIT ABORTED. Please solve reported issues before retrying."
+        echo -e "-------------------------------------------------------------\033[0m"
+        exit 1
+    fi
+}
+
+run_gradle_task "check"
+run_gradle_task "jacocoTestCoverageVerification"
 
 exit 0

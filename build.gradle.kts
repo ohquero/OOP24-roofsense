@@ -100,3 +100,17 @@ tasks.register<Test>("runShowNodeTest") {
         includeTags(showNodeTestsTag)
     }
 }
+
+//
+// JaCoCo (code coverage) settings
+//
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.7".toBigDecimal()
+            }
+        }
+    }
+}
