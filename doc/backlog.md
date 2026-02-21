@@ -34,8 +34,7 @@
   - [x] sono stati completati i test di ManageRoof
   - [x] sono stati completati i test su UnitOfWork
   - [x] sono stati decommentati e testati i metodi commentati di Repository
-  - [ ] sono stati risolti tutti i problemi segnalati dal task gradle `check`
-  - [ ] è stata modificata la unit of work come descritto nel libro di martin fowler
+  - [x] sono stati risolti tutti i problemi segnalati dal task gradle `check`
 
 - US#8: **Come** team di sviluppo **vogliamo** migrare da DependencyManager manuale a Google Guice **per** smettere di hardcodare le classi al DependencyManager, rendendo più semplice l'iniezione di dipendenze diverse nei test
   - [x] È stata aggiunta la dipendenza Google Guice al progetto
@@ -44,7 +43,7 @@
   - [x] È stata aggiornata la classe Main per utilizzare l'Injector di Guice
   - [x] È stata rimossa la classe DependencyManager sostituita dalla gestione automatica di Guice
 
-- US: **Come** team di sviluppo **vogliamo** rimuovere il metodo getId dalle entità di dominio **per** ???
+- US: **Come** team di sviluppo **vogliamo** rimuovere il metodo getId dalle entità di dominio **perché** non è mai utilizzato e rende visibile un dettaglio implementativo
 
 ## EPIC: Gestione anagrafica tetti
 
