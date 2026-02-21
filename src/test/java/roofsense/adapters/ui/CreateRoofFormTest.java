@@ -31,10 +31,16 @@ class CreateRoofFormTest extends AbstractNodeTest {
     private static final String OPERATION_RESULT_LABEL_NQ = "#operationResultLabel";
 
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-    private ManageRoof manageRoofMock;
+    private ManageRoof manager;
+
+    @Override
+    protected AbstractNode getNode() {
+        return CreateRoofForm.build(manager);
+    }
 
     @Start
     void start(final Stage stage) {
+        this.manager = mock(ManageRoof.class);
         stage.setScene(new Scene((Parent) getNode().getRootNode()));
         stage.show();
     }
@@ -79,7 +85,7 @@ class CreateRoofFormTest extends AbstractNodeTest {
     @Test
     void clickingSaveButtonShouldSaveNewRoofTest(final FxRobot robot) {
         // given
-        when(manageRoofMock.exists(any(Roof.class))).thenReturn(false);
+        when(manager.exists(any(Roof.class))).thenReturn(false);
         final var roofCode = "R-02";
         final var buildingAddress = "Main Street 2";
 
@@ -89,14 +95,14 @@ class CreateRoofFormTest extends AbstractNodeTest {
         robot.clickOn(SAVE_BUTTON_NQ);
 
         // then
-        verify(manageRoofMock).addNew(any(Roof.class));
+        verify(manager).addNew(any(Roof.class));
         verifyThat(OPERATION_RESULT_LABEL_NQ, hasText("Roof created successfully"));
     }
 
     @Test
     void clickingSaveButtonShouldDisplayErrorWhenRoofAlreadyExistsTest(final FxRobot robot) {
         //given
-        when(manageRoofMock.exists(any(Roof.class))).thenReturn(true);
+        when(manager.exists(any(Roof.class))).thenReturn(true);
         final var roofCode = "R-03";
         final var buildingAddress = "Main Street 3";
 
@@ -106,14 +112,8 @@ class CreateRoofFormTest extends AbstractNodeTest {
         robot.clickOn(SAVE_BUTTON_NQ);
 
         // then
-        verify(manageRoofMock, never()).addNew(any(Roof.class));
+        verify(manager, never()).addNew(any(Roof.class));
         verifyThat(OPERATION_RESULT_LABEL_NQ, hasText("An equal Roof already exists"));
-    }
-
-    @Override
-    protected AbstractNode getNode() {
-        manageRoofMock = mock(ManageRoof.class);
-        return CreateRoofForm.build(manageRoofMock);
     }
 
 }
