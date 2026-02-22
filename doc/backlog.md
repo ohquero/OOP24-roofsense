@@ -57,10 +57,9 @@
   - [x] È possibile eliminare un tetto
   - [x] È possibile cercare tra i tetti registrati
   - [x] È possibile ordinare i tetti mostrati sulla vista
-- US: **Come** ricercatore **voglio** visualizzare tutti i tetti **per** averne una panoramica completa
-  - [ ] Il sistema recupera tutti i tetti dal database
-  - [ ] Il sistema supporta ordinamento per ogni attributo del tetto
-  - [ ] Il sistema registra l'operazione nei log
+- US#9: **Come** ricercatore **voglio** visualizzare tutti i tetti **per** averne una panoramica completa
+  - [x] Il sistema recupera tutti i tetti dal database
+  - [x] Il sistema supporta ordinamento per ogni attributo del tetto
 - US: **Come** ricercatore **voglio** cercare tra i tetti tramite ricerca testuale **per** visualizzare soltanto alcuni tetti
   - [ ] Il sistema supporta ricerca testuale sui valori degli attributi
   - [ ] Il sistema supporta ordinamento per ogni attributo del tetto

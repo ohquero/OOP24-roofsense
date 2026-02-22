@@ -7,6 +7,8 @@ import roofsense.usecases.ports.Repository;
 import roofsense.usecases.ports.RoofRepository;
 import roofsense.usecases.ports.UnitOfWork;
 
+import java.util.List;
+
 /**
  * Class providing access to {@link Roof} related use cases.
  */
@@ -26,6 +28,15 @@ public class ManageRoof {
     public ManageRoof(final UnitOfWork unitOfWork, final RoofRepository repository) {
         this.unitOfWork = Validate.notNull(unitOfWork, "unit of work must not be null");
         this.repository = Validate.notNull(repository, "repository must not be null.");
+    }
+
+    /**
+     * Retrieves all {@link Roof} entities from the repository.
+     *
+     * @return a list of {@link Roof} entities.
+     */
+    public List<Roof> getAll() {
+        return unitOfWork.execute(repository::getAll);
     }
 
     /**
