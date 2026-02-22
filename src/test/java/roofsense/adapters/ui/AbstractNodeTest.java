@@ -1,8 +1,6 @@
 package roofsense.adapters.ui;
 
 import javafx.application.Platform;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -29,21 +27,7 @@ abstract class AbstractNodeTest {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                final var nodeUnderTest = getNode();
-                final var root = (Parent) nodeUnderTest.getRootNode();
-                final var stage = new Stage();
-                final var scene = new Scene(root);
-                stage.setScene(scene);
-
-                // Force CSS application to ensure correct size calculation since styling affects layout dimensions
-                root.applyCss();
-
-                // Set minimum stage size to nodeUnderTest pref size to ensure that will be visible
-                final double width = root.prefWidth(-1);
-                final double height = root.prefHeight(-1);
-                stage.setMinHeight(height);
-                stage.setMinWidth(width);
-
+                final var stage = Stages.createStage(getNode());
                 stage.showAndWait();
             } finally {
                 latch.countDown();
