@@ -49,6 +49,18 @@ public class Roof {
     }
 
     /**
+     * Creates a new instance of {@link Roof} by copying the values from another {@link Roof} instance.
+     *
+     * @param other the {@link Roof} instance to copy values from
+     */
+    public Roof(final Roof other) {
+        Objects.requireNonNull(other, "other must not be null");
+        this.id = other.id;
+        this.code = other.code;
+        this.buildingAddress = other.buildingAddress;
+    }
+
+    /**
      * Returns the id of the associated database record, or {@code null} if this entity has not been persisted yet.
      *
      * @return the id of the associated database record.

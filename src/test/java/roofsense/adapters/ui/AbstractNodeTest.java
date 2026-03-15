@@ -19,23 +19,16 @@ import java.util.concurrent.CountDownLatch;
 abstract class AbstractNodeTest {
 
     /**
-     * Run this test to show the {@link AbstractNode} in a dedicated {@link Stage}.
+     * Run this test to display the {@link Stage} created by TestFX.
      */
     @Test
     @Tag("show-node")
     void show() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
-        Platform.runLater(() -> {
-            try {
-                final var stage = Stages.createStage(getNode());
-                stage.showAndWait();
-            } finally {
-                latch.countDown();
-            }
-        });
+        Platform.runLater(() -> getStage().setOnHidden(e -> latch.countDown()));
         latch.await();
     }
 
-    protected abstract AbstractNode getNode();
+    protected abstract Stage getStage();
 
 }

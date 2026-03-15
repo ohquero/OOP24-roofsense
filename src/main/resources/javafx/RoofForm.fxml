@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <VBox xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx"
-      fx:id="rootNode" stylesheets="@style.css" fx:controller="roofsense.adapters.ui.AbstractRoofForm">
+      fx:id="roofFormRootNode" stylesheets="@style.css" fx:controller="roofsense.adapters.ui.RoofForm">
     <Label fx:id="titleLabel" styleClass="h1" text="Title"/>
 
     <GridPane styleClass="form">
@@ -42,8 +42,7 @@
         <rowConstraints>
             <RowConstraints/>
         </rowConstraints>
-        <Label fx:id="operationResultLabel" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <Button fx:id="commitButton" defaultButton="true" text="Commit operation" GridPane.rowIndex="0"
-                GridPane.columnIndex="1"/>
+        <Label fx:id="saveResultLabel" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <Button fx:id="saveButton" text="Save" defaultButton="true" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
     </GridPane>
 </VBox>

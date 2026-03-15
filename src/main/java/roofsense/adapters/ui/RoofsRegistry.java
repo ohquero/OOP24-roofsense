@@ -21,7 +21,7 @@ public final class RoofsRegistry extends AbstractNode {
     private final ManageRoof manager;
 
     @FXML
-    private Node rootNode;
+    private Node roofsRegistryRootNode;
     @FXML
     private TableView<Roof> roofsTableView;
     @FXML
@@ -33,9 +33,9 @@ public final class RoofsRegistry extends AbstractNode {
     @FXML
     private Button addNewRoofButton;
     @FXML
-    private Button removeRoofButton;
+    private Button editRoofButton;
     @FXML
-    private Button saveEditsButton;
+    private Button removeRoofButton;
 
     private RoofsRegistry(final ManageRoof manager) {
         this.manager = Objects.requireNonNull(manager);
@@ -63,12 +63,24 @@ public final class RoofsRegistry extends AbstractNode {
 
         // load roofs
         manager.getAll().forEach(roofsTableView.getItems()::add);
+
+        // clicking addNewRoofButton displays a new roof creation form
+        addNewRoofButton.setOnAction(event -> {
+            final var form = RoofForm.build(manager);
+            final var stage = Stages.createStage(form);
+            stage.show();
+            form.roofProperty().addListener((observable, oldValue, newValue) -> {
+                //TOD: when text search will be implemented, this should be replaced with a more complex logic
+                roofsTableView.getItems().add(newValue);
+                stage.close();
+            });
+        });
     }
 
     @Override
     @SuppressFBWarnings("EI_EXPOSE_REP")
     public Node getRootNode() {
-        return rootNode;
+        return roofsRegistryRootNode;
     }
 
 }

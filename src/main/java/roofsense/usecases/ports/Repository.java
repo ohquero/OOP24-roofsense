@@ -1,6 +1,6 @@
 package roofsense.usecases.ports;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Represents a generic repository interface for performing CRUD (Create, Read, Update, Delete) operations
@@ -16,7 +16,7 @@ public interface Repository<E> {
      *
      * @return a list containing all entities of type {@code E}; the list may be empty if no entities are present.
      */
-    List<E> getAll();
+    Collection<E> getAll();
 
     /**
      * Checks if the given entity exists in the repository.

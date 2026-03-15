@@ -15,7 +15,7 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
-import roofsense.adapters.ui.CreateRoofForm;
+import roofsense.adapters.ui.RoofForm;
 import roofsense.config.RoofSenseModule;
 import roofsense.entities.Roof;
 
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * It tests the full flow from the GUI to the database persistence.
  */
 @ExtendWith(ApplicationExtension.class)
-class CreateRoofNodeIntegrationTest {
+class RoofFormIntegrationTest {
 
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
     private EntityManagerFactory emf;
@@ -43,7 +43,7 @@ class CreateRoofNodeIntegrationTest {
 
         this.emf = injector.getInstance(EntityManagerFactory.class);
 
-        final var view = injector.getInstance(CreateRoofForm.class);
+        final var view = injector.getInstance(RoofForm.class);
         stage.setScene(new Scene((Parent) view.getRootNode()));
         stage.show();
     }
@@ -72,10 +72,10 @@ class CreateRoofNodeIntegrationTest {
         // when
         robot.clickOn("#codeTextField").write(roofCode);
         robot.clickOn("#buildingAddressTextField").write(roofBuildingAddress);
-        robot.clickOn("#commitButton");
+        robot.clickOn("#saveButton");
 
         // then
-        FxAssert.verifyThat("#operationResultLabel", LabeledMatchers.hasText("Roof created successfully"));
+        FxAssert.verifyThat("#saveResultLabel", LabeledMatchers.hasText("Roof created successfully"));
         final EntityManager em = this.emf.createEntityManager();
         final var persistedRoof = em.createQuery("FROM Roof WHERE code = :code", Roof.class)
                 .setParameter("code", roofCode)
