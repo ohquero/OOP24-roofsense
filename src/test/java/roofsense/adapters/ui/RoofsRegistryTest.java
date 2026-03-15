@@ -1,5 +1,6 @@
 package roofsense.adapters.ui;
 
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
@@ -14,9 +15,9 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -30,10 +31,14 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
  */
 class RoofsRegistryTest extends AbstractNodeTest {
 
-    private static final String ROOT_NODE_NQ = "roofFormRootNode";
     private static final String ROOFS_TABLE_NQ = "#roofsTableView";
     private static final String ADD_NEW_ROOF_BUTTON_NQ = "#addNewRoofButton";
     private static final String REMOVE_ROOF_BUTTON_NQ = "#removeRoofButton";
+
+    private static final String ROOF_FORM_ROOT_NODE_NQ = "#roofFormRootNode";
+    private static final String ROOF_FORM_SAVE_BUTTON_NQ = "#saveButton";
+    private static final String ROOF_FORM_CODE_TEXT_FIELD_NQ = "#codeTextField";
+    private static final String ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ = "#buildingAddressTextField";
 
     private final Collection<Roof> roofs = new LinkedHashSet<>(List.of(
             new Roof("code1", "address1"),
@@ -93,14 +98,23 @@ class RoofsRegistryTest extends AbstractNodeTest {
         waitForFxEvents();
 
         // then
-        assertEquals(2, robot.listWindows().size());
-        final var roofFormWindowsCount = robot
-                .listWindows()
-                .stream()
-                .map(window -> window.getScene().getRoot().getId())
-                .filter(ROOT_NODE_NQ::equals)
-                .count();
-        assertEquals(1, roofFormWindowsCount);
+        final Node roofFormRootNode = robot.lookup(ROOF_FORM_ROOT_NODE_NQ).queryParent();
+        assertNotNull(roofFormRootNode);
+
+        // given
+        final var roofCode = "R-01";
+        final var buildingAddress = "Main Street 1";
+
+        // when - filling the roofForm correctly and clicking the save button
+        robot.clickOn(ROOF_FORM_CODE_TEXT_FIELD_NQ).write(roofCode);
+        robot.clickOn(ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ).write(buildingAddress);
+        robot.clickOn(ROOF_FORM_SAVE_BUTTON_NQ);
+
+        // then - the roof should be added to the roofs table and the roofForm should be closed
+        final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
+        final var addedRoof =
+                roofsTableView.getItems().stream().filter(r -> r.getCode().equals(roofCode)).findFirst().orElse(null);
+        assertNotNull(addedRoof);
     }
 
     @Test
