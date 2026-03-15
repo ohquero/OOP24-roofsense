@@ -72,8 +72,22 @@ public final class RoofsRegistry extends AbstractNode {
             form.roofProperty().addListener((observable, oldValue, newValue) -> {
                 //TODO: when text search will be implemented, this should be replaced with a more complex logic
                 roofsTableView.getItems().add(newValue);
+
                 stage.close();
             });
+        });
+
+        // removeRoofButton is disabled when no roof is selected
+        removeRoofButton.disableProperty().bind(roofsTableView.getSelectionModel().selectedItemProperty().isNull());
+
+        // clicking removeRoofButton removes the selected roof
+        removeRoofButton.setOnAction(event -> {
+            final var selectedRoof = roofsTableView.getSelectionModel().getSelectedItem();
+            manager.remove(selectedRoof);
+            // TODO: when text search will be implemented, this should be replaced with a more complex logic
+            roofsTableView.getItems().remove(selectedRoof);
+
+            roofsTableView.getSelectionModel().clearSelection();
         });
     }
 

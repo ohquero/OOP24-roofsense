@@ -62,4 +62,13 @@ public class ManageRoof {
         return unitOfWork.execute(() -> repository.exists(roof));
     }
 
+    /**
+     * Removes the given {@link Roof} entity from the repository.
+     *
+     * @param selectedRoof the {@link Roof} entity to be removed.
+     */
+    public void remove(final Roof selectedRoof) {
+        unitOfWork.execute(() -> repository.remove(selectedRoof));
+    }
+
 }

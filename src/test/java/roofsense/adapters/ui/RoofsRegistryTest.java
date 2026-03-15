@@ -2,6 +2,7 @@ package roofsense.adapters.ui;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
@@ -14,7 +15,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -27,7 +30,10 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
  */
 class RoofsRegistryTest extends AbstractNodeTest {
 
+    private static final String ROOT_NODE_NQ = "roofFormRootNode";
     private static final String ROOFS_TABLE_NQ = "#roofsTableView";
+    private static final String ADD_NEW_ROOF_BUTTON_NQ = "#addNewRoofButton";
+    private static final String REMOVE_ROOF_BUTTON_NQ = "#removeRoofButton";
 
     private final Collection<Roof> roofs = new LinkedHashSet<>(List.of(
             new Roof("code1", "address1"),
@@ -53,6 +59,11 @@ class RoofsRegistryTest extends AbstractNodeTest {
             roofs.add(roof);
             return null;
         }).when(manager).addNew(any(Roof.class));
+        doAnswer(invocationOnMock -> {
+            final Roof roof = invocationOnMock.getArgument(0);
+            roofs.remove(roof);
+            return null;
+        }).when(manager).remove(any(Roof.class));
 
         this.stage = testfxStage;
         this.stage.setScene(new Scene((Parent) RoofsRegistry.create(manager).getRootNode()));
@@ -65,17 +76,20 @@ class RoofsRegistryTest extends AbstractNodeTest {
     }
 
     @Test
-    void roofsRegistryInitialStatusTest(final FxRobot robot) {
+    void nodeInitialStatusTest(final FxRobot robot) {
         final var roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
 
         verify(manager).getAll();
         assertIterableEquals(roofs, roofsTableView.getItems());
+
+        assertFalse(robot.lookup(ADD_NEW_ROOF_BUTTON_NQ).queryButton().isDisabled());
+        assertTrue(robot.lookup(REMOVE_ROOF_BUTTON_NQ).queryButton().isDisabled());
     }
 
     @Test
-    void clickingAddNewRoofButtonShowsRoofForm(final FxRobot robot) {
+    void addNewRoofSuccessScenarioTest(final FxRobot robot) {
         // when
-        robot.clickOn("#addNewRoofButton");
+        robot.clickOn(ADD_NEW_ROOF_BUTTON_NQ);
         waitForFxEvents();
 
         // then
@@ -84,9 +98,26 @@ class RoofsRegistryTest extends AbstractNodeTest {
                 .listWindows()
                 .stream()
                 .map(window -> window.getScene().getRoot().getId())
-                .filter("roofFormRootNode"::equals)
+                .filter(ROOT_NODE_NQ::equals)
                 .count();
         assertEquals(1, roofFormWindowsCount);
+    }
+
+    @Test
+    void removeRoofSuccessScenarioTest(final FxRobot robot) {
+        // given
+        final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
+        final var secondRoof = roofsTableView.getItems().get(1);
+
+        // when
+        robot.clickOn(roofsTableView).clickOn(secondRoof.getCode());
+        waitForFxEvents();
+        robot.clickOn(REMOVE_ROOF_BUTTON_NQ);
+        waitForFxEvents();
+
+        // then
+        verify(manager).remove(secondRoof);
+        assertTrue(robot.lookup(REMOVE_ROOF_BUTTON_NQ).queryButton().isDisabled());
     }
 
 }
