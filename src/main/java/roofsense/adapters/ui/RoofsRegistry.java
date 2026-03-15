@@ -70,7 +70,7 @@ public final class RoofsRegistry extends AbstractNode {
             final var stage = Stages.createStage(form);
             stage.show();
             form.roofProperty().addListener((observable, oldValue, newValue) -> {
-                //TOD: when text search will be implemented, this should be replaced with a more complex logic
+                //TODO: when text search will be implemented, this should be replaced with a more complex logic
                 roofsTableView.getItems().add(newValue);
                 stage.close();
             });
