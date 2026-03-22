@@ -34,7 +34,7 @@ public final class RoofSenseModule extends AbstractModule {
      */
     @Provides
     public RoofForm provideRoofForm(final ManageRoof manageRoof) {
-        return RoofForm.build(manageRoof);
+        return RoofForm.create(manageRoof);
     }
 
     /**

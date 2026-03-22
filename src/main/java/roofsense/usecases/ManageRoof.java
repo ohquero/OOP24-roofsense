@@ -40,6 +40,17 @@ public class ManageRoof {
     }
 
     /**
+     * Checks if the given {@link Roof} entity exists in the repository.
+     *
+     * @param roof the {@link Roof} entity to be checked. Must not be {@code null}.
+     *
+     * @return {@code true} if the roof exists, {@code false} otherwise.
+     */
+    public boolean exists(final Roof roof) {
+        return unitOfWork.execute(() -> repository.exists(roof));
+    }
+
+    /**
      * Adds a new {@link Roof} entity to the repository.
      *
      * @param roof the {@link Roof} entity to be added. Must not be {@code null}.
@@ -52,14 +63,14 @@ public class ManageRoof {
     }
 
     /**
-     * Checks if the given {@link Roof} entity exists in the repository.
+     * Updates the given {@link Roof} entity in the repository.
      *
-     * @param roof the {@link Roof} entity to be checked. Must not be {@code null}.
+     * @param editedRoof the {@link Roof} entity to be updated.
      *
-     * @return {@code true} if the roof exists, {@code false} otherwise.
+     * @return the updated {@link Roof} entity.
      */
-    public boolean exists(final Roof roof) {
-        return unitOfWork.execute(() -> repository.exists(roof));
+    public Roof update(final Roof editedRoof) {
+        return unitOfWork.execute(() -> repository.update(editedRoof));
     }
 
     /**

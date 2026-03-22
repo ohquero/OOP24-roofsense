@@ -2,14 +2,15 @@ package roofsense.adapters.ui;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import roofsense.adapters.ui.events.SaveEvent;
 import roofsense.entities.Roof;
 import roofsense.usecases.ManageRoof;
 import roofsense.utils.ConstraintViolations;
@@ -24,9 +25,8 @@ public final class RoofForm extends AbstractNode {
 
     private final ManageRoof manager;
     private final BooleanProperty editedRoofIsValidProperty;
-    private final ObjectProperty<Roof> roofProperty;
-    private Roof editedRoof;
-
+    private Roof roof;
+    private Roof newRoof;
     @FXML
     private Node roofFormRootNode;
     @FXML
@@ -47,20 +47,38 @@ public final class RoofForm extends AbstractNode {
     private RoofForm(final ManageRoof manager) {
         this.manager = Objects.requireNonNull(manager);
         this.editedRoofIsValidProperty = new SimpleBooleanProperty();
-        this.roofProperty = new SimpleObjectProperty<>();
+        this.newRoof = new Roof(null, null);
     }
 
     /**
      * Creates a new {@link RoofForm} instance creating a new {@link Roof} entity.
      *
-     * @param manageRoof the use case for managing {@link Roof} entities. Must not be {@code null}
+     * @param manager the use case for managing {@link Roof} entities. Must not be {@code null}
      *
      * @return a new {@link RoofForm}
      */
-    public static RoofForm build(final ManageRoof manageRoof) {
-        final var loader = loadFXMLFile("javafx/RoofForm.fxml", param -> new RoofForm(manageRoof));
+    public static RoofForm create(final ManageRoof manager) {
+        return createInstance(manager, null);
+    }
+
+    /**
+     * Creates a new {@link RoofForm} instance editing an existing {@link Roof} entity.
+     *
+     * @param manager    the use case for managing {@link Roof} entities. Must not be {@code null}
+     * @param roofToEdit the roof to be edited. Must not be {@code null}
+     *
+     * @return a new {@link RoofForm}
+     */
+    public static RoofForm create(final ManageRoof manager, final Roof roofToEdit) {
+        Objects.requireNonNull(roofToEdit, "roof to edit must not be null");
+        return createInstance(manager, roofToEdit);
+    }
+
+    private static RoofForm createInstance(final ManageRoof manager, final Roof roof) {
+        Objects.requireNonNull(manager, "manager must not be null");
+        final var loader = loadFXMLFile("javafx/RoofForm.fxml", param -> new RoofForm(manager));
         final RoofForm instance = loader.getController();
-        instance.setRoof(null);
+        instance.setRoof(roof);
         return instance;
     }
 
@@ -72,18 +90,18 @@ public final class RoofForm extends AbstractNode {
     private void initialize() {
         // Reacting to form field changes
         final Runnable updateEditedRoofIsValidProperty = () -> {
-            final var isValid = Validators.validate(editedRoof).isEmpty();
+            final var isValid = Validators.validate(newRoof).isEmpty();
             editedRoofIsValidProperty.set(isValid);
         };
         codeTextField.textProperty().addListener((obs, oldVal, newVal) -> {
-            editedRoof.setCode(newVal);
-            final var violations = Validators.validateProperty(editedRoof, "code");
+            newRoof.setCode(newVal);
+            final var violations = Validators.validateProperty(newRoof, "code");
             codeValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(violations));
             updateEditedRoofIsValidProperty.run();
         });
         buildingAddressTextField.textProperty().addListener((obs, oldVal, newVal) -> {
-            editedRoof.setBuildingAddress(newVal);
-            final var violations = Validators.validateProperty(editedRoof, "buildingAddress");
+            newRoof.setBuildingAddress(newVal);
+            final var violations = Validators.validateProperty(newRoof, "buildingAddress");
             buildingAddressValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(violations));
             updateEditedRoofIsValidProperty.run();
         });
@@ -93,22 +111,27 @@ public final class RoofForm extends AbstractNode {
 
         // Save button on click action
         saveButton.setOnAction(actionEvent -> {
-            if (manager.exists(editedRoof)) {
-                saveResultLabel.setText("An equal Roof already exists");
-                saveResultLabel.getStyleClass().setAll("error");
-                return;
-            }
 
-            if (roofProperty.getValue() == null) {
-                manager.addNew(editedRoof);
+            if (roof == null) {
+                if (manager.exists(newRoof)) {
+                    saveResultLabel.setText("An equal Roof already exists");
+                    saveResultLabel.getStyleClass().setAll("error");
+                    return;
+                }
+
+                manager.addNew(newRoof);
                 saveResultLabel.setText("Roof created successfully");
                 saveResultLabel.getStyleClass().setAll("success");
+                this.fireEvent(new SaveEvent<>(newRoof, EventTypes.ROOF_CREATED));
             } else {
-                throw new UnsupportedOperationException("Roof editing is not supported yet");
+                newRoof = manager.update(newRoof);
+                saveResultLabel.setText("Roof updated successfully");
+                saveResultLabel.getStyleClass().setAll("success");
+                fireEvent(new SaveEvent<>(newRoof, EventTypes.ROOF_UPDATED));
             }
 
             // Re-initialize the form with the persisted roof
-            setRoof(editedRoof);
+            setRoof(newRoof);
         });
     }
 
@@ -119,23 +142,35 @@ public final class RoofForm extends AbstractNode {
     }
 
     private void setRoof(final Roof roof) {
-        this.roofProperty.set(roof);
-        this.editedRoof = roof == null ? new Roof(null, null) : new Roof(roof);
-        codeTextField.setText(editedRoof.getCode() != null ? editedRoof.getCode() : "");
-        buildingAddressTextField.setText(
-                editedRoof.getBuildingAddress() != null ? editedRoof.getBuildingAddress() : ""
-        );
+        this.roof = roof;
+        this.newRoof = roof == null ? new Roof(null, null) : new Roof(roof);
+
+        // setting form title based on whether we are editing or creating a new roof
+        if (this.roof != null) {
+            titleLabel.setText("Edit roof");
+        } else {
+            titleLabel.setText("Create new roof");
+        }
+
+        // populating form fields
+        codeTextField.setText(newRoof.getCode() != null ? newRoof.getCode() : "");
+        buildingAddressTextField.setText(newRoof.getBuildingAddress() != null ? newRoof.getBuildingAddress() : "");
+
+        // disabling the codeTextField if editing an existing roof
+        codeTextField.setDisable(roof != null);
     }
 
     /**
-     * Returns the property that holds the last saved roof.
-     * You can add listeners to this property to be notified when a roof is saved.
-     *
-     * @return the saved roof property
+     * Event types for {@link RoofForm} events.
      */
-    @SuppressFBWarnings("EI_EXPOSE_REP")
-    public ObjectProperty<Roof> roofProperty() {
-        return this.roofProperty;
+    public static final class EventTypes {
+
+        public static final EventType<SaveEvent<Roof>> ROOF_CREATED = new EventType<>(Event.ANY, "ROOF_CREATED");
+        public static final EventType<SaveEvent<Roof>> ROOF_UPDATED = new EventType<>(Event.ANY, "ROOF_UPDATED");
+
+        private EventTypes() {
+        }
+
     }
 
 }

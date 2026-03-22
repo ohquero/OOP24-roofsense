@@ -11,10 +11,11 @@ import org.testfx.framework.junit5.Start;
 import roofsense.entities.Roof;
 import roofsense.usecases.ManageRoof;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,6 +34,7 @@ class RoofsRegistryTest extends AbstractNodeTest {
 
     private static final String ROOFS_TABLE_NQ = "#roofsTableView";
     private static final String ADD_NEW_ROOF_BUTTON_NQ = "#addNewRoofButton";
+    private static final String EDIT_ROOF_BUTTON_NQ = "#editRoofButton";
     private static final String REMOVE_ROOF_BUTTON_NQ = "#removeRoofButton";
 
     private static final String ROOF_FORM_ROOT_NODE_NQ = "#roofFormRootNode";
@@ -40,7 +42,7 @@ class RoofsRegistryTest extends AbstractNodeTest {
     private static final String ROOF_FORM_CODE_TEXT_FIELD_NQ = "#codeTextField";
     private static final String ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ = "#buildingAddressTextField";
 
-    private final Collection<Roof> roofs = new LinkedHashSet<>(List.of(
+    private final Set<Roof> roofs = new LinkedHashSet<>(List.of(
             new Roof("code1", "address1"),
             new Roof("code2", "address2"),
             new Roof("code3", "address3"),
@@ -64,6 +66,12 @@ class RoofsRegistryTest extends AbstractNodeTest {
             roofs.add(roof);
             return null;
         }).when(manager).addNew(any(Roof.class));
+        doAnswer(invocation -> {
+            final Roof roof = invocation.getArgument(0);
+            roofs.stream().filter(r -> r.getCode().equals(roof.getCode())).findFirst().ifPresent(roofs::remove);
+            roofs.add(roof);
+            return new Roof(roof);
+        }).when(manager).update(any(Roof.class));
         doAnswer(invocationOnMock -> {
             final Roof roof = invocationOnMock.getArgument(0);
             roofs.remove(roof);
@@ -118,14 +126,43 @@ class RoofsRegistryTest extends AbstractNodeTest {
     }
 
     @Test
+    void editRoofSuccessScenarioTest(final FxRobot robot) {
+        // given
+        final Roof roofToEdit = roofs.iterator().next();
+        final var roofToEditCode = roofToEdit.getCode();
+        final var roofToEditAddress = roofToEdit.getBuildingAddress();
+        final var roofToEditNewAddress = roofToEditAddress + " - Edited";
+
+        // when
+        robot.clickOn(roofToEditCode);
+        robot.clickOn(EDIT_ROOF_BUTTON_NQ);
+        waitForFxEvents();
+        robot.clickOn(ROOF_FORM_CODE_TEXT_FIELD_NQ).eraseText(roofToEditCode.length());
+        robot.clickOn(ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ).write(roofToEditNewAddress);
+        robot.clickOn(ROOF_FORM_SAVE_BUTTON_NQ);
+        waitForFxEvents();
+
+        // then
+        final var updatedRoof = robot
+                .lookup(ROOFS_TABLE_NQ)
+                .<Roof>queryTableView()
+                .getItems()
+                .stream()
+                .filter(r -> r.getCode().equals(roofToEditCode))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(updatedRoof);
+        assertEquals(roofToEditNewAddress, updatedRoof.getBuildingAddress());
+    }
+
+    @Test
     void removeRoofSuccessScenarioTest(final FxRobot robot) {
         // given
         final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
         final var secondRoof = roofsTableView.getItems().get(1);
 
         // when
-        robot.clickOn(roofsTableView).clickOn(secondRoof.getCode());
-        waitForFxEvents();
+        robot.clickOn(secondRoof.getCode());
         robot.clickOn(REMOVE_ROOF_BUTTON_NQ);
         waitForFxEvents();
 

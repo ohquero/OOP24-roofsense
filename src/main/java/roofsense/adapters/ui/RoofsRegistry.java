@@ -65,16 +65,39 @@ public final class RoofsRegistry extends AbstractNode {
         manager.getAll().forEach(roofsTableView.getItems()::add);
 
         // clicking addNewRoofButton displays a new roof creation form
-        addNewRoofButton.setOnAction(event -> {
-            final var form = RoofForm.build(manager);
+        addNewRoofButton.setOnAction(clickEvent -> {
+            final var form = RoofForm.create(manager);
             final var stage = Stages.createStage(form);
-            stage.show();
-            form.roofProperty().addListener((observable, oldValue, newValue) -> {
-                //TODO: when text search will be implemented, this should be replaced with a more complex logic
-                roofsTableView.getItems().add(newValue);
+            form.addEventHandler(
+                    RoofForm.EventTypes.ROOF_CREATED, creationEvent -> {
+                        //TODO: when text search will be implemented, this should be replaced with a more complex logic
+                        roofsTableView.getItems().add(creationEvent.getObject());
 
-                stage.close();
-            });
+                        stage.close();
+                    }
+            );
+            stage.show();
+        });
+
+        // editRoofButton is disabled when no roof is selected
+        editRoofButton.disableProperty().bind(roofsTableView.getSelectionModel().selectedItemProperty().isNull());
+
+        // clicking editRoofButton displays a roof editing form
+        editRoofButton.setOnAction(event -> {
+            final var form = RoofForm.create(manager, roofsTableView.getSelectionModel().getSelectedItem());
+            final var stage = Stages.createStage(form);
+            form.addEventHandler(
+                    RoofForm.EventTypes.ROOF_UPDATED, updateEvent -> {
+                        //TODO: when text search will be implemented, this should be replaced with a more complex logic
+                        final int selectedRoofIndex = roofsTableView.getSelectionModel().getSelectedIndex();
+                        roofsTableView.getItems().set(selectedRoofIndex, updateEvent.getObject());
+
+                        roofsTableView.getSelectionModel().clearSelection();
+
+                        stage.close();
+                    }
+            );
+            stage.show();
         });
 
         // removeRoofButton is disabled when no roof is selected

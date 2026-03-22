@@ -10,7 +10,7 @@ import java.io.UncheckedIOException;
 /**
  * Base class for all the UI components.
  */
-public abstract class AbstractNode {
+public abstract class AbstractNode extends Node {
 
     /**
      * Load an FXML file.

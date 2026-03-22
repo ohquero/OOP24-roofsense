@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Show RoofForm" type="GradleRunConfiguration" factoryName="Gradle" folderName="JavaFX nodes">
+  <configuration default="false" name="Show RoofForm (creation mode)" type="GradleRunConfiguration" factoryName="Gradle" folderName="JavaFX nodes">
     <ExternalSystemSettings>
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -12,7 +12,7 @@
         <list>
           <option value=":runShowNodeTest" />
           <option value="--tests" />
-          <option value="&quot;roofsense.adapters.ui.RoofFormTest.show&quot;" />
+          <option value="&quot;roofsense.adapters.ui.RoofFormTest$CreateNewRoofTest.show&quot;" />
         </list>
       </option>
       <option name="vmOptions" />
