@@ -9,20 +9,23 @@ import javafx.stage.Stage;
  */
 public final class Stages {
 
+    public static final String STYLESHEET_URL_STRING =
+            ClassLoader.getSystemResource("javafx/style.css").toExternalForm();
+
     private Stages() {
     }
 
     /**
-     * Creates a new {@link Stage} with the given {@link AbstractNode} as its root.
+     * Creates a new {@link Stage} with the given {@link Parent} as its root.
      *
-     * @param node the node to use as the root of the stage
+     * @param root the {@link Parent} to use as the root of the stage.
      *
-     * @return a new {@link Stage}
+     * @return a new {@link Stage}.
      */
-    public static Stage createStage(final AbstractNode node) {
-        final var root = (Parent) node.getRootNode();
+    public static Stage createStage(final Parent root) {
         final var stage = new Stage();
         final var scene = new Scene(root);
+        scene.getStylesheets().add(STYLESHEET_URL_STRING);
         stage.setScene(scene);
 
         // Force CSS application to ensure correct size calculation since styling affects layout dimensions

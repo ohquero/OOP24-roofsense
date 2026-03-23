@@ -4,7 +4,6 @@ import com.google.inject.Guice;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -15,7 +14,7 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
-import roofsense.adapters.ui.RoofForm;
+import roofsense.adapters.ui.RoofFormNode;
 import roofsense.config.RoofSenseModule;
 import roofsense.entities.Roof;
 
@@ -27,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * It tests the full flow from the GUI to the database persistence.
  */
 @ExtendWith(ApplicationExtension.class)
-class RoofFormIntegrationTest {
+class RoofFormNodeIntegrationTest {
 
     @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
     private EntityManagerFactory emf;
@@ -43,8 +42,8 @@ class RoofFormIntegrationTest {
 
         this.emf = injector.getInstance(EntityManagerFactory.class);
 
-        final var view = injector.getInstance(RoofForm.class);
-        stage.setScene(new Scene((Parent) view.getRootNode()));
+        final var node = injector.getInstance(RoofFormNode.class);
+        stage.setScene(new Scene(node));
         stage.show();
     }
 

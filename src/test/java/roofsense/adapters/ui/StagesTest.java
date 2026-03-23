@@ -12,8 +12,6 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link Stages}.
@@ -34,11 +32,8 @@ class StagesTest {
                 sized.setPrefSize(width, height);
                 root.getChildren().add(sized);
 
-                final var node = mock(AbstractNode.class);
-                when(node.getRootNode()).thenReturn(root);
-
                 // when
-                final var stage = Stages.createStage(node);
+                final var stage = Stages.createStage(root);
 
                 // then
                 assertNotNull(stage);

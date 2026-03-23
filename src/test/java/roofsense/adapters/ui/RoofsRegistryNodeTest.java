@@ -1,7 +1,6 @@
 package roofsense.adapters.ui;
 
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
@@ -28,16 +27,16 @@ import static org.mockito.Mockito.when;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 /**
- * Test class for {@link RoofsRegistry}.
+ * Test class for {@link RoofsRegistryNode}.
  */
-class RoofsRegistryTest extends AbstractNodeTest {
+class RoofsRegistryNodeTest extends AbstractNodeTest {
 
     private static final String ROOFS_TABLE_NQ = "#roofsTableView";
-    private static final String ADD_NEW_ROOF_BUTTON_NQ = "#addNewRoofButton";
+    private static final String ADD_NEW_ROOF_BUTTON_NQ = "#addRoofButton";
     private static final String EDIT_ROOF_BUTTON_NQ = "#editRoofButton";
     private static final String REMOVE_ROOF_BUTTON_NQ = "#removeRoofButton";
 
-    private static final String ROOF_FORM_ROOT_NODE_NQ = "#roofFormRootNode";
+    private static final String ROOF_FORM_ROOT_NODE_NQ = "#roofFormNode";
     private static final String ROOF_FORM_SAVE_BUTTON_NQ = "#saveButton";
     private static final String ROOF_FORM_CODE_TEXT_FIELD_NQ = "#codeTextField";
     private static final String ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ = "#buildingAddressTextField";
@@ -54,6 +53,8 @@ class RoofsRegistryTest extends AbstractNodeTest {
 
     @Start
     void start(final Stage testfxStage) {
+        stage = testfxStage;
+
         // Creating a mock manager that uses the roofs collection as a backing store
         manager = mock(RoofsManager.class);
         when(manager.getAll()).thenReturn(roofs);
@@ -78,9 +79,10 @@ class RoofsRegistryTest extends AbstractNodeTest {
             return null;
         }).when(manager).remove(any(Roof.class));
 
-        this.stage = testfxStage;
-        this.stage.setScene(new Scene((Parent) RoofsRegistry.create(manager).getRootNode()));
-        this.stage.show();
+        final var scene = new Scene(new RoofsRegistryNode(manager));
+        scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
+        stage.setScene(scene);
+        stage.show();
     }
 
     @Override
@@ -100,7 +102,7 @@ class RoofsRegistryTest extends AbstractNodeTest {
     }
 
     @Test
-    void addNewRoofSuccessScenarioTest(final FxRobot robot) {
+    void addRoofSuccessScenarioTest(final FxRobot robot) {
         // when
         robot.clickOn(ADD_NEW_ROOF_BUTTON_NQ);
         waitForFxEvents();

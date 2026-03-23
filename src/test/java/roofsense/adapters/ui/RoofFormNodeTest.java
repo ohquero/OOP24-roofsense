@@ -1,7 +1,6 @@
 package roofsense.adapters.ui;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +30,7 @@ import static org.testfx.matcher.base.NodeMatchers.isDisabled;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 
 @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
-class RoofFormTest {
+class RoofFormNodeTest {
 
     private static final String SAVE_BUTTON_NQ = "#saveButton";
     private static final String CODE_TEXT_FIELD_NQ = "#codeTextField";
@@ -40,11 +39,15 @@ class RoofFormTest {
     private static final String BUILDING_ADDRESS_VALIDATION_RESULT_LABEL_NQ = "#buildingAddressValidationResultLabel";
     private static final String OPERATION_RESULT_LABEL_NQ = "#saveResultLabel";
 
+    private void initRoofsManagerMock(final RoofsManager manager) {
+        doAnswer(invocation -> new Roof(invocation.getArgument(0))).when(manager).update(any(Roof.class));
+    }
+
     @Nested
     class CreateNewRoofTest extends AbstractNodeTest {
 
         private RoofsManager manager;
-        private RoofForm form;
+        private RoofFormNode form;
         private Stage stage;
 
         @Override
@@ -57,10 +60,13 @@ class RoofFormTest {
             stage = testfxStage;
 
             manager = mock(RoofsManager.class);
+            initRoofsManagerMock(manager);
 
-            form = RoofForm.create(manager);
+            form = new RoofFormNode(manager);
 
-            testfxStage.setScene(new Scene((Parent) form.getRootNode()));
+            final var scene = new Scene(form);
+            scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
+            testfxStage.setScene(scene);
             testfxStage.show();
         }
 
@@ -81,7 +87,7 @@ class RoofFormTest {
             final var buildingAddress = "Main Street 1";
             when(manager.exists(any(Roof.class))).thenReturn(false);
             final var createdRoof = new AtomicReference<>();
-            form.addEventHandler(RoofForm.EventTypes.ROOF_CREATED, event -> createdRoof.set(event.getObject()));
+            form.addEventHandler(RoofFormNode.EventTypes.ROOF_CREATED, event -> createdRoof.set(event.getObject()));
 
             // when
             robot.clickOn(CODE_TEXT_FIELD_NQ).eraseText(roofCode.length());
@@ -146,7 +152,7 @@ class RoofFormTest {
 
         private RoofsManager manager;
         private Roof initialRoof;
-        private RoofForm form;
+        private RoofFormNode form;
         private Stage stage;
 
         @Override
@@ -156,15 +162,18 @@ class RoofFormTest {
 
         @Start
         void start(final Stage testfxStage) {
-            this.stage = testfxStage;
+            stage = testfxStage;
             manager = mock(RoofsManager.class);
-            doAnswer(invocation -> new Roof(invocation.getArgument(0))).when(manager).update(any(Roof.class));
+            initRoofsManagerMock(manager);
 
             initialRoof = new Roof("R-02", "Main Street 2");
 
-            form = RoofForm.create(manager, initialRoof);
+            form = new RoofFormNode(manager);
+            form.setRoof(initialRoof);
 
-            testfxStage.setScene(new Scene((Parent) form.getRootNode()));
+            final var scene = new Scene(form);
+            scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
+            testfxStage.setScene(scene);
             testfxStage.show();
         }
 
@@ -173,7 +182,7 @@ class RoofFormTest {
             // given
             when(manager.exists(any(Roof.class))).thenReturn(true);
             final var updatedRoof = new AtomicReference<Roof>();
-            form.addEventHandler(RoofForm.EventTypes.ROOF_UPDATED, event -> updatedRoof.set(event.getObject()));
+            form.addEventHandler(RoofFormNode.EventTypes.ROOF_UPDATED, event -> updatedRoof.set(event.getObject()));
 
             // then
             verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());

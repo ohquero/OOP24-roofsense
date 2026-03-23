@@ -1,6 +1,7 @@
 package roofsense.adapters.ui;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -10,10 +11,10 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Base class for all {@link AbstractNode} unit tests.
+ * Base class for all {@link Node} unit tests.
  *
  * <p>
- * It includes a test named {@code showInView()} which displays the {@link AbstractNode} in a dedicated {@link Stage}.
+ * It includes a test named {@code showInView()} which displays the {@link Node} in a dedicated {@link Stage}.
  */
 @ExtendWith(ApplicationExtension.class)
 abstract class AbstractNodeTest {

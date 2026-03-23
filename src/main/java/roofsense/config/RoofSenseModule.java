@@ -8,7 +8,7 @@ import jakarta.persistence.Persistence;
 import roofsense.adapters.persistence.EntityManagerProvider;
 import roofsense.adapters.persistence.JPARoofRepository;
 import roofsense.adapters.persistence.JPAUnitOfWork;
-import roofsense.adapters.ui.RoofForm;
+import roofsense.adapters.ui.RoofFormNode;
 import roofsense.usecases.RoofsManager;
 import roofsense.usecases.ports.RoofRepository;
 import roofsense.usecases.ports.UnitOfWork;
@@ -26,15 +26,15 @@ public final class RoofSenseModule extends AbstractModule {
     }
 
     /**
-     * Creates a new {@link RoofForm} instance.
+     * Creates a new {@link RoofFormNode} instance.
      *
      * @param roofsManager the use case for managing roofs
      *
      * @return a new CreateRoofNode instance
      */
     @Provides
-    public RoofForm provideRoofForm(final RoofsManager roofsManager) {
-        return RoofForm.create(roofsManager);
+    public RoofFormNode provideRoofForm(final RoofsManager roofsManager) {
+        return new RoofFormNode(roofsManager);
     }
 
     /**
