@@ -13,6 +13,8 @@ import roofsense.usecases.RoofsManager;
 
 import java.util.Objects;
 
+import static javafx.stage.Modality.WINDOW_MODAL;
+
 /**
  * View providing an overview on all the monitored devices.
  */
@@ -76,6 +78,8 @@ public final class RoofsRegistry extends AbstractNode {
                         stage.close();
                     }
             );
+            stage.initOwner(this.getRootNode().getScene().getWindow());
+            stage.initModality(WINDOW_MODAL);
             stage.show();
         });
 
@@ -97,6 +101,8 @@ public final class RoofsRegistry extends AbstractNode {
                         stage.close();
                     }
             );
+            stage.initOwner(this.getRootNode().getScene().getWindow());
+            stage.initModality(WINDOW_MODAL);
             stage.show();
         });
 
