@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import roofsense.adapters.ui.events.SaveEvent;
 import roofsense.entities.Roof;
-import roofsense.usecases.ManageRoof;
+import roofsense.usecases.RoofsManager;
 import roofsense.utils.ConstraintViolations;
 import roofsense.utils.Validators;
 
@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public final class RoofForm extends AbstractNode {
 
-    private final ManageRoof manager;
+    private final RoofsManager manager;
     private final BooleanProperty editedRoofIsValidProperty;
     private Roof roof;
     private Roof newRoof;
@@ -44,7 +44,7 @@ public final class RoofForm extends AbstractNode {
     @FXML
     private Button saveButton;
 
-    private RoofForm(final ManageRoof manager) {
+    private RoofForm(final RoofsManager manager) {
         this.manager = Objects.requireNonNull(manager);
         this.editedRoofIsValidProperty = new SimpleBooleanProperty();
         this.newRoof = new Roof(null, null);
@@ -57,7 +57,7 @@ public final class RoofForm extends AbstractNode {
      *
      * @return a new {@link RoofForm}
      */
-    public static RoofForm create(final ManageRoof manager) {
+    public static RoofForm create(final RoofsManager manager) {
         return createInstance(manager, null);
     }
 
@@ -69,12 +69,12 @@ public final class RoofForm extends AbstractNode {
      *
      * @return a new {@link RoofForm}
      */
-    public static RoofForm create(final ManageRoof manager, final Roof roofToEdit) {
+    public static RoofForm create(final RoofsManager manager, final Roof roofToEdit) {
         Objects.requireNonNull(roofToEdit, "roof to edit must not be null");
         return createInstance(manager, roofToEdit);
     }
 
-    private static RoofForm createInstance(final ManageRoof manager, final Roof roof) {
+    private static RoofForm createInstance(final RoofsManager manager, final Roof roof) {
         Objects.requireNonNull(manager, "manager must not be null");
         final var loader = loadFXMLFile("javafx/RoofForm.fxml", param -> new RoofForm(manager));
         final RoofForm instance = loader.getController();
@@ -119,7 +119,7 @@ public final class RoofForm extends AbstractNode {
                     return;
                 }
 
-                manager.addNew(newRoof);
+                manager.add(newRoof);
                 saveResultLabel.setText("Roof created successfully");
                 saveResultLabel.getStyleClass().setAll("success");
                 this.fireEvent(new SaveEvent<>(newRoof, EventTypes.ROOF_CREATED));

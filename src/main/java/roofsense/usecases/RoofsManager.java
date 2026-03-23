@@ -12,20 +12,20 @@ import java.util.Collection;
 /**
  * Class providing access to {@link Roof} related use cases.
  */
-public class ManageRoof {
+public class RoofsManager {
 
     private final UnitOfWork unitOfWork;
     private final Repository<Roof> repository;
 
     /**
-     * Constructor for the {@code ManageRoof} class.
+     * Constructor for the {@code RoofsManager} class.
      *
      * @param unitOfWork the {@link UnitOfWork}. Must not be {@code null}.
      * @param repository the {@link Repository} instance for managing {@link Roof} entities. Must not be
      *                   {@code null}.
      */
     @Inject
-    public ManageRoof(final UnitOfWork unitOfWork, final RoofRepository repository) {
+    public RoofsManager(final UnitOfWork unitOfWork, final RoofRepository repository) {
         this.unitOfWork = Validate.notNull(unitOfWork, "unit of work must not be null");
         this.repository = Validate.notNull(repository, "repository must not be null.");
     }
@@ -58,7 +58,7 @@ public class ManageRoof {
      * @throws IllegalArgumentException if the roof is invalid.
      * @throws IllegalStateException    if an unexpected error occurs during the operation.
      */
-    public void addNew(final Roof roof) {
+    public void add(final Roof roof) {
         unitOfWork.execute(() -> repository.add(roof));
     }
 

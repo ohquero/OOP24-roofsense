@@ -12,7 +12,7 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
 import roofsense.entities.Roof;
-import roofsense.usecases.ManageRoof;
+import roofsense.usecases.RoofsManager;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -43,7 +43,7 @@ class RoofFormTest {
     @Nested
     class CreateNewRoofTest extends AbstractNodeTest {
 
-        private ManageRoof manager;
+        private RoofsManager manager;
         private RoofForm form;
         private Stage stage;
 
@@ -56,7 +56,7 @@ class RoofFormTest {
         void start(final Stage testfxStage) {
             stage = testfxStage;
 
-            manager = mock(ManageRoof.class);
+            manager = mock(RoofsManager.class);
 
             form = RoofForm.create(manager);
 
@@ -101,7 +101,7 @@ class RoofFormTest {
 
             // then
             final var roofCaptor = ArgumentCaptor.forClass(Roof.class);
-            verify(manager).addNew(roofCaptor.capture());
+            verify(manager).add(roofCaptor.capture());
             assertSame(createdRoof.get(), roofCaptor.getValue());
             verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof created successfully"));
         }
@@ -135,7 +135,7 @@ class RoofFormTest {
             robot.clickOn(SAVE_BUTTON_NQ);
 
             // then
-            verify(manager, never()).addNew(any(Roof.class));
+            verify(manager, never()).add(any(Roof.class));
             verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("An equal Roof already exists"));
         }
 
@@ -144,7 +144,7 @@ class RoofFormTest {
     @Nested
     class EditRoofTest extends AbstractNodeTest {
 
-        private ManageRoof manager;
+        private RoofsManager manager;
         private Roof initialRoof;
         private RoofForm form;
         private Stage stage;
@@ -157,7 +157,7 @@ class RoofFormTest {
         @Start
         void start(final Stage testfxStage) {
             this.stage = testfxStage;
-            manager = mock(ManageRoof.class);
+            manager = mock(RoofsManager.class);
             doAnswer(invocation -> new Roof(invocation.getArgument(0))).when(manager).update(any(Roof.class));
 
             initialRoof = new Roof("R-02", "Main Street 2");

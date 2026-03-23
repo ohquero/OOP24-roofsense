@@ -3,7 +3,7 @@ package roofsense.utils;
 import com.google.inject.Injector;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
-import roofsense.usecases.ManageRoof;
+import roofsense.usecases.RoofsManager;
 import roofsense.usecases.ports.RoofRepository;
 import roofsense.usecases.ports.UnitOfWork;
 
@@ -31,7 +31,7 @@ class GuiceInjectorTest {
         // Verify that key bindings from RoofSenseModule are resolvable
         assertNotNull(injector.getInstance(UnitOfWork.class), "UnitOfWork should be bound");
         assertNotNull(injector.getInstance(RoofRepository.class), "RoofRepository should be bound");
-        assertNotNull(injector.getInstance(ManageRoof.class), "ManageRoof should be injectable");
+        assertNotNull(injector.getInstance(RoofsManager.class), "RoofsManager should be injectable");
         assertNotNull(injector.getInstance(EntityManagerFactory.class), "EntityManagerFactory should be provided");
     }
 

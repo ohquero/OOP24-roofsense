@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import roofsense.entities.Roof;
-import roofsense.usecases.ManageRoof;
+import roofsense.usecases.RoofsManager;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,13 +49,13 @@ class RoofsRegistryTest extends AbstractNodeTest {
             new Roof("code4", "address4"),
             new Roof("code5", "address5")
     ));
-    private ManageRoof manager;
+    private RoofsManager manager;
     private Stage stage;
 
     @Start
     void start(final Stage testfxStage) {
         // Creating a mock manager that uses the roofs collection as a backing store
-        manager = mock(ManageRoof.class);
+        manager = mock(RoofsManager.class);
         when(manager.getAll()).thenReturn(roofs);
         doAnswer(invocationOnMock -> {
             final Roof roof = invocationOnMock.getArgument(0);
@@ -65,7 +65,7 @@ class RoofsRegistryTest extends AbstractNodeTest {
             final Roof roof = invocationOnMock.getArgument(0);
             roofs.add(roof);
             return null;
-        }).when(manager).addNew(any(Roof.class));
+        }).when(manager).add(any(Roof.class));
         doAnswer(invocation -> {
             final Roof roof = invocation.getArgument(0);
             roofs.stream().filter(r -> r.getCode().equals(roof.getCode())).findFirst().ifPresent(roofs::remove);

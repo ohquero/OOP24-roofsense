@@ -21,11 +21,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class ManageRoofTest {
+class RoofsManagerTest {
 
     private UnitOfWork unitOfWork;
     private RoofRepository repository;
-    private ManageRoof manageRoof;
+    private RoofsManager roofsManager;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
@@ -45,24 +45,24 @@ class ManageRoofTest {
             return null;
         }).when(unitOfWork).execute(any(Runnable.class));
 
-        manageRoof = new ManageRoof(unitOfWork, repository);
+        roofsManager = new RoofsManager(unitOfWork, repository);
     }
 
     @Test
     void constructor() {
-        assertThrows(NullPointerException.class, () -> new ManageRoof(null, repository));
-        assertThrows(NullPointerException.class, () -> new ManageRoof(unitOfWork, null));
+        assertThrows(NullPointerException.class, () -> new RoofsManager(null, repository));
+        assertThrows(NullPointerException.class, () -> new RoofsManager(unitOfWork, null));
 
-        assertDoesNotThrow(() -> new ManageRoof(unitOfWork, repository));
+        assertDoesNotThrow(() -> new RoofsManager(unitOfWork, repository));
     }
 
     @Test
-    void addNew() {
+    void add() {
         // Given
         final var roof = new Roof("roof1", "roof1 address");
 
         // When
-        manageRoof.addNew(roof);
+        roofsManager.add(roof);
 
         // Then: the repository.add() method is called with the roof
         verify(repository, times(1)).add(roof);
@@ -75,7 +75,7 @@ class ManageRoofTest {
         when(repository.exists(roof)).thenReturn(true);
 
         // When
-        final var result = manageRoof.exists(roof);
+        final var result = roofsManager.exists(roof);
 
         // Then
         assertTrue(result);
@@ -89,7 +89,7 @@ class ManageRoofTest {
         when(repository.exists(roof)).thenReturn(false);
 
         // When
-        final var result = manageRoof.exists(roof);
+        final var result = roofsManager.exists(roof);
 
         // Then
         assertFalse(result);
@@ -107,7 +107,7 @@ class ManageRoofTest {
         when(repository.getAll()).thenReturn(expectedRoofs);
 
         // When
-        final var result = manageRoof.getAll();
+        final var result = roofsManager.getAll();
 
         // Then
         assertEquals(expectedRoofs, result);
@@ -121,7 +121,7 @@ class ManageRoofTest {
         when(repository.getAll()).thenReturn(expectedRoofs);
 
         // When
-        final var result = manageRoof.getAll();
+        final var result = roofsManager.getAll();
 
         // Then
         assertEquals(expectedRoofs, result);

@@ -9,7 +9,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import roofsense.entities.Roof;
-import roofsense.usecases.ManageRoof;
+import roofsense.usecases.RoofsManager;
 
 import java.util.Objects;
 
@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public final class RoofsRegistry extends AbstractNode {
 
-    private final ManageRoof manager;
+    private final RoofsManager manager;
 
     @FXML
     private Node roofsRegistryRootNode;
@@ -37,7 +37,7 @@ public final class RoofsRegistry extends AbstractNode {
     @FXML
     private Button removeRoofButton;
 
-    private RoofsRegistry(final ManageRoof manager) {
+    private RoofsRegistry(final RoofsManager manager) {
         this.manager = Objects.requireNonNull(manager);
     }
 
@@ -48,7 +48,7 @@ public final class RoofsRegistry extends AbstractNode {
      *
      * @return a new instance of this node.
      */
-    public static RoofsRegistry create(final ManageRoof manager) {
+    public static RoofsRegistry create(final RoofsManager manager) {
         return loadFXMLFile("javafx/RoofsRegistry.fxml", param -> new RoofsRegistry(manager)).getController();
     }
 
