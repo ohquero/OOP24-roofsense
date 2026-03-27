@@ -114,4 +114,16 @@ class RoofsManagerTest {
         verify(repository, times(1)).remove(roof);
     }
 
+    @Test
+    void searchShouldCallRepositorySearchMethodTest() {
+        // given
+        final var searchTerm = "search_term";
+
+        // when
+        roofsManager.search(searchTerm);
+
+        // then
+        verify(repository, times(1)).search(searchTerm);
+    }
+
 }
