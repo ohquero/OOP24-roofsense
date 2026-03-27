@@ -15,7 +15,7 @@ import java.util.Collection;
 public class RoofsManager {
 
     private final UnitOfWork unitOfWork;
-    private final Repository<Roof> repository;
+    private final RoofRepository repository;
 
     /**
      * Constructor for the {@code RoofsManager} class.
@@ -72,6 +72,17 @@ public class RoofsManager {
      */
     public void remove(final Roof selectedRoof) {
         unitOfWork.execute(() -> repository.remove(selectedRoof));
+    }
+
+    /**
+     * Searches for all {@link Roof} entities containing the specified search term in any field.
+     *
+     * @param searchTerm the {@link String} to search for.
+     *
+     * @return a {@link Collection} of {@link Roof} objects.
+     */
+    public Collection<Roof> search(final String searchTerm) {
+        return unitOfWork.execute(() -> repository.search(searchTerm));
     }
 
 }
