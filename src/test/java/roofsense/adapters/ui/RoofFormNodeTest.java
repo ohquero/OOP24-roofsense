@@ -1,6 +1,7 @@
 package roofsense.adapters.ui;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Nested;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.isDisabled;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
+import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
 @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 class RoofFormNodeTest {
@@ -225,6 +227,116 @@ class RoofFormNodeTest {
             // then
             verifyThat(BUILDING_ADDRESS_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(not(blankString())));
             verifyThat(SAVE_BUTTON_NQ, isDisabled());
+        }
+
+    }
+
+    @Nested
+    class SetRoofTest extends AbstractNodeTest {
+
+        private RoofFormNode form;
+        private Stage stage;
+
+        @Override
+        protected Stage getStage() {
+            return stage;
+        }
+
+        @Start
+        void start(final Stage testfxStage) {
+            stage = testfxStage;
+
+            form = new RoofFormNode(mock(RoofsManager.class));
+
+            final var scene = new Scene(form);
+            scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
+            testfxStage.setScene(scene);
+            testfxStage.show();
+        }
+
+        @Test
+        void setRoofToNullShouldResetNodeToCreateModeTest(final FxRobot robot) {
+            // given
+            final var roofCode = "R-01";
+            final var buildingAddress = "Main Street 1";
+            robot.clickOn(CODE_TEXT_FIELD_NQ).write(roofCode);
+            robot.clickOn(BUILDING_ADDRESS_TEXT_FIELD_NQ).write(buildingAddress);
+
+            // when - set roof to null
+            Platform.runLater(() -> form.setRoof(null));
+            waitForFxEvents();
+
+            // then - verify form is reset to create mode
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(""));
+            verifyThat(BUILDING_ADDRESS_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(""));
+            verifyThat(CODE_TEXT_FIELD_NQ, isEnabled());
+            verifyThat(CODE_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(not("")));
+            verifyThat(BUILDING_ADDRESS_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(not("")));
+        }
+
+        @Test
+        void setRoofWithValidRoofShouldSwitchToEditModeTest(final FxRobot robot) {
+            // given
+            final var roof = new Roof("R-02", "Main Street 2");
+
+            // when
+            Platform.runLater(() -> form.setRoof(roof));
+            waitForFxEvents();
+
+            // then - verify form is populated with roof data
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof.getCode()));
+            verifyThat(BUILDING_ADDRESS_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof.getBuildingAddress()));
+            verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());
+            verifyThat(CODE_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(""));
+            verifyThat(BUILDING_ADDRESS_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(""));
+        }
+
+        @Test
+        void setRoofMultipleTimesShouldUpdateFormStateProperlyTest(final FxRobot robot) {
+            // given
+            final var roof1 = new Roof("R-05", "Street 5");
+            final var roof2 = new Roof("R-06", "Street 6");
+
+            // when - set first roof
+            Platform.runLater(() -> form.setRoof(roof1));
+            waitForFxEvents();
+
+            // then - verify first roof is set
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof1.getCode()));
+            verifyThat(BUILDING_ADDRESS_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof1.getBuildingAddress()));
+            verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());
+
+            // when - set second roof
+            Platform.runLater(() -> form.setRoof(roof2));
+            waitForFxEvents();
+
+            // then - verify second roof replaces first
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof2.getCode()));
+            verifyThat(BUILDING_ADDRESS_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof2.getBuildingAddress()));
+            verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());
+        }
+
+        @Test
+        void setRoofThenSetToNullShouldSwitchBackToCreateModeTest(final FxRobot robot) {
+            // given
+            final var roof = new Roof("R-07", "Street 7");
+
+            // when - set a roof
+            Platform.runLater(() -> form.setRoof(roof));
+            waitForFxEvents();
+
+            // then - verify edit mode
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(roof.getCode()));
+            verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());
+
+            // when - set to null
+            Platform.runLater(() -> form.setRoof(null));
+            waitForFxEvents();
+
+            // then - verify back to create mode
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(""));
+            verifyThat(BUILDING_ADDRESS_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(""));
+            verifyThat(CODE_TEXT_FIELD_NQ, isEnabled());
         }
 
     }
