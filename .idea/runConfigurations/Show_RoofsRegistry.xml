@@ -12,15 +12,18 @@
         <list>
           <option value=":runShowNodeTest" />
           <option value="--tests" />
-          <option value="&quot;roofsense.adapters.ui.RoofsRegistryTest.show&quot;" />
+          <option value="&quot;roofsense.adapters.ui.RoofsRegistryNodeTest.show&quot;" />
         </list>
       </option>
       <option name="vmOptions" />
     </ExternalSystemSettings>
     <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
     <DebugAllEnabled>false</DebugAllEnabled>
     <RunAsTest>true</RunAsTest>
+    <GradleProfilingDisabled>false</GradleProfilingDisabled>
+    <GradleCoverageDisabled>false</GradleCoverageDisabled>
     <method v="2" />
   </configuration>
 </component>

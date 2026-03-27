@@ -12,7 +12,7 @@
         <list>
           <option value=":runShowNodeTest" />
           <option value="--tests" />
-          <option value="&quot;roofsense.adapters.ui.RoofFormTest$EditRoofTest.show&quot;" />
+          <option value="&quot;roofsense.adapters.ui.RoofFormNodeTest$EditRoofTest.show&quot;" />
         </list>
       </option>
       <option name="vmOptions" />
