@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,7 +56,7 @@ class RoofsManagerTest {
     }
 
     @Test
-    void add() {
+    void addShouldCallRepositoryAddMethodTest() {
         // Given
         final var roof = new Roof("roof1", "roof1 address");
 
@@ -69,7 +68,7 @@ class RoofsManagerTest {
     }
 
     @Test
-    void existsWhenRoofExistsReturnsTrue() {
+    void existsShouldCallRepositoryExistsMethodAndReturnItsOutputTest() {
         // Given
         final var roof = new Roof("roof2", "roof2 address");
         when(repository.exists(roof)).thenReturn(true);
@@ -82,26 +81,13 @@ class RoofsManagerTest {
         verify(repository, times(1)).exists(roof);
     }
 
+    @SuppressWarnings("PMD.LinguisticNaming")
     @Test
-    void existsWhenRoofDoesNotExistReturnsFalse() {
+    void getAllShouldCallRepositoryGetAllMethodAndReturnItsOutputTest() {
         // Given
-        final var roof = new Roof("roof3", "roof3 address");
-        when(repository.exists(roof)).thenReturn(false);
-
-        // When
-        final var result = roofsManager.exists(roof);
-
-        // Then
-        assertFalse(result);
-        verify(repository, times(1)).exists(roof);
-    }
-
-    @Test
-    void testGetAllReturnsAllRoofs() {
-        // Given
-        final var roof1 = new Roof("roof1", "address1");
-        final var roof2 = new Roof("roof2", "address2");
-        final var roof3 = new Roof("roof3", "address3");
+        final var roof1 = new Roof("roof3", "address3");
+        final var roof2 = new Roof("roof4", "address4");
+        final var roof3 = new Roof("roof5", "address5");
         final var expectedRoofs = List.of(roof1, roof2, roof3);
 
         when(repository.getAll()).thenReturn(expectedRoofs);
@@ -110,23 +96,34 @@ class RoofsManagerTest {
         final var result = roofsManager.getAll();
 
         // Then
-        assertEquals(expectedRoofs, result);
         verify(repository, times(1)).getAll();
+        assertEquals(expectedRoofs, result);
     }
 
     @Test
-    void testGetAllReturnsEmptyListWhenNoRoofs() {
-        // Given
-        final var expectedRoofs = List.<Roof>of();
-        when(repository.getAll()).thenReturn(expectedRoofs);
+    void updateShouldCallRepositoryUpdateMethodAndReturnItsOutputTest() {
+        // given
+        final var roof = new Roof("roof6", "address6");
+        when(repository.update(roof)).thenReturn(roof);
 
-        // When
-        final var result = roofsManager.getAll();
+        // when
+        final var returnedRoof = roofsManager.update(roof);
 
-        // Then
-        assertEquals(expectedRoofs, result);
-        assertTrue(result.isEmpty());
-        verify(repository, times(1)).getAll();
+        // then
+        verify(repository, times(1)).update(roof);
+        assertEquals(roof, returnedRoof);
+    }
+
+    @Test
+    void removeShouldCallRepositoryRemoveMethodTest() {
+        // given
+        final var roof = new Roof("roof7", "address7");
+
+        // when
+        roofsManager.remove(roof);
+
+        // then
+        verify(repository, times(1)).remove(roof);
     }
 
 }
