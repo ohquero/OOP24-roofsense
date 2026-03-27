@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -32,6 +33,7 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 class RoofsRegistryNodeTest extends AbstractNodeTest {
 
     private static final String ROOFS_TABLE_NQ = "#roofsTableView";
+    private static final String SEARCH_ROOFS_TEXT_FIELD_NQ = "#searchRoofsTextField";
     private static final String ADD_NEW_ROOF_BUTTON_NQ = "#addRoofButton";
     private static final String EDIT_ROOF_BUTTON_NQ = "#editRoofButton";
     private static final String REMOVE_ROOF_BUTTON_NQ = "#removeRoofButton";
@@ -73,6 +75,16 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
             roofs.remove(roof);
             return null;
         }).when(manager).remove(any(Roof.class));
+        doAnswer(invocation -> {
+            final String searchTerm = invocation.getArgument(0);
+            return roofs
+                    .stream()
+                    .filter(
+                            roof -> roof.getCode().contains(searchTerm)
+                                    || roof.getBuildingAddress().contains(searchTerm)
+                    )
+                    .toList();
+        }).when(manager).search(any(String.class));
 
         final var scene = new Scene(new RoofsRegistryNode(manager));
         scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
@@ -89,7 +101,6 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     void nodeInitialStatusTest(final FxRobot robot) {
         final var roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
 
-        verify(manager).getAll();
         assertIterableEquals(roofs, roofsTableView.getItems());
 
         assertFalse(robot.lookup(ADD_NEW_ROOF_BUTTON_NQ).queryButton().isDisabled());
@@ -97,7 +108,68 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     }
 
     @Test
+    void searchingRoofUsingFirstRoofCodeShouldDisplayOnlyOneRoofTest(final FxRobot robot) {
+        // given
+        final var firstRoof = roofs.iterator().next();
+        final var searchTerm = firstRoof.getCode();
+
+        // when
+        robot.clickOn(SEARCH_ROOFS_TEXT_FIELD_NQ).write(searchTerm);
+
+        // then
+        final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
+        assertEquals(1, roofsTableView.getItems().size());
+        assertSame(firstRoof, roofsTableView.getItems().getFirst());
+    }
+
+    @Test
+    void searchingRoofUsingFirstRoofAddressShouldDisplayOnlyOneRoofTest(final FxRobot robot) {
+        // given
+        final var firstRoof = roofs.iterator().next();
+        final var searchTerm = firstRoof.getBuildingAddress();
+
+        // when
+        robot.clickOn(SEARCH_ROOFS_TEXT_FIELD_NQ).write(searchTerm);
+
+        // then
+        final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
+        assertEquals(1, roofsTableView.getItems().size());
+        assertSame(firstRoof, roofsTableView.getItems().getFirst());
+    }
+
+    @Test
+    void searchingRoofsUsingAllRoofsCodeEqualsPrefixShouldDisplayAllTheRoofsTest(final FxRobot robot) {
+        // given
+        final var searchTerm = "code";
+
+        // when
+        robot.clickOn(SEARCH_ROOFS_TEXT_FIELD_NQ).write(searchTerm);
+
+        // then
+        final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
+        assertEquals(5, roofsTableView.getItems().size());
+        assertIterableEquals(roofs, roofsTableView.getItems());
+    }
+
+    @Test
+    void searchingRoofsUsingTotallyDifferentStringShouldNotDisplayAnythingTest(final FxRobot robot) {
+        // given
+        final var searchTerm = "a_random_string";
+
+        // when
+        robot.clickOn(SEARCH_ROOFS_TEXT_FIELD_NQ).write(searchTerm);
+
+        // then
+        final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
+        assertEquals(0, roofsTableView.getItems().size());
+    }
+
+    @Test
     void addRoofSuccessScenarioTest(final FxRobot robot) {
+        // given
+        final var searchTerm = "code1";
+        robot.clickOn(SEARCH_ROOFS_TEXT_FIELD_NQ).write(searchTerm);
+
         // when
         robot.clickOn(ADD_NEW_ROOF_BUTTON_NQ);
         waitForFxEvents();
@@ -107,8 +179,8 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
         assertNotNull(roofFormRootNode);
 
         // given
-        final var roofCode = "R-01";
-        final var buildingAddress = "Main Street 1";
+        final var roofCode = "code12";
+        final var buildingAddress = "Main Street 12";
 
         // when - filling the roofForm correctly and clicking the save button
         robot.clickOn(ROOF_FORM_CODE_TEXT_FIELD_NQ).write(roofCode);
@@ -117,9 +189,9 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
 
         // then - the roof should be added to the roofs table and the roofForm should be closed
         final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
-        final var addedRoof =
-                roofsTableView.getItems().stream().filter(r -> r.getCode().equals(roofCode)).findFirst().orElse(null);
-        assertNotNull(addedRoof);
+        final var roofsThatShouldBeDisplayed =
+                roofs.stream().filter(r -> r.getCode().contains(searchTerm)).toList();
+        assertIterableEquals(roofsThatShouldBeDisplayed, roofsTableView.getItems());
     }
 
     @Test
