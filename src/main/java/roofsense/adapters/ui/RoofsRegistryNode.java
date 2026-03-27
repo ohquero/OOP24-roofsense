@@ -1,15 +1,14 @@
 package roofsense.adapters.ui;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
@@ -71,40 +70,13 @@ public final class RoofsRegistryNode extends AnchorPane {
         final Button removeRoofButton = new Button("Delete");
         removeRoofButton.setId("removeRoofButton");
 
-        // Create GridPane for buttons
-        final var buttonGridPane = new GridPane();
-        buttonGridPane
-                .getColumnConstraints()
-                .addAll(new ColumnConstraints(), new ColumnConstraints(), new ColumnConstraints());
-        buttonGridPane.getRowConstraints().add(new RowConstraints());
-
-        final var addAnchorPane = new javafx.scene.layout.AnchorPane();
-        setBottomAnchor(addRoofButton, 0.0);
-        setLeftAnchor(addRoofButton, 0.0);
-        setRightAnchor(addRoofButton, 0.0);
-        setTopAnchor(addRoofButton, 0.0);
-        addAnchorPane.getChildren().add(addRoofButton);
-
-        final var editAnchorPane = new javafx.scene.layout.AnchorPane();
-        setBottomAnchor(editRoofButton, 0.0);
-        setLeftAnchor(editRoofButton, 0.0);
-        setRightAnchor(editRoofButton, 0.0);
-        setTopAnchor(editRoofButton, 0.0);
-        editAnchorPane.getChildren().add(editRoofButton);
-
-        final var removeAnchorPane = new javafx.scene.layout.AnchorPane();
-        setBottomAnchor(removeRoofButton, 0.0);
-        setLeftAnchor(removeRoofButton, 0.0);
-        setRightAnchor(removeRoofButton, 0.0);
-        setTopAnchor(removeRoofButton, 0.0);
-        removeAnchorPane.getChildren().add(removeRoofButton);
-
-        buttonGridPane.add(addAnchorPane, 0, 0);
-        buttonGridPane.add(editAnchorPane, 1, 0);
-        buttonGridPane.add(removeAnchorPane, 2, 0);
+        // Create container for buttons
+        final var buttonsContainer = new HBox();
+        buttonsContainer.setAlignment(Pos.BASELINE_RIGHT);
+        buttonsContainer.getChildren().addAll(addRoofButton, editRoofButton, removeRoofButton);
 
         // Add all components to this region
-        rootNode.getChildren().addAll(titleLabel, searchRoofsTextField, roofsTableView, buttonGridPane);
+        rootNode.getChildren().addAll(titleLabel, searchRoofsTextField, roofsTableView, buttonsContainer);
         setBottomAnchor(rootNode, 0.0);
         setLeftAnchor(rootNode, 0.0);
         setRightAnchor(rootNode, 0.0);
