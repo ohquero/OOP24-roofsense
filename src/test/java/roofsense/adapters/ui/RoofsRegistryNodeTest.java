@@ -147,7 +147,8 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
 
         // then
         final TableView<Roof> roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
-        assertEquals(5, roofsTableView.getItems().size());
+        final var expectedRoofsInTableViewCount = 5;
+        assertEquals(expectedRoofsInTableViewCount, roofsTableView.getItems().size());
         assertIterableEquals(roofs, roofsTableView.getItems());
     }
 

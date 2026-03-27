@@ -1,5 +1,6 @@
 package roofsense.adapters.ui;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
@@ -36,6 +37,7 @@ public final class RoofsRegistryNode extends AnchorPane {
      *
      * @param manager the use case for managing {@link Roof} entities.
      */
+    @SuppressFBWarnings(value = "EI2", justification = "RoofsManager is effectively immutable")
     public RoofsRegistryNode(final RoofsManager manager) {
         this.manager = Objects.requireNonNull(manager);
 
