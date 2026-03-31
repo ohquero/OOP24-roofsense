@@ -5,6 +5,7 @@ import org.apache.commons.lang3.Validate;
 import roofsense.usecases.ports.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -62,6 +63,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      */
     @Override
     public boolean exists(final E entity) {
+        Objects.requireNonNull(entity);
         return getEntityManager().contains(entity) || findEqual(entity).isPresent();
     }
 
@@ -78,6 +80,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      */
     @Override
     public E update(final E entity) {
+        Objects.requireNonNull(entity);
         return getEntityManager().merge(entity);
     }
 

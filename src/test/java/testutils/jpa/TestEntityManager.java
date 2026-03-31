@@ -8,7 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark fields that should be injected with an {@link EntityManager} by {@link JpaExtension}.
+ * Annotation to mark fields that should be injected with an {@link EntityManager} by {@link JPAExtension}.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

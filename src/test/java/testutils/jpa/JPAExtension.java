@@ -8,21 +8,21 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolver;
 
 /**
- * JUnit 5 Extension for classes testing classes operating with the JPA framework.
+ * JUnit 5 Extension for test classes testing classes operating with the JPA framework.
  *
  * <p>
- * This extension automatically manages the lifecycle of an {@link EntityManagerFactory} and
- * {@link EntityManager} for JPA-based tests. The {@link EntityManager} is injected into test methods with an
- * {@link EntityManager} parameter.
+ * This extension automatically manages the lifecycle of {@link EntityManager}, which is re-created for each test and
+ * made available to the test class via fields annotated with {@link TestEntityManager}.
+ *
+ * <p>
+ * The provided EntityManager works with an in-memory H2 database. This approach has been implemented to make tests
+ * more useful by simulating interactions with a real database.
  */
-public class JpaExtension
-        implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
+public class JPAExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
 
-    private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(JpaExtension.class);
+    private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(JPAExtension.class);
     private static final String EMF_KEY = "EntityManagerFactory";
     private static final String EM_KEY = "EntityManager";
 
@@ -84,29 +84,6 @@ public class JpaExtension
         if (em != null && em.isOpen()) {
             em.close();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     **/
-    @Override
-    public boolean supportsParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
-        final var type = parameterContext.getParameter().getType();
-        return type.equals(EntityManager.class);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object resolveParameter(final ParameterContext parameterContext, final ExtensionContext extensionContext) {
-        final var type = parameterContext.getParameter().getType();
-
-        if (type.equals(EntityManager.class)) {
-            return extensionContext.getStore(NAMESPACE).get(EM_KEY, EntityManager.class);
-        }
-
-        return null;
     }
 
 }
