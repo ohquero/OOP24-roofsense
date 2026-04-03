@@ -25,8 +25,8 @@ import java.util.Objects;
  */
 public final class RoofFormNode extends AnchorPane {
 
-    public static final int FIELDS_COLUMN_MIN_WIDTH = 350;
-    public static final int SAVE_RESULT_LABEL_MIN_WIDTH = 200;
+    private static final int FIELDS_COLUMN_MIN_WIDTH = 350;
+    private static final int SAVE_RESULT_LABEL_MIN_WIDTH = 200;
     private final BooleanProperty editedRoofIsValidProperty;
 
     private final Label titleLabel;
@@ -144,23 +144,16 @@ public final class RoofFormNode extends AnchorPane {
         // Save button on click action
         saveButton.setOnAction(actionEvent -> {
 
-            if (roof == null) {
-                if (manager.exists(newRoof)) {
-                    saveResultLabel.setText("An equal Roof already exists");
-                    saveResultLabel.getStyleClass().setAll("error");
-                    return;
-                }
-
-                manager.add(newRoof);
-                saveResultLabel.setText("Roof created successfully");
-                saveResultLabel.getStyleClass().setAll("success");
-                this.fireEvent(new SaveEvent<>(newRoof, EventTypes.ROOF_CREATED));
-            } else {
-                newRoof = manager.update(newRoof);
-                saveResultLabel.setText("Roof updated successfully");
-                saveResultLabel.getStyleClass().setAll("success");
-                fireEvent(new SaveEvent<>(newRoof, EventTypes.ROOF_UPDATED));
+            if (roof == null && manager.exists(newRoof)) {
+                saveResultLabel.setText("An equal Roof already exists");
+                saveResultLabel.getStyleClass().setAll("error");
+                return;
             }
+
+            newRoof = manager.save(newRoof);
+            saveResultLabel.setText("Roof saved successfully");
+            saveResultLabel.getStyleClass().setAll("success");
+            this.fireEvent(new SaveEvent<>(newRoof, EventTypes.ROOF_SAVED));
 
             // Re-initialize the form with the persisted roof
             setRoof(newRoof);
@@ -196,8 +189,7 @@ public final class RoofFormNode extends AnchorPane {
      */
     public static final class EventTypes {
 
-        public static final EventType<SaveEvent<Roof>> ROOF_CREATED = new EventType<>(Event.ANY, "ROOF_CREATED");
-        public static final EventType<SaveEvent<Roof>> ROOF_UPDATED = new EventType<>(Event.ANY, "ROOF_UPDATED");
+        public static final EventType<SaveEvent<Roof>> ROOF_SAVED = new EventType<>(Event.ANY, "ROOF_SAVED");
 
         private EventTypes() {
         }

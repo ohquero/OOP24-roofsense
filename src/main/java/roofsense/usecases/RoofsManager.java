@@ -51,26 +51,18 @@ public class RoofsManager {
     }
 
     /**
-     * Adds a new {@link Roof} entity to the repository.
+     * Adds or updates the given {@link Roof} in the repository. Creates a new entry if it does not exist,
+     * otherwise updates the existing one.
      *
-     * @param roof the {@link Roof} entity to be added. Must not be {@code null}.
+     * @param roof the {@link Roof} entity to be added or updated. Must not be {@code null}.
+     *
+     * @return the saved {@link Roof} entity.
      *
      * @throws IllegalArgumentException if the roof is invalid.
      * @throws IllegalStateException    if an unexpected error occurs during the operation.
      */
-    public void add(final Roof roof) {
-        unitOfWork.execute(() -> repository.add(roof));
-    }
-
-    /**
-     * Updates the given {@link Roof} entity in the repository.
-     *
-     * @param editedRoof the {@link Roof} entity to be updated.
-     *
-     * @return the updated {@link Roof} entity.
-     */
-    public Roof update(final Roof editedRoof) {
-        return unitOfWork.execute(() -> repository.update(editedRoof));
+    public Roof save(final Roof roof) {
+        return unitOfWork.execute(() -> repository.save(roof));
     }
 
     /**

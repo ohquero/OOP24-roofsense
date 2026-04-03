@@ -62,17 +62,12 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
             final Roof roof = invocationOnMock.getArgument(0);
             return roofs.contains(roof);
         }).when(manager).exists(any(Roof.class));
-        doAnswer(invocationOnMock -> {
-            final Roof roof = invocationOnMock.getArgument(0);
-            roofs.add(roof);
-            return null;
-        }).when(manager).add(any(Roof.class));
         doAnswer(invocation -> {
             final Roof roof = invocation.getArgument(0);
             roofs.stream().filter(r -> r.getCode().equals(roof.getCode())).findFirst().ifPresent(roofs::remove);
             roofs.add(roof);
             return new Roof(roof);
-        }).when(manager).update(any(Roof.class));
+        }).when(manager).save(any(Roof.class));
         doAnswer(invocationOnMock -> {
             final Roof roof = invocationOnMock.getArgument(0);
             roofs.remove(roof);

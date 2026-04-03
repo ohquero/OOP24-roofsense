@@ -28,27 +28,23 @@ public interface Repository<E> {
     boolean exists(E entity);
 
     /**
-     * Adds a new entity to the repository.
+     * Persists or updates the given entity in the repository. If the entity does not exist, it will be created;
+     * if it already exists, it will be updated with the current state.
      *
-     * @param entity the entity to be added; must not be {@code null}.
+     * @param entity the entity to persist or update; must not be {@code null}.
+     *
+     * @return the persisted entity, reflecting the current state in the repository.
+     *
+     * @throws IllegalArgumentException if the entity does not exist in the repository.
      */
-    void add(E entity);
+    E save(E entity);
 
     /**
-     * Updates the given entity in the repository. The entity must already exist,
-     * and any modifications to its state will be persisted.
-     *
-     * @param entity the entity to be updated; must not be {@code null} and must exist in the repository.
-     *
-     * @return the updated entity, which reflects the saved state in the repository.
-     */
-    E update(E entity);
-
-    /**
-     * Removes the specified entity from the repository. If the entity does not exist,
-     * no action will be performed. This method ensures the entity is deleted from the underlying data store.
+     * Removes the given entity from the repository.
      *
      * @param entity the entity to be removed; must not be {@code null}.
+     *
+     * @throws IllegalArgumentException if the entity does not exist in the repository.
      */
     void remove(E entity);
 

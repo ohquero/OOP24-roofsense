@@ -32,8 +32,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
     }
 
     /**
-     * Finds an entity in the database that is equal to the given entity according to the criteria defined by the
-     * concrete repository implementation.
+     * Finds an entity in the database that is equal to the given entity using only business keys.
      *
      * @param entity the entity to search for in the database. Must not be {@code null}.
      *
@@ -48,6 +47,23 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      */
     protected EntityManager getEntityManager() {
         return entityManagerProvider.getEntityManager();
+    }
+
+    /**
+     * Returns the repository's identifier of the given entity.
+     *
+     * @param entity the entity for which to retrieve the identifier. Must not be {@code null}.
+     *
+     * @return an {@link Optional} containing the identifier of the entity, or {@link Optional#empty()} if the entity is
+     *         not yet persisted.
+     */
+    protected Optional<Object> getEntityId(final E entity) {
+        return Optional.ofNullable(
+                getEntityManager()
+                        .getEntityManagerFactory()
+                        .getPersistenceUnitUtil()
+                        .getIdentifier(entity)
+        );
     }
 
     /**
@@ -71,16 +87,17 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * {@inheritDoc}
      */
     @Override
-    public void add(final E entity) {
-        getEntityManager().persist(entity);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public E update(final E entity) {
+    public E save(final E entity) {
         Objects.requireNonNull(entity);
+
+        final var entityId = getEntityId(entity).orElse(null);
+        if (entityId == null) {
+            getEntityManager().persist(entity);
+            return entity;
+        }
+        if (getEntityManager().find(entity.getClass(), entityId) == null) {
+            throw new IllegalArgumentException("Entity does not exist in the database (possibly removed).");
+        }
         return getEntityManager().merge(entity);
     }
 
@@ -89,7 +106,20 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      */
     @Override
     public void remove(final E entity) {
-        getEntityManager().remove(getEntityManager().contains(entity) ? entity : getEntityManager().merge(entity));
+        final var entityId = getEntityId(entity).orElse(null);
+        if (entityId == null) {
+            throw new IllegalArgumentException("Entity does hot exists in the database (never persisted).");
+        }
+        final E entityToRemove;
+        if (!getEntityManager().contains(entity)) {
+            if (getEntityManager().find(entity.getClass(), entityId) == null) {
+                throw new IllegalArgumentException("Entity does not exist in the database (possibly removed).");
+            }
+            entityToRemove = getEntityManager().merge(entity);
+        } else {
+            entityToRemove = entity;
+        }
+        getEntityManager().remove(entityToRemove);
     }
 
 }

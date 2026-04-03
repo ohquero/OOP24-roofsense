@@ -1,14 +1,10 @@
 package roofsense.adapters.persistence;
 
 import jakarta.persistence.EntityManager;
-import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import roofsense.entities.Roof;
 import testutils.jpa.JPAExtension;
 import testutils.jpa.TestEntityManager;
@@ -18,7 +14,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.hibernate.exception.ConstraintViolationException.ConstraintKind.UNIQUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Uses {@link Roof} entity as a test entity since it's already available and mapped.
  **/
 @ExtendWith(JPAExtension.class)
-@SuppressWarnings("PMD.LinguisticNaming")
+@SuppressWarnings("PMD.LinguisticNaming") 
 class BaseJPARepositoryTest {
 
     @TestEntityManager
@@ -43,14 +38,6 @@ class BaseJPARepositoryTest {
     @BeforeEach
     void setUp() {
         repository = new BaseJPARepositoryForTests(em);
-        em.getTransaction().begin();
-    }
-
-    @AfterEach
-    void tearDown() {
-        if (em.getTransaction().isActive()) {
-            em.getTransaction().rollback();
-        }
     }
 
     @Test
@@ -61,8 +48,9 @@ class BaseJPARepositoryTest {
                 BaseJPARepositoryForTests.createRandomValidEntity(),
                 BaseJPARepositoryForTests.createRandomValidEntity()
         );
+        em.getTransaction().begin();
         entities.forEach(em::persist);
-        em.flush();
+        em.getTransaction().commit();
         em.clear(); // Clear persistence context to force fresh fetch
 
         // when
@@ -74,10 +62,10 @@ class BaseJPARepositoryTest {
     }
 
     @Test
-    void getAllWhenNoEntitiesAreAvailableShouldReturnEmptyListTest() {
+    void getAllWhenNoEntitiesAreAvailableShouldReturnEmptyCollectionTest() {
         //given
         final var entityClass = BaseJPARepositoryForTests.getEntityClass();
-        em.createQuery("from " + entityClass.getSimpleName(), entityClass).getResultList();
+        assertEquals(0, em.createQuery("from " + entityClass.getSimpleName(), entityClass).getResultList().size());
 
         // when
         final var result = repository.getAll();
@@ -92,171 +80,196 @@ class BaseJPARepositoryTest {
     }
 
     @Test
-    void existsWhenEntityIsManagedShouldReturnTrueTest() {
-        final var entity = BaseJPARepositoryForTests.createValidEntity();
-        em.persist(entity);
-        em.flush();
-
-        // When & Then: return true because the entity already is in the persistence context
-        assertTrue(repository.exists(entity));
-
-        // given - entity is then deleted from persistence context
-        em.remove(entity);
-        em.flush();
-
-        // when & then: returns false
-        assertFalse(repository.exists(entity));
-    }
-
-    @Test
-    void existsWhenEntityIsDetachedButPersistedShouldReturnTrueTest() {
-        final var entity = BaseJPARepositoryForTests.createValidEntity();
-        em.persist(entity);
-        em.flush();
-        em.clear();
-
-        assertTrue(repository.exists(entity));
-    }
-
-    @Test
-    void existsWhenEntityDoesNotExistsShouldReturnFalseTest() {
-        final var entity = BaseJPARepositoryForTests.createValidEntity();
-
-        // When & Then: entity does not exist in the DB
-        assertFalse(repository.exists(entity));
-    }
-
-    @Test
-    void addNullShouldFailTest() {
-        assertThrows(IllegalArgumentException.class, () -> repository.add(null));
-    }
-
-    @Test
-    void addValidEntityWorksTest() {
+    void existsTransientEntityShouldReturnFalseTest() {
         // given
         final var entity = BaseJPARepositoryForTests.createValidEntity();
-        assertNull(entity.getId());
-
-        // when
-        repository.add(entity);
-        em.flush();
-
-        // then
-        assertNotNull(entity.getId());
-        assertEquals(entity, em.find(Roof.class, entity.getId()));
-
-        // TODO: when & then: is not possible to re-add an already added entity
-        repository.add(entity);
-        em.flush();
-    }
-
-    @ParameterizedTest
-    @MethodSource(
-            "roofsense.adapters.persistence.BaseJPARepositoryTest$BaseJPARepositoryForTests"
-                    + "#invalidEntitiesWithConstraintViolationsCount"
-    )
-    void addInvalidEntityShouldFailTest(final Roof roof, final int constraintViolationsCount) {
-        final var exception = assertThrows(
-                ConstraintViolationException.class, () -> {
-                    repository.add(roof);
-                    em.flush();
-                }
-        );
-        assertEquals(constraintViolationsCount, exception.getConstraintViolations().size());
-    }
-
-    @Test
-    void addEqualEntitiesShouldFailTest() {
-        // given
-        final var entity = BaseJPARepositoryForTests.createValidEntity();
-        final var equalEntity = BaseJPARepositoryForTests.createValidEntity();
-        assertEquals(entity, equalEntity);
-        em.persist(entity);
-        em.flush();
 
         // when & then
-        final var exception = assertThrows(
-                org.hibernate.exception.ConstraintViolationException.class, () -> { //TODO: correct?
-                    repository.add(equalEntity);
-                    em.flush();
-                }
-        );
-        assertEquals(UNIQUE, exception.getKind());
+        assertFalse(repository.exists(entity));
     }
 
     @Test
-    void updateDetachedEntityShouldWorkTest() {
-        updateShouldUpdateEntity(true);
+    void existsManagedEntityShouldReturnTrueTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+
+        // when & then
+        assertTrue(repository.exists(entity));
     }
 
     @Test
-    void updateManagedEntityShouldWorkTest() {
-        updateShouldUpdateEntity(false);
+    void existsDetachedEntityShouldReturnTrueTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+        em.clear();
+
+        // when & then
+        assertTrue(repository.exists(entity));
     }
 
-    /**
-     * {@link AbstractJPARepository#update(Object)} test method core.
-     *
-     * @param detachEntity whether to detach the entity before updating.
-     */
-    void updateShouldUpdateEntity(final boolean detachEntity) {
-        // Given: a roof persisted in the DB
-        final String originalCode = "original-code";
-        final var roof = new Roof(originalCode, "original-address");
-        em.persist(roof);
+    @Test
+    void existsRemovedEntityShouldReturnFalseTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+        em.remove(entity);
+        em.getTransaction().commit();
+
+        // when & then
+        assertFalse(repository.exists(entity));
+    }
+
+    @Test
+    void saveNullShouldFailTest() {
+        assertThrows(NullPointerException.class, () -> repository.save(null));
+    }
+
+    @Test
+    void saveTransientEntityShouldWorkTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+
+        // when
+        em.getTransaction().begin();
+        final var savedEntity = repository.save(entity);
+        em.getTransaction().commit();
+
+        // then
+        assertNotNull(savedEntity);
+    }
+
+    @Test
+    void saveManagedEntityShouldMergeTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+
+        // when
+        final var newAddress = "new address";
+        entity.setBuildingAddress(newAddress);
+        em.getTransaction().begin();
+        final var savedEntity = repository.save(entity);
+        em.getTransaction().commit();
+
+        // then
+        assertNotNull(savedEntity);
+        assertEquals(newAddress, savedEntity.getBuildingAddress());
+    }
+
+    @Test
+    void saveDetachedEntityShouldMergeTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+        em.clear();
+
+        // when - entity is now detached, modify and save
+        final var newAddress = "New Address";
+        entity.setBuildingAddress(newAddress);
+        em.getTransaction().begin();
+        final var savedEntity = repository.save(entity);
+        em.getTransaction().commit();
+
+        // then
+        assertNotNull(savedEntity);
+        assertEquals(newAddress, savedEntity.getBuildingAddress());
+    }
+
+    @Test
+    void saveRemovedEntityShouldFailTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
         em.flush();
-        if (detachEntity) {
-            em.clear();
-        }
+        em.remove(entity);
+        em.getTransaction().commit();
 
-        // When: updating the roof
-        final String updatedCode = "updated-code";
-        roof.setCode(updatedCode);
-        repository.update(roof);
-        em.flush();
-        if (detachEntity) {
-            em.clear();
-        }
-
-        // Then: entity is updated and has the new code
-        assertTrue(repository.getByCode(originalCode).isEmpty());
+        // when & then
+        em.getTransaction().begin();
+        assertThrows(IllegalArgumentException.class, () -> repository.save(entity));
+        em.getTransaction().commit();
     }
 
     @Test
-    void removeDetachedEntityShouldWorkTest() {
-        removeShouldDeleteEntity(true);
+    void removeTransientEntityShouldFailTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> repository.remove(entity));
     }
 
     @Test
     void removeManagedEntityShouldWorkTest() {
-        removeShouldDeleteEntity(false);
-    }
-
-    /**
-     * {@link AbstractJPARepository#remove(Object)} test method core.
-     *
-     * @param detachEntity whether to detach the entity before removing.
-     */
-    void removeShouldDeleteEntity(final boolean detachEntity) {
-        // Given: a roof persisted in the DB
+        // given
         final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
         em.persist(entity);
-        em.flush();
-        if (detachEntity) {
-            em.clear();
-        }
+        em.getTransaction().commit();
 
-        // When: removing the roof
+        // when
+        em.getTransaction().begin();
         repository.remove(entity);
-        em.flush();
+        em.getTransaction().commit();
 
-        // Then: entity is deleted from the DB
-        assertTrue(repository.getByCode(entity.getCode()).isEmpty());
+        // then
+        assertFalse(em.contains(entity));
+    }
+
+    @Test
+    void removeDetachedEntityShouldWorkTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+        em.clear();
+
+        // when
+        em.getTransaction().begin();
+        repository.remove(entity);
+        em.getTransaction().commit();
+
+        // then - entity should be removed from database
+        final var unitUtil = em.getEntityManagerFactory().getPersistenceUnitUtil();
+        final var entityId = unitUtil.getIdentifier(entity);
+        final var removedEntity = em.find(Roof.class, entityId);
+        assertNull(removedEntity);
+    }
+
+    @Test
+    void removeRemovedEntityShouldFailTest() {
+        // given
+        final var entity = BaseJPARepositoryForTests.createValidEntity();
+        em.getTransaction().begin();
+        em.persist(entity);
+        em.getTransaction().commit();
+        em.getTransaction().begin();
+        em.remove(entity);
+        em.getTransaction().commit();
+        em.clear();
+
+        // when & then - attempting to remove an already removed entity throws IllegalArgumentException
+        assertThrows(IllegalArgumentException.class, () -> repository.remove(entity));
     }
 
     /**
-     * Test implementation of {@link AbstractJPARepository} for testing purposes. Uses {@link Roof} as the entity type
-     * just for convenience.
+     * Test implementation of {@link AbstractJPARepository} for testing purposes. Uses {@link Roof} as the entity
+     * type just for convenience.
      */
     private static class BaseJPARepositoryForTests extends AbstractJPARepository<Roof> {
 

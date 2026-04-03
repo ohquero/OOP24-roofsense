@@ -56,18 +56,6 @@ class RoofsManagerTest {
     }
 
     @Test
-    void addShouldCallRepositoryAddMethodTest() {
-        // Given
-        final var roof = new Roof("roof1", "roof1 address");
-
-        // When
-        roofsManager.add(roof);
-
-        // Then: the repository.add() method is called with the roof
-        verify(repository, times(1)).add(roof);
-    }
-
-    @Test
     void existsShouldCallRepositoryExistsMethodAndReturnItsOutputTest() {
         // Given
         final var roof = new Roof("roof2", "roof2 address");
@@ -101,16 +89,16 @@ class RoofsManagerTest {
     }
 
     @Test
-    void updateShouldCallRepositoryUpdateMethodAndReturnItsOutputTest() {
+    void saveShouldCallRepositorySaveMethodAndReturnItsOutputTest() {
         // given
         final var roof = new Roof("roof6", "address6");
-        when(repository.update(roof)).thenReturn(roof);
+        when(repository.save(roof)).thenReturn(roof);
 
         // when
-        final var returnedRoof = roofsManager.update(roof);
+        final var returnedRoof = roofsManager.save(roof);
 
         // then
-        verify(repository, times(1)).update(roof);
+        verify(repository, times(1)).save(roof);
         assertEquals(roof, returnedRoof);
     }
 

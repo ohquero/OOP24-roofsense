@@ -101,7 +101,7 @@ public final class RoofsRegistryNode extends AnchorPane {
             final var form = new RoofFormNode(manager);
             final var stage = Stages.createStage(form);
             form.addEventHandler(
-                    RoofFormNode.EventTypes.ROOF_CREATED, creationEvent -> {
+                    RoofFormNode.EventTypes.ROOF_SAVED, creationEvent -> {
                         // TODO: when text search will be implemented, this should be replaced with a more complex logic
                         roofsTableView.getItems().add(creationEvent.getObject());
 
@@ -122,7 +122,7 @@ public final class RoofsRegistryNode extends AnchorPane {
             form.setRoof(roofsTableView.getSelectionModel().getSelectedItem());
             final var stage = Stages.createStage(form);
             form.addEventHandler(
-                    RoofFormNode.EventTypes.ROOF_UPDATED, updateEvent -> {
+                    RoofFormNode.EventTypes.ROOF_SAVED, updateEvent -> {
                         // TODO: when text search will be implemented, this should be replaced with a more complex logic
                         final int selectedRoofIndex = roofsTableView.getSelectionModel().getSelectedIndex();
                         roofsTableView.getItems().set(selectedRoofIndex, updateEvent.getObject());
