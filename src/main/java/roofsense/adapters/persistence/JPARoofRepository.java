@@ -2,7 +2,6 @@ package roofsense.adapters.persistence;
 
 import com.google.inject.Inject;
 import jakarta.persistence.EntityManager;
-import org.apache.commons.lang3.NotImplementedException;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.RoofRepository;
 
@@ -43,7 +42,11 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
      */
     @Override
     public Collection<Roof> search(final String searchTerm) {
-        throw new NotImplementedException();
+        final var searchPattern = "%" + searchTerm + "%";
+        return getEntityManager()
+                .createQuery("FROM Roof WHERE code LIKE :searchTerm OR address LIKE :searchPattern", Roof.class)
+                .setParameter("searchPattern", searchPattern)
+                .getResultList();
     }
 
 }
