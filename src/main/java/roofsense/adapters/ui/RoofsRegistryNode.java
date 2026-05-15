@@ -1,5 +1,7 @@
 package roofsense.adapters.ui;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
@@ -25,13 +28,18 @@ public final class RoofsRegistryNode extends AnchorPane {
     private static final double ROOFS_TABLE_CODE_COLUMN_MIN_WIDTH = 80.0;
     private static final double ROOFS_TABLE_BUILDING_ADDRESS_COLUMN_MIN_WIDTH = 300.0;
 
+    private final RoofsManager manager;
+    private final TableView<Roof> roofsTableView;
+    private final TextField searchRoofsTextField;
+
     /**
      * Constructor.
      *
      * @param manager the use case for managing {@link Roof} entities.
      */
+    @SuppressFBWarnings(value = "EI2", justification = "RoofsManager is effectively immutable")
     public RoofsRegistryNode(final RoofsManager manager) {
-        Objects.requireNonNull(manager);
+        this.manager = Objects.requireNonNull(manager);
 
         //-----------------------------------------------------------------------------------------
         // NODE LAYOUT
@@ -43,11 +51,12 @@ public final class RoofsRegistryNode extends AnchorPane {
         final Label titleLabel = new Label("Roofs");
         titleLabel.getStyleClass().add("h1");
 
-        final TextField searchRoofsTextField = new TextField();
+        searchRoofsTextField = new TextField();
+        searchRoofsTextField.setId("searchRoofsTextField");
         searchRoofsTextField.setPromptText("Search...");
 
         // Create TableView and columns
-        final TableView<Roof> roofsTableView = new TableView<>();
+        roofsTableView = new TableView<>();
         roofsTableView.setId("roofsTableView");
         VBox.setVgrow(roofsTableView, javafx.scene.layout.Priority.ALWAYS);
 
@@ -87,14 +96,14 @@ public final class RoofsRegistryNode extends AnchorPane {
         // NODE LOGIC
         //-----------------------------------------------------------------------------------------
 
+        // Search field action
+        searchRoofsTextField.textProperty().addListener(invalidation -> performSearch());
+
         // Initialize table columns
         roofsTableCodeColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCode()));
         roofsTableBuildingAddressColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell
                 .getValue()
                 .getBuildingAddress()));
-
-        // Load existing roofs
-        manager.getAll().forEach(roofsTableView.getItems()::add);
 
         // Add button action
         addRoofButton.setOnAction(clickEvent -> {
@@ -102,10 +111,11 @@ public final class RoofsRegistryNode extends AnchorPane {
             final var stage = Stages.createStage(form);
             form.addEventHandler(
                     RoofFormNode.EventTypes.ROOF_SAVED, creationEvent -> {
-                        // TODO: when text search will be implemented, this should be replaced with a more complex logic
-                        roofsTableView.getItems().add(creationEvent.getObject());
+                        performSearch();
 
-                        stage.close();
+                        final var pause = new PauseTransition(Duration.seconds(1));
+                        pause.setOnFinished(event -> stage.close());
+                        pause.play();
                     }
             );
             stage.initOwner(this.getScene().getWindow());
@@ -123,7 +133,6 @@ public final class RoofsRegistryNode extends AnchorPane {
             final var stage = Stages.createStage(form);
             form.addEventHandler(
                     RoofFormNode.EventTypes.ROOF_SAVED, updateEvent -> {
-                        // TODO: when text search will be implemented, this should be replaced with a more complex logic
                         final int selectedRoofIndex = roofsTableView.getSelectionModel().getSelectedIndex();
                         roofsTableView.getItems().set(selectedRoofIndex, updateEvent.getObject());
 
@@ -144,11 +153,19 @@ public final class RoofsRegistryNode extends AnchorPane {
         removeRoofButton.setOnAction(event -> {
             final var selectedRoof = roofsTableView.getSelectionModel().getSelectedItem();
             manager.remove(selectedRoof);
-            // TODO: when text search will be implemented, this should be replaced with a more complex logic
             roofsTableView.getItems().remove(selectedRoof);
 
             roofsTableView.getSelectionModel().clearSelection();
         });
+
+        // Filling the roofsTableView with the roofs retrieved with an empty-string search, in order that when the
+        // searchRoofsTextField will be cleared the same roofs will appear
+        performSearch();
+    }
+
+    private void performSearch() {
+        final var roofs = manager.search(searchRoofsTextField.getText());
+        roofsTableView.getItems().setAll(roofs);
     }
 
 }

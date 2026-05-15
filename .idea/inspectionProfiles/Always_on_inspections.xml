@@ -52,7 +52,7 @@
       <extension name="JUnit4MethodNamingConvention" enabled="true">
         <option name="m_regex" value="[a-z][A-Za-z\d]*" />
         <option name="m_minLength" value="3" />
-        <option name="m_maxLength" value="64" />
+        <option name="m_maxLength" value="128" />
       </extension>
       <extension name="NativeMethodNamingConvention" enabled="true">
         <option name="m_regex" value="[a-z][A-Za-z\d]*" />

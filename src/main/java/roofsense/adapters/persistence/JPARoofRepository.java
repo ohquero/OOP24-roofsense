@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.RoofRepository;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -24,15 +25,7 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
     }
 
     /**
-     * Finds a persisted {@link Roof} entity that is equal to the provided one.
-     *
-     * <p>
-     * This method is not intended to be overridden. It implements the equality check
-     * based on the roof's code attribute.
-     *
-     * @param entity the {@link Roof} entity to find an equal match for. Must not be {@code null}.
-     *
-     * @return an {@link Optional} containing the equal persisted entity, or empty if none found.
+     * {@inheritDoc}
      */
     @Override
     protected Optional<Roof> findEqual(final Roof entity) {
@@ -42,6 +35,23 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
                 .getSingleResultOrNull();
 
         return Optional.ofNullable(persistedRoof);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<Roof> search(final String searchTerm) {
+        final var searchPattern = "%" + searchTerm + "%";
+        return getEntityManager()
+                .createQuery(
+                        "FROM Roof "
+                                + "WHERE code LIKE :searchPattern "
+                                + "OR buildingAddress LIKE :searchPattern"
+                        , Roof.class
+                )
+                .setParameter("searchPattern", searchPattern)
+                .getResultList();
     }
 
 }
