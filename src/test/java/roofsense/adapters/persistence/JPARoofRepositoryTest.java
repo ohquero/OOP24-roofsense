@@ -80,7 +80,7 @@ class JPARoofRepositoryTest {
         assertEquals(0, results.size());
     }
 
-    static class JPARoofRepositoryForTests extends JPARoofRepository {
+    static final class JPARoofRepositoryForTests extends JPARoofRepository {
 
         JPARoofRepositoryForTests(final EntityManager em) {
             super(() -> em);

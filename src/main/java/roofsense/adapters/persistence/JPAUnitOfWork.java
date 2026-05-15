@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  * active results in {@link IllegalStateException}.
  */
 @Singleton
-public class JPAUnitOfWork implements UnitOfWork, EntityManagerProvider {
+public final class JPAUnitOfWork implements UnitOfWork, EntityManagerProvider {
 
     private static final ThreadLocal<EntityManager> CURRENT_ENTITY_MANAGER = new ThreadLocal<>();
     private final EntityManagerFactory entityManagerFactory;

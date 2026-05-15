@@ -19,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * The provided EntityManager works with an in-memory H2 database. This approach has been implemented to make tests
  * more useful by simulating interactions with a real database.
  */
-public class JPAExtension implements BeforeEachCallback, AfterEachCallback {
+public final class JPAExtension implements BeforeEachCallback, AfterEachCallback {
 
     private static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(JPAExtension.class);
     private static final String EMF_KEY = "EntityManagerFactory";

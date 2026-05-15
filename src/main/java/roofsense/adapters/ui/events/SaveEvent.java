@@ -10,7 +10,7 @@ import java.io.Serial;
  *
  * @param <T> the type of the object being saved.
  */
-public class SaveEvent<T> extends Event {
+public final class SaveEvent<T> extends Event {
 
     @Serial
     private static final long serialVersionUID = -19386770972753512L;

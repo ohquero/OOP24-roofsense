@@ -271,7 +271,7 @@ class BaseJPARepositoryTest {
      * Test implementation of {@link AbstractJPARepository} for testing purposes. Uses {@link Roof} as the entity
      * type just for convenience.
      */
-    private static class BaseJPARepositoryForTests extends AbstractJPARepository<Roof> {
+    private static final class BaseJPARepositoryForTests extends AbstractJPARepository<Roof> {
 
         private static final Random RANDOM = new Random();
 

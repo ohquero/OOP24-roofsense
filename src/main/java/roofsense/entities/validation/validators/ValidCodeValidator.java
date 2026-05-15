@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * Validator for {@link ValidCode} annotation.
  */
-public class ValidCodeValidator implements ConstraintValidator<ValidCode, String> {
+public final class ValidCodeValidator implements ConstraintValidator<ValidCode, String> {
 
     private static final Pattern CODE_VALIDATION_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-]*$");
 
@@ -23,7 +23,7 @@ public class ValidCodeValidator implements ConstraintValidator<ValidCode, String
      * @param constraintAnnotation the annotation instance
      */
     @Override
-    public final void initialize(final ValidCode constraintAnnotation) {
+    public void initialize(final ValidCode constraintAnnotation) {
         this.message = constraintAnnotation.message();
         this.messageForBlank = constraintAnnotation.messageForBlank();
     }
@@ -37,7 +37,7 @@ public class ValidCodeValidator implements ConstraintValidator<ValidCode, String
      * @return true if valid, false otherwise
      */
     @Override
-    public final boolean isValid(final String value, final ConstraintValidatorContext context) {
+    public boolean isValid(final String value, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         if (value == null || value.isBlank()) {

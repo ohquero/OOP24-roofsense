@@ -189,6 +189,10 @@ public final class RoofFormNode extends AnchorPane {
      */
     public static final class EventTypes {
 
+        /**
+         * Event fired when a roof is saved (either created or updated) in the form. The event's payload contains the
+         * saved roof.
+         */
         public static final EventType<SaveEvent<Roof>> ROOF_SAVED = new EventType<>(Event.ANY, "ROOF_SAVED");
 
         private EventTypes() {

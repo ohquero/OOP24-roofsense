@@ -45,7 +45,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      *
      * @return the {@link EntityManager} instance that must be used to perform operations against the persistence unit.
      */
-    protected EntityManager getEntityManager() {
+    protected final EntityManager getEntityManager() {
         return entityManagerProvider.getEntityManager();
     }
 
@@ -57,7 +57,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * @return an {@link Optional} containing the identifier of the entity, or {@link Optional#empty()} if the entity is
      *         not yet persisted.
      */
-    protected Optional<Object> getEntityId(final E entity) {
+    protected final Optional<Object> getEntityId(final E entity) {
         return Optional.ofNullable(
                 getEntityManager()
                         .getEntityManagerFactory()
@@ -70,7 +70,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * {@inheritDoc}
      */
     @Override
-    public List<E> getAll() {
+    public final List<E> getAll() {
         return getEntityManager().createQuery("from " + entityClass.getSimpleName(), entityClass).getResultList();
     }
 
@@ -78,7 +78,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * {@inheritDoc}
      */
     @Override
-    public boolean exists(final E entity) {
+    public final boolean exists(final E entity) {
         Objects.requireNonNull(entity);
         return getEntityManager().contains(entity) || findEqual(entity).isPresent();
     }
@@ -87,7 +87,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * {@inheritDoc}
      */
     @Override
-    public E save(final E entity) {
+    public final E save(final E entity) {
         Objects.requireNonNull(entity);
 
         final var entityId = getEntityId(entity).orElse(null);
@@ -105,7 +105,7 @@ public abstract class AbstractJPARepository<E> implements Repository<E> {
      * {@inheritDoc}
      */
     @Override
-    public void remove(final E entity) {
+    public final void remove(final E entity) {
         final var entityId = getEntityId(entity).orElse(null);
         if (entityId == null) {
             throw new IllegalArgumentException("Entity does hot exists in the database (never persisted).");

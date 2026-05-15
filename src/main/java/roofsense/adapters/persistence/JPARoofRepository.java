@@ -41,14 +41,14 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
      * {@inheritDoc}
      */
     @Override
-    public Collection<Roof> search(final String searchTerm) {
+    public final Collection<Roof> search(final String searchTerm) {
         final var searchPattern = "%" + searchTerm + "%";
         return getEntityManager()
                 .createQuery(
                         "FROM Roof "
                                 + "WHERE code LIKE :searchPattern "
-                                + "OR buildingAddress LIKE :searchPattern"
-                        , Roof.class
+                                + "OR buildingAddress LIKE :searchPattern",
+                        Roof.class
                 )
                 .setParameter("searchPattern", searchPattern)
                 .getResultList();

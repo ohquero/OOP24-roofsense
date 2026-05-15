@@ -9,6 +9,9 @@ import javafx.stage.Stage;
  */
 public final class Stages {
 
+    /**
+     * The URL string for the stylesheet to be applied to all stages created by this class.
+     */
     public static final String STYLESHEET_URL_STRING =
             ClassLoader.getSystemResource("javafx/style.css").toExternalForm();
 

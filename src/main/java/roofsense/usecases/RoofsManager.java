@@ -12,7 +12,7 @@ import java.util.Collection;
 /**
  * Class providing access to {@link Roof} related use cases.
  */
-public class RoofsManager {
+public final class RoofsManager {
 
     private final UnitOfWork unitOfWork;
     private final RoofRepository repository;

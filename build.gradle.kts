@@ -93,6 +93,7 @@ tasks.named<Test>("integration") {
 
 tasks.register<Test>("runShowNodeTest") {
     group = "verification"
+    description = "Allows to run ShowNode tests, which are excluded by default"
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
 
