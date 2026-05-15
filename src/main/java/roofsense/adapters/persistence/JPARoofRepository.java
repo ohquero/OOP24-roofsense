@@ -44,7 +44,12 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
     public Collection<Roof> search(final String searchTerm) {
         final var searchPattern = "%" + searchTerm + "%";
         return getEntityManager()
-                .createQuery("FROM Roof WHERE code LIKE :searchTerm OR address LIKE :searchPattern", Roof.class)
+                .createQuery(
+                        "FROM Roof "
+                                + "WHERE code LIKE :searchPattern "
+                                + "OR buildingAddress LIKE :searchPattern"
+                        , Roof.class
+                )
                 .setParameter("searchPattern", searchPattern)
                 .getResultList();
     }

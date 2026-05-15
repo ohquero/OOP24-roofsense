@@ -33,11 +33,12 @@ class JPARoofRepositoryTest {
 
     @Test
     void searchByCodeTest() {
-        final var roof = new Roof("R-01", "address 01");
+        final var roofCode = "R-01";
+        final var roof = new Roof(roofCode, "address 01");
         repository.save(roof);
         em.flush();
 
-        final var results = repository.search("roof");
+        final var results = repository.search(roofCode);
 
         assertEquals(1, results.size());
         assertEquals(roof, results.iterator().next());
@@ -56,20 +57,20 @@ class JPARoofRepositoryTest {
     }
 
     @Test
-    void searchReturnsMultipleRoofs() {
+    void searchWithSearchTermMatchingMultipleRoofs() {
         final var roof = new Roof("R-03", "address 03");
         final var roof2 = new Roof("R-04", "address 04");
         repository.save(roof);
         repository.save(roof2);
         em.flush();
 
-        final var results = repository.search("roof");
+        final var results = repository.search("R-");
 
         assertEquals(2, results.size());
     }
 
     @Test
-    void searchReturnsEmptyCollectionWhenNothingMatches() {
+    void searchWithSearchTermNotMatchingAnyRoof() {
         final var roof = new Roof("R-05", "address 05");
         repository.save(roof);
         em.flush();
