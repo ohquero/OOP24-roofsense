@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.hamcrest.Matchers.blankString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -41,10 +40,6 @@ class RoofFormNodeTest {
     private static final String BUILDING_ADDRESS_VALIDATION_RESULT_LABEL_NQ = "#buildingAddressValidationResultLabel";
     private static final String OPERATION_RESULT_LABEL_NQ = "#saveResultLabel";
 
-    private void initRoofsManagerMock(final RoofsManager manager) {
-        doAnswer(invocation -> new Roof(invocation.getArgument(0))).when(manager).update(any(Roof.class));
-    }
-
     @Nested
     class CreateNewRoofTest extends AbstractNodeTest {
 
@@ -62,7 +57,7 @@ class RoofFormNodeTest {
             stage = testfxStage;
 
             manager = mock(RoofsManager.class);
-            initRoofsManagerMock(manager);
+            doAnswer(invocation -> invocation.getArgument(0)).when(manager).save(any(Roof.class));
 
             form = new RoofFormNode(manager);
 
@@ -89,7 +84,7 @@ class RoofFormNodeTest {
             final var buildingAddress = "Main Street 1";
             when(manager.exists(any(Roof.class))).thenReturn(false);
             final var createdRoof = new AtomicReference<>();
-            form.addEventHandler(RoofFormNode.EventTypes.ROOF_CREATED, event -> createdRoof.set(event.getObject()));
+            form.addEventHandler(RoofFormNode.EventTypes.ROOF_SAVED, event -> createdRoof.set(event.getObject()));
 
             // when
             robot.clickOn(CODE_TEXT_FIELD_NQ).eraseText(roofCode.length());
@@ -109,9 +104,9 @@ class RoofFormNodeTest {
 
             // then
             final var roofCaptor = ArgumentCaptor.forClass(Roof.class);
-            verify(manager).add(roofCaptor.capture());
-            assertSame(createdRoof.get(), roofCaptor.getValue());
-            verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof created successfully"));
+            verify(manager).save(roofCaptor.capture());
+            assertEquals(createdRoof.get(), roofCaptor.getValue());
+            verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof saved successfully"));
         }
 
         @Test
@@ -143,7 +138,7 @@ class RoofFormNodeTest {
             robot.clickOn(SAVE_BUTTON_NQ);
 
             // then
-            verify(manager, never()).add(any(Roof.class));
+            verify(manager, never()).save(any(Roof.class));
             verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("An equal Roof already exists"));
         }
 
@@ -166,7 +161,7 @@ class RoofFormNodeTest {
         void start(final Stage testfxStage) {
             stage = testfxStage;
             manager = mock(RoofsManager.class);
-            initRoofsManagerMock(manager);
+            doAnswer(invocation -> invocation.getArgument(0)).when(manager).save(any(Roof.class));
 
             initialRoof = new Roof("R-02", "Main Street 2");
 
@@ -184,7 +179,7 @@ class RoofFormNodeTest {
             // given
             when(manager.exists(any(Roof.class))).thenReturn(true);
             final var updatedRoof = new AtomicReference<Roof>();
-            form.addEventHandler(RoofFormNode.EventTypes.ROOF_UPDATED, event -> updatedRoof.set(event.getObject()));
+            form.addEventHandler(RoofFormNode.EventTypes.ROOF_SAVED, event -> updatedRoof.set(event.getObject()));
 
             // then
             verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());
@@ -209,10 +204,10 @@ class RoofFormNodeTest {
             assertEquals(newRoofBuildingAddress, updatedRoof.get().getBuildingAddress());
 
             final var roofCaptor = ArgumentCaptor.forClass(Roof.class);
-            verify(manager).update(roofCaptor.capture());
+            verify(manager).save(roofCaptor.capture());
             assertEquals(updatedRoof.get(), roofCaptor.getValue());
 
-            verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof updated successfully"));
+            verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof saved successfully"));
         }
 
         @Test

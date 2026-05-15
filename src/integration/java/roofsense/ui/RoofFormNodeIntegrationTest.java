@@ -74,7 +74,7 @@ class RoofFormNodeIntegrationTest {
         robot.clickOn("#saveButton");
 
         // then
-        FxAssert.verifyThat("#saveResultLabel", LabeledMatchers.hasText("Roof created successfully"));
+        FxAssert.verifyThat("#saveResultLabel", LabeledMatchers.hasText("Roof saved successfully"));
         final EntityManager em = this.emf.createEntityManager();
         final var persistedRoof = em.createQuery("FROM Roof WHERE code = :code", Roof.class)
                 .setParameter("code", roofCode)
