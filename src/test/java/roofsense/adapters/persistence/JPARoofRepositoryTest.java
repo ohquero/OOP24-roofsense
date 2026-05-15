@@ -10,7 +10,6 @@ import testutils.jpa.JPAExtension;
 import testutils.jpa.TestEntityManager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(JPAExtension.class)
 class JPARoofRepositoryTest {
@@ -35,7 +34,7 @@ class JPARoofRepositoryTest {
     @Test
     void searchByCodeTest() {
         final var roof = new Roof("R-01", "address 01");
-        repository.add(roof);
+        repository.save(roof);
         em.flush();
 
         final var results = repository.search("roof");
@@ -47,7 +46,7 @@ class JPARoofRepositoryTest {
     @Test
     void searchByAddress() {
         final var roof = new Roof("R-02", "address 02");
-        repository.add(roof);
+        repository.save(roof);
         em.flush();
 
         final var results = repository.search("address");
@@ -60,8 +59,8 @@ class JPARoofRepositoryTest {
     void searchReturnsMultipleRoofs() {
         final var roof = new Roof("R-03", "address 03");
         final var roof2 = new Roof("R-04", "address 04");
-        repository.add(roof);
-        repository.add(roof2);
+        repository.save(roof);
+        repository.save(roof2);
         em.flush();
 
         final var results = repository.search("roof");
@@ -70,16 +69,15 @@ class JPARoofRepositoryTest {
     }
 
     @Test
-    void searchReturnsEmptyWhenNoMatch() {
+    void searchReturnsEmptyCollectionWhenNothingMatches() {
         final var roof = new Roof("R-05", "address 05");
-        repository.add(roof);
+        repository.save(roof);
         em.flush();
 
         final var results = repository.search("nonexistent");
 
         assertEquals(0, results.size());
     }
-
 
     static class JPARoofRepositoryForTests extends JPARoofRepository {
 
