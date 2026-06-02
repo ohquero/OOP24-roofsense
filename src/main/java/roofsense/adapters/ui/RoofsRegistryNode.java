@@ -159,7 +159,7 @@ public final class RoofsRegistryNode extends AnchorPane {
         });
 
         // Filling the roofsTableView with the roofs retrieved with an empty-string search, in order that when the
-        // searchRoofsTextField will be cleared the same roofs will appear
+        // searchRoofsTextField is cleared, the same roofs will appear
         performSearch();
     }
 

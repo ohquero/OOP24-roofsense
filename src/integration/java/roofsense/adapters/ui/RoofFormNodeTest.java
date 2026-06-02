@@ -1,30 +1,26 @@
 package roofsense.adapters.ui;
 
+import com.google.inject.Guice;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
+import roofsense.config.RoofSenseModule;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.Matchers.blankString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.isDisabled;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
@@ -43,6 +39,7 @@ class RoofFormNodeTest {
     @Nested
     class CreateNewRoofTest extends AbstractNodeTest {
 
+        //private EntityManagerFactory emf;
         private RoofsManager manager;
         private RoofFormNode form;
         private Stage stage;
@@ -54,17 +51,17 @@ class RoofFormNodeTest {
 
         @Start
         void start(final Stage testfxStage) {
+            final var injector = Guice.createInjector(new RoofSenseModule());
+
+            //emf = injector.getInstance(EntityManagerFactory.class);
+            manager = injector.getInstance(RoofsManager.class);
+            form = injector.getInstance(RoofFormNode.class);
             stage = testfxStage;
-
-            manager = mock(RoofsManager.class);
-            doAnswer(invocation -> invocation.getArgument(0)).when(manager).save(any(Roof.class));
-
-            form = new RoofFormNode(manager);
 
             final var scene = new Scene(form);
             scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
             testfxStage.setScene(scene);
-            testfxStage.show();
+            stage.show();
         }
 
         @Test
@@ -78,13 +75,16 @@ class RoofFormNodeTest {
         }
 
         @Test
-        void formFilledWithValidDataShouldCreateNewRoofTest(final FxRobot robot) {
+        void formFilledWithValidDataShouldCreateNewRoofTest(final FxRobot robot)
+                throws ExecutionException, InterruptedException {
             // given
             final var roofCode = "R-01";
             final var buildingAddress = "Main Street 1";
-            when(manager.exists(any(Roof.class))).thenReturn(false);
-            final var createdRoof = new AtomicReference<>();
-            form.addEventHandler(RoofFormNode.EventTypes.ROOF_SAVED, event -> createdRoof.set(event.getObject()));
+            final var returnedRoofFuture = new CompletableFuture<Roof>();
+            form.addEventHandler(
+                    RoofFormNode.EventTypes.ROOF_SAVED,
+                    event -> returnedRoofFuture.complete(event.getObject())
+            );
 
             // when
             robot.clickOn(CODE_TEXT_FIELD_NQ).eraseText(roofCode.length());
@@ -103,9 +103,14 @@ class RoofFormNodeTest {
             robot.clickOn(SAVE_BUTTON_NQ);
 
             // then
-            final var roofCaptor = ArgumentCaptor.forClass(Roof.class);
-            verify(manager).save(roofCaptor.capture());
-            assertEquals(createdRoof.get(), roofCaptor.getValue());
+            // returned Roof is correctly formed
+            final var returnedRoof = returnedRoofFuture.get();
+            assertEquals(roofCode, returnedRoof.getCode());
+            assertEquals(buildingAddress, returnedRoof.getBuildingAddress());
+            // the returned Roof has also been persisted
+            final var persistedRoofs = manager.getAll();
+            assertEquals(1, persistedRoofs.size());
+            assertEquals(returnedRoof, persistedRoofs.iterator().next());
             verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof saved successfully"));
         }
 
@@ -128,9 +133,10 @@ class RoofFormNodeTest {
         @Test
         void clickingSaveButtonShouldDisplayErrorWhenRoofAlreadyExistsTest(final FxRobot robot) {
             //given
-            when(manager.exists(any(Roof.class))).thenReturn(true);
             final var roofCode = "R-03";
             final var buildingAddress = "Main Street 3";
+            final var existingRoof = new Roof(roofCode, buildingAddress);
+            manager.save(existingRoof);
 
             // when
             robot.clickOn(CODE_VALIDATION_RESULT_LABEL_NQ).write(roofCode);
@@ -138,8 +144,10 @@ class RoofFormNodeTest {
             robot.clickOn(SAVE_BUTTON_NQ);
 
             // then
-            verify(manager, never()).save(any(Roof.class));
             verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("An equal Roof already exists"));
+            final var persistedRoofs = manager.getAll();
+            assertEquals(1, persistedRoofs.size());
+            assertEquals(existingRoof, persistedRoofs.iterator().next());
         }
 
     }
@@ -148,7 +156,6 @@ class RoofFormNodeTest {
     class EditRoofTest extends AbstractNodeTest {
 
         private RoofsManager manager;
-        private Roof initialRoof;
         private RoofFormNode form;
         private Stage stage;
 
@@ -159,64 +166,74 @@ class RoofFormNodeTest {
 
         @Start
         void start(final Stage testfxStage) {
+            final var injector = Guice.createInjector(new RoofSenseModule());
+
+            manager = injector.getInstance(RoofsManager.class);
+            form = injector.getInstance(RoofFormNode.class);
             stage = testfxStage;
-            manager = mock(RoofsManager.class);
-            doAnswer(invocation -> invocation.getArgument(0)).when(manager).save(any(Roof.class));
-
-            initialRoof = new Roof("R-02", "Main Street 2");
-
-            form = new RoofFormNode(manager);
-            form.setRoof(initialRoof);
 
             final var scene = new Scene(form);
             scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
             testfxStage.setScene(scene);
-            testfxStage.show();
+            stage.show();
         }
 
         @Test
-        void formFilledWithValidDataShouldModifyRoofTest(final FxRobot robot) {
+        void formFilledWithValidDataShouldModifyRoofTest(final FxRobot robot)
+                throws ExecutionException, InterruptedException {
             // given
-            when(manager.exists(any(Roof.class))).thenReturn(true);
-            final var updatedRoof = new AtomicReference<Roof>();
-            form.addEventHandler(RoofFormNode.EventTypes.ROOF_SAVED, event -> updatedRoof.set(event.getObject()));
+            final var roofCode = "R-03";
+            final var buildingAddress = "Main Street 3";
+            final var existingRoof = new Roof(roofCode, buildingAddress);
+            manager.save(existingRoof);
+            Platform.runLater(() -> form.setRoof(existingRoof));
+            waitForFxEvents();
+            final var formReturnedRoofFuture = new CompletableFuture<Roof>();
+            form.addEventHandler(
+                    RoofFormNode.EventTypes.ROOF_SAVED,
+                    event -> formReturnedRoofFuture.complete(event.getObject())
+            );
 
             // then
             verifyThat(CODE_TEXT_FIELD_NQ, isDisabled());
-            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(initialRoof.getCode()));
+            verifyThat(CODE_TEXT_FIELD_NQ, TextInputControlMatchers.hasText(existingRoof.getCode()));
             verifyThat(
                     BUILDING_ADDRESS_TEXT_FIELD_NQ,
-                    TextInputControlMatchers.hasText(initialRoof.getBuildingAddress())
+                    TextInputControlMatchers.hasText(existingRoof.getBuildingAddress())
             );
             verifyThat(CODE_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(""));
             verifyThat(BUILDING_ADDRESS_VALIDATION_RESULT_LABEL_NQ, LabeledMatchers.hasText(""));
             verifyThat(SAVE_BUTTON_NQ, isEnabled());
 
             // given
-            final var newRoofBuildingAddress = "Modified Street 2";
+            final var buildingAddressTextToAdd = " edited";
+            final var newRoofBuildingAddress = existingRoof.getBuildingAddress() + buildingAddressTextToAdd;
 
             // when
-            robot.clickOn(CODE_TEXT_FIELD_NQ).eraseText(initialRoof.getCode().length());
-            robot.clickOn(BUILDING_ADDRESS_TEXT_FIELD_NQ).write(newRoofBuildingAddress);
+            robot.clickOn(BUILDING_ADDRESS_TEXT_FIELD_NQ).write(buildingAddressTextToAdd);
             robot.clickOn(SAVE_BUTTON_NQ);
 
             // then
-            assertEquals(newRoofBuildingAddress, updatedRoof.get().getBuildingAddress());
-
-            final var roofCaptor = ArgumentCaptor.forClass(Roof.class);
-            verify(manager).save(roofCaptor.capture());
-            assertEquals(updatedRoof.get(), roofCaptor.getValue());
-
             verifyThat(OPERATION_RESULT_LABEL_NQ, LabeledMatchers.hasText("Roof saved successfully"));
+            // the Roof returned by the form has been correctly updated
+            final var returnedRoof = formReturnedRoofFuture.get();
+            assertEquals(newRoofBuildingAddress, returnedRoof.getBuildingAddress());
+            // the updates have been persisted
+            final var persistedRoofs = manager.getAll();
+            assertEquals(1, persistedRoofs.size());
+            final var persistedUpdatedRoof = persistedRoofs.iterator().next();
+            assertEquals(returnedRoof, persistedUpdatedRoof);
+            assertEquals(returnedRoof.getBuildingAddress(), persistedUpdatedRoof.getBuildingAddress());
         }
 
         @Test
         void formFilledWithInvalidDataShouldNotAllowToSaveTest(final FxRobot robot) {
             // given
+            final var roof = new Roof("R-04", "Main Street 4");
             final var buildingAddress = "   ";
 
             // when
-            robot.clickOn(BUILDING_ADDRESS_TEXT_FIELD_NQ).eraseText(initialRoof.getBuildingAddress().length());
+            robot.clickOn(BUILDING_ADDRESS_TEXT_FIELD_NQ).eraseText(roof.getBuildingAddress().length());
             robot.clickOn(BUILDING_ADDRESS_TEXT_FIELD_NQ).write(buildingAddress);
 
             // then
@@ -229,6 +246,7 @@ class RoofFormNodeTest {
     @Nested
     class SetRoofTest extends AbstractNodeTest {
 
+        //private RoofsManager manager;
         private RoofFormNode form;
         private Stage stage;
 
@@ -239,14 +257,16 @@ class RoofFormNodeTest {
 
         @Start
         void start(final Stage testfxStage) {
-            stage = testfxStage;
+            final var injector = Guice.createInjector(new RoofSenseModule());
 
-            form = new RoofFormNode(mock(RoofsManager.class));
+            // manager = injector.getInstance(RoofsManager.class);
+            form = injector.getInstance(RoofFormNode.class);
+            stage = testfxStage;
 
             final var scene = new Scene(form);
             scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
             testfxStage.setScene(scene);
-            testfxStage.show();
+            stage.show();
         }
 
         @Test

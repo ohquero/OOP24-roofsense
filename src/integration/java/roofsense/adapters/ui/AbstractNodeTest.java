@@ -11,10 +11,11 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Base class for all {@link Node} unit tests.
+ * Base class for all custom {@link Node}s tests.
  *
  * <p>
- * It includes a test named {@code showInView()} which displays the {@link Node} in a dedicated {@link Stage}.
+ * This base class adds to all the concrete implementations a utility test named {@code showInView()} which displays the
+ * {@link Node} under test in a dedicated {@link Stage}.
  */
 @ExtendWith(ApplicationExtension.class)
 abstract class AbstractNodeTest {

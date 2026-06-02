@@ -70,18 +70,13 @@ tasks.named<Test>("test") {
     useJUnitPlatform {
         excludeTags(showNodeTestsTag)
     }
-
-    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    jvmArgs = jvmArgs!!.toMutableList().apply {
-        add("-javaagent:${mockitoAgent.asPath}")
-        add("-Djava.awt.headless=true")
-        add("-Dtestfx.robot=glass")
-        add("-Dtestfx.headless=true")
-        add("-Dprism.order=sw")
-    }
 }
 
 tasks.named<Test>("integration") {
+    useJUnitPlatform {
+        excludeTags(showNodeTestsTag)
+    }
+
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
     jvmArgs = jvmArgs!!.toMutableList().apply {
         add("-Djava.awt.headless=true")
@@ -94,8 +89,8 @@ tasks.named<Test>("integration") {
 tasks.register<Test>("runShowNodeTest") {
     group = "verification"
     description = "Allows to run ShowNode tests, which are excluded by default"
-    testClassesDirs = sourceSets["test"].output.classesDirs
-    classpath = sourceSets["test"].runtimeClasspath
+    testClassesDirs = sourceSets["integration"].output.classesDirs
+    classpath = sourceSets["integration"].runtimeClasspath
 
     useJUnitPlatform {
         includeTags(showNodeTestsTag)

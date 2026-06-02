@@ -170,7 +170,7 @@ public final class RoofFormNode extends AnchorPane {
         this.newRoof = roof == null ? new Roof(null, null) : new Roof(roof);
 
         // setting form title based on whether we are editing or creating a new roof
-        if (this.roof != null) {
+        if (roof != null) {
             titleLabel.setText("Edit roof");
         } else {
             titleLabel.setText("Create new roof");
