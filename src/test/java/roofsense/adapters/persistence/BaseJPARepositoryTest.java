@@ -279,20 +279,20 @@ class BaseJPARepositoryTest {
             super(Roof.class, () -> em);
         }
 
-        public static Class<Roof> getEntityClass() {
+        static Class<Roof> getEntityClass() {
             return Roof.class;
         }
 
-        public static Roof createValidEntity() {
+        static Roof createValidEntity() {
             return new Roof("R-01", "roof 1 address");
         }
 
-        public static Roof createRandomValidEntity() {
+        static Roof createRandomValidEntity() {
             final var randomNumber = RANDOM.nextInt(100_000_000);
             return new Roof("R-" + randomNumber, "Address-" + randomNumber);
         }
 
-        public static Stream<Arguments> invalidEntitiesWithConstraintViolationsCount() {
+        static Stream<Arguments> invalidEntitiesWithConstraintViolationsCount() {
             return Stream.of(
                     Arguments.of(new Roof(null, null), 2),
                     Arguments.of(new Roof(null, "roof 3 address"), 1),

@@ -80,11 +80,11 @@ class ValidatorsTest {
         @NotBlank
         private String name;
 
-        public String getName() {
+        String getName() {
             return name;
         }
 
-        public void setName(final String name) {
+        void setName(final String name) {
             this.name = name;
         }
 
