@@ -190,3 +190,6 @@ doc/*.html
 
 ### ObjectDB ###
 *.odb*
+
+### Kilo Code ###
+.kilo
