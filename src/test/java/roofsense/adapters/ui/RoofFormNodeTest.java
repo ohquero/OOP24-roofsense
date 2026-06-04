@@ -26,6 +26,7 @@ import static org.testfx.matcher.base.NodeMatchers.isDisabled;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
+//@Tag("IntegrationTest")
 @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 class RoofFormNodeTest {
 

@@ -21,6 +21,5 @@ run_gradle_task() {
 }
 
 run_gradle_task "check"
-run_gradle_task "jacocoTestCoverageVerification"
 
 exit 0

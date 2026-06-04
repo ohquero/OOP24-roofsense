@@ -31,6 +31,7 @@ import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 /**
  * Test class for {@link RoofsRegistryNode}.
  */
+//@Tag("IntegrationTest")
 class RoofsRegistryNodeTest extends AbstractNodeTest {
 
     private static final String ROOFS_TABLE_NQ = "#roofsTableView";

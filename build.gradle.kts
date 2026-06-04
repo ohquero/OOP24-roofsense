@@ -2,7 +2,6 @@ plugins {
     application
     alias(libs.plugins.gradlejavaqa)
     alias(libs.plugins.javafxplugin)
-    alias(libs.plugins.integrationtest)
 }
 
 repositories {
@@ -70,12 +69,6 @@ tasks.named<Test>("test") {
     useJUnitPlatform {
         excludeTags(showNodeTestsTag)
     }
-}
-
-tasks.named<Test>("integration") {
-    useJUnitPlatform {
-        excludeTags(showNodeTestsTag)
-    }
 
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
     jvmArgs = jvmArgs!!.toMutableList().apply {
@@ -89,8 +82,6 @@ tasks.named<Test>("integration") {
 tasks.register<Test>("runShowNodeTest") {
     group = "verification"
     description = "Allows to run ShowNode tests, which are excluded by default"
-    testClassesDirs = sourceSets["integration"].output.classesDirs
-    classpath = sourceSets["integration"].runtimeClasspath
 
     useJUnitPlatform {
         includeTags(showNodeTestsTag)
@@ -111,9 +102,17 @@ tasks.jacocoTestCoverageVerification {
     }
 }
 
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
+//
+// Check task configuration
+//
+
+tasks.check {
+    dependsOn(tasks.checkstyleMain)
+    dependsOn(tasks.checkstyleTest)
+    dependsOn(tasks.pmdMain)
+    dependsOn(tasks.pmdTest)
+    dependsOn(tasks.spotbugsMain)
+    dependsOn(tasks.spotbugsTest)
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+    finalizedBy(tasks.jacocoTestReport)
 }

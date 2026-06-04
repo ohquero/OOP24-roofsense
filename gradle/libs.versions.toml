@@ -17,7 +17,6 @@ google-guice = "7.0.0"
 testfx = "4.0.18"
 hamcrest = "3.0"
 testfx-openjfx-monocle = "21.0.2"
-integrationtest = "2.2.5"
 
 [libraries]
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
@@ -43,4 +42,3 @@ testfx-openjfx-monocle = { module = "org.testfx:openjfx-monocle", version.ref = 
 [plugins]
 gradlejavaqa = { id = "org.danilopianini.gradle-java-qa", version.ref = "gradlejavaqa" }
 javafxplugin = { id = "org.openjfx.javafxplugin", version.ref = "javafxplugin" }
-integrationtest = { id = "com.coditory.integration-test", version.ref = "integrationtest" }
