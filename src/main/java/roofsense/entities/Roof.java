@@ -74,7 +74,7 @@ public class Roof {
      *
      * @return the unique code of the roof
      */
-    public final String getCode() {
+    public String getCode() {
         return code;
     }
 
@@ -83,7 +83,7 @@ public class Roof {
      *
      * @param code the unique code to set
      */
-    public final void setCode(final String code) {
+    public void setCode(final String code) {
         this.code = code;
     }
 
@@ -92,7 +92,7 @@ public class Roof {
      *
      * @return the address of the building
      */
-    public final String getBuildingAddress() {
+    public String getBuildingAddress() {
         return buildingAddress;
     }
 
@@ -101,7 +101,7 @@ public class Roof {
      *
      * @param buildingAddress the address of the building to set
      */
-    public final void setBuildingAddress(final String buildingAddress) {
+    public void setBuildingAddress(final String buildingAddress) {
         this.buildingAddress = buildingAddress;
     }
 
@@ -110,7 +110,7 @@ public class Roof {
      */
     @Override
     @SuppressWarnings("PMD.SimplifyBooleanReturns")
-    public final boolean equals(final Object o) {
+    public boolean equals(final Object o) {
         if (!(o instanceof final Roof roof)) {
             return false;
         }
@@ -121,7 +121,7 @@ public class Roof {
      * {@inheritDoc}
      */
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return Objects.hashCode(getCode());
     }
 
@@ -129,7 +129,7 @@ public class Roof {
      * {@inheritDoc}
      */
     @Override
-    public final String toString() {
+    public String toString() {
         return new StringJoiner(", ", Roof.class.getSimpleName() + "[", "]").add("code='" + code + "'").toString();
     }
 
