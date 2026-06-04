@@ -1,5 +1,6 @@
 package roofsense.entities;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -64,8 +65,12 @@ public class MeasurementPoint {
      * @param longitude   the geographic longitude
      * @param orientation the orientation of the measurement point
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public MeasurementPoint(
-            final String code, final Roof roof, final Double latitude, final Double longitude,
+            final String code,
+            final Roof roof,
+            final Double latitude,
+            final Double longitude,
             final Orientation orientation
     ) {
         this.code = code;
@@ -177,6 +182,7 @@ public class MeasurementPoint {
      *
      * @return the roof
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public final Roof getRoof() {
         return roof;
     }
@@ -186,6 +192,7 @@ public class MeasurementPoint {
      *
      * @param roof the roof to set
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public final void setRoof(final Roof roof) {
         this.roof = roof;
     }
