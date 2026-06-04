@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * Represents a roof associated with a building.
+ * Roof of a building.
  */
 @Entity
 @Table(name = "roofs")
