@@ -1,3 +1,3 @@
 # OOP24-roofsense
 
-Progetto per l'esame di OOP 24-25.
+OO exam project. Project report can be found [here](doc/report.qmd).
