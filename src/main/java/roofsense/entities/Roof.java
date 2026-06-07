@@ -31,14 +31,14 @@ public class Roof {
     private String buildingAddress;
 
     /**
-     * Default constructor for JPA.
+     * Creates a new instance of {@code Roof} with attributes initialized to {@code null}.
      */
-    protected Roof() {
-        // Required by JPA
+    public Roof() {
+        // Intentional empty constructor
     }
 
     /**
-     * Creates a new instance of {@code Roof}.
+     * Creates a new instance of {@code Roof} with attributes initialized to provided value.
      *
      * @param code            the unique code identifying the roof
      * @param buildingAddress the address of the building associated with the roof

@@ -16,31 +16,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RoofTest {
 
-    private static final String ROOF_CORRECT_CODE = "test-code";
-    private static final String ROOF_CORRECT_ADDRESS = "123 Test Street";
+    private static final String VALID_CODE = "ROOF";
+    private static final String VALID_BUILDING_ADDRESS = "123 Test Street";
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
 
-    private static Roof createValidRoof() {
-        final var roof = new Roof();
-        roof.setCode(ROOF_CORRECT_CODE);
-        roof.setBuildingAddress(ROOF_CORRECT_ADDRESS);
-        return roof;
-    }
-
     @BeforeAll
-    static void setUpValidator() {
+    static void setUp() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
 
     @AfterAll
-    static void tearDownValidator() {
+    static void tearDown() {
         validatorFactory.close();
     }
 
+    private static Roof createValidRoof() {
+        return new Roof(VALID_CODE, VALID_BUILDING_ADDRESS);
+    }
+
     @Test
-    void testDefaultConstructorWithDefaultParameters() {
+    void testEmptyConstructor() {
         final var roof = new Roof();
 
         assertNull(roof.getCode());
@@ -48,11 +45,20 @@ class RoofTest {
     }
 
     @Test
-    void testDefaultConstructorWithParameters() {
-        final var roof = new Roof(ROOF_CORRECT_CODE, ROOF_CORRECT_ADDRESS);
+    void testParametrizedConstructor() {
+        final var roof = new Roof(VALID_CODE, VALID_BUILDING_ADDRESS);
 
-        assertEquals(ROOF_CORRECT_CODE, roof.getCode());
-        assertEquals(ROOF_CORRECT_ADDRESS, roof.getBuildingAddress());
+        assertEquals(VALID_CODE, roof.getCode());
+        assertEquals(VALID_BUILDING_ADDRESS, roof.getBuildingAddress());
+    }
+
+    @Test
+    void testCopyConstructor() {
+        final var original = createValidRoof();
+        final var copy = new Roof(original);
+
+        assertEquals(original.getCode(), copy.getCode());
+        assertEquals(original.getBuildingAddress(), copy.getBuildingAddress());
     }
 
     @Test
@@ -90,11 +96,11 @@ class RoofTest {
     @Test
     void testEqualsHashCodeRoofsWithSameCode() {
         final var roof1 = new Roof();
-        roof1.setCode(ROOF_CORRECT_CODE);
+        roof1.setCode(VALID_CODE);
         roof1.setBuildingAddress("Address 1");
 
         final var roof2 = new Roof();
-        roof2.setCode(ROOF_CORRECT_CODE);
+        roof2.setCode(VALID_CODE);
         roof2.setBuildingAddress("Address 2");
 
         assertEquals(roof1, roof2);
@@ -105,11 +111,11 @@ class RoofTest {
     void testEqualsHashCodeRoofsWithDifferentCodes() {
         final var roof1 = new Roof();
         roof1.setCode("code1");
-        roof1.setBuildingAddress(ROOF_CORRECT_ADDRESS);
+        roof1.setBuildingAddress(VALID_BUILDING_ADDRESS);
 
         final var roof2 = new Roof();
         roof2.setCode("code2");
-        roof2.setBuildingAddress(ROOF_CORRECT_ADDRESS);
+        roof2.setBuildingAddress(VALID_BUILDING_ADDRESS);
 
         assertNotEquals(roof1, roof2);
         assertNotEquals(roof1.hashCode(), roof2.hashCode());
@@ -118,7 +124,7 @@ class RoofTest {
     @Test
     void testEqualHashCodeBothRoofsWithNullCode() {
         final var roof1 = new Roof();
-        roof1.setBuildingAddress(ROOF_CORRECT_ADDRESS);
+        roof1.setBuildingAddress(VALID_BUILDING_ADDRESS);
         final var roof2 = new Roof();
         roof2.setBuildingAddress("Different Address");
 
@@ -146,10 +152,10 @@ class RoofTest {
     }
 
     @Test
-    void testCodeValidationWithValidCodes() {
+    void testCodeValidation() {
         final var roof = createValidRoof();
 
-        final String[] validCodes = {
+        final String[] validValues = {
                 "validCode",
                 "code123",
                 "CODE",
@@ -158,36 +164,18 @@ class RoofTest {
                 "123456",
         };
 
-        for (final var validCode : validCodes) {
-            roof.setCode(validCode);
+        for (final var value : validValues) {
+            roof.setCode(value);
             final var violations = validator.validate(roof);
 
             assertTrue(
                     violations.isEmpty(),
-                    "Code '" + validCode + "' should be valid but got violations: " + violations
+                    "Code '" + value + "' should be valid but got violations: " + violations
             );
         }
-    }
 
-    @Test
-    void testCodeValidationWithNullCode() {
-        final var roof = createValidRoof();
-        roof.setCode(null);
-
-        final var violations = validator.validate(roof);
-
-        assertEquals(1, violations.size(), "Code should have exactly one validation violation");
-
-        final var violation = violations.iterator().next();
-        assertEquals("code", violation.getPropertyPath().toString());
-        assertEquals(ValidCode.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
-    }
-
-    @Test
-    void testCodeValidationWithCodesWithInvalidCharacters() {
-        final var roof = createValidRoof();
-
-        final String[] invalidCodes = {
+        final String[] invalidValues = {
+                null,
                 "",
                 "code.with.dots",
                 "code@symbol",
@@ -206,14 +194,14 @@ class RoofTest {
                 "code with\tmixed\nwhitespace",
         };
 
-        for (final String invalidCode : invalidCodes) {
-            roof.setCode(invalidCode);
+        for (final String value : invalidValues) {
+            roof.setCode(value);
             final var violations = validator.validate(roof);
 
             assertEquals(
                     1,
                     violations.size(),
-                    "Code '" + invalidCode + "' should have exactly one validation violation"
+                    "Code '" + value + "' should have exactly one validation violation"
             );
 
             final var violation = violations.iterator().next();
@@ -223,10 +211,10 @@ class RoofTest {
     }
 
     @Test
-    void testBuildingAddressValidationWithValidAddresses() {
+    void testBuildingAddressValidation() {
         final var roof = createValidRoof();
 
-        final String[] validAddresses = {
+        final String[] validValues = {
                 "123 Main Street",
                 "Valid Address",
                 "a",
@@ -239,33 +227,28 @@ class RoofTest {
                 "  Address with multiple spaces  ",
         };
 
-        for (final String validAddress : validAddresses) {
-            roof.setBuildingAddress(validAddress);
+        for (final String value : validValues) {
+            roof.setBuildingAddress(value);
             final var violations = validator.validate(roof);
 
             assertTrue(
                     violations.isEmpty(),
-                    "Building address '" + validAddress + "' should be valid but got violations: " + violations
+                    "Building address '" + value + "' should be valid but got violations: " + violations
             );
         }
-    }
 
-    @Test
-    void testBuildingAddressValidationWithInvalidAddresses() {
-        final var roof = createValidRoof();
-
-        final String[] invalidAddresses = {
+        final String[] invalidValues = {
                 null, "", " ", "  ", "\t", "\n", "\r", "   \t  \n  \r  ",
         };
 
-        for (final String invalidAddress : invalidAddresses) {
-            roof.setBuildingAddress(invalidAddress);
+        for (final String value : invalidValues) {
+            roof.setBuildingAddress(value);
             final var violations = validator.validate(roof);
 
             assertEquals(
                     1,
                     violations.size(),
-                    "Building address '" + invalidAddress + "' should have exactly one validation violation"
+                    "Building address '" + value + "' should have exactly one validation violation"
             );
 
             final var violation = violations.iterator().next();

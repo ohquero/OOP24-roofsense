@@ -48,7 +48,7 @@ public final class RoofFormNode extends AnchorPane {
         Objects.requireNonNull(manager);
 
         this.editedRoofIsValidProperty = new SimpleBooleanProperty();
-        this.newRoof = new Roof(null, null);
+        this.newRoof = new Roof();
 
         //-----------------------------------------------------------------------------------------
         // NODE LAYOUT
@@ -167,7 +167,7 @@ public final class RoofFormNode extends AnchorPane {
      */
     public void setRoof(final Roof roof) {
         this.roof = roof == null ? null : new Roof(roof);
-        this.newRoof = roof == null ? new Roof(null, null) : new Roof(roof);
+        this.newRoof = roof == null ? new Roof() : new Roof(roof);
 
         // setting form title based on whether we are editing or creating a new roof
         if (roof != null) {
