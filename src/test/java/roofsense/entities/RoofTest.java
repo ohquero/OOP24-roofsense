@@ -155,16 +155,7 @@ class RoofTest {
     void testCodeValidation() {
         final var roof = createValidRoof();
 
-        final String[] validValues = {
-                "validCode",
-                "code123",
-                "CODE",
-                "a",
-                "code-with-dashes",
-                "123456",
-        };
-
-        for (final var value : validValues) {
+        for (final var value : CodeTestValues.VALID) {
             roof.setCode(value);
             final var violations = validator.validate(roof);
 
@@ -174,27 +165,7 @@ class RoofTest {
             );
         }
 
-        final String[] invalidValues = {
-                null,
-                "",
-                "code.with.dots",
-                "code@symbol",
-                "code_with_underscores",
-                "code with space",
-                " codeWithLeadingSpace",
-                "codeWithTrailingSpace ",
-                " code with multiple spaces ",
-                "code\twith\ttab",
-                "code\nwith\nnewline",
-                "code\rwith\rcarriagereturn",
-                "\t",
-                "\n",
-                " ",
-                "  ",
-                "code with\tmixed\nwhitespace",
-        };
-
-        for (final String value : invalidValues) {
+        for (final String value : CodeTestValues.INVALID) {
             roof.setCode(value);
             final var violations = validator.validate(roof);
 

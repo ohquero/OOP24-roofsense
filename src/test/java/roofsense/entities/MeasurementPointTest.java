@@ -3,9 +3,11 @@ package roofsense.entities;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import roofsense.entities.validation.annotations.ValidCode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -15,38 +17,44 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MeasurementPointTest {
 
     private static final String VALID_CODE = "MP-001";
+    private static final String VALID_BUILDING_ADDRESS = "Test Address";
     private static final double VALID_LATITUDE = 44.4949;
     private static final double VALID_LONGITUDE = 10.6333;
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
 
-    private static MeasurementPoint createValidMeasurementPoint() {
-        final var roof = new Roof("ROOF-001", "Via Test 1");
-        final var measurementPoint = new MeasurementPoint();
-        measurementPoint.setCode(VALID_CODE);
-        measurementPoint.setLatitude(VALID_LATITUDE);
-        measurementPoint.setLongitude(VALID_LONGITUDE);
-        measurementPoint.setOrientation(Orientation.N);
-        measurementPoint.setRoof(roof);
-        return measurementPoint;
-    }
-
     @BeforeAll
-    static void setUpValidator() {
+    static void setUp() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
 
     @AfterAll
-    static void tearDownValidator() {
+    static void tearDown() {
         validatorFactory.close();
     }
 
+    private static Roof createRoof(final String code) {
+        final var roof = new Roof();
+        roof.setCode(code);
+        roof.setBuildingAddress(VALID_BUILDING_ADDRESS);
+        return roof;
+    }
+
+    private static MeasurementPoint createValidMeasurementPoint() {
+        return new MeasurementPoint(
+                VALID_CODE,
+                createRoof("ROOF-001"),
+                VALID_LATITUDE,
+                VALID_LONGITUDE,
+                Orientation.N
+        );
+    }
+
     @Test
-    void testDefaultConstructor() {
+    void testEmptyConstructor() {
         final var measurementPoint = new MeasurementPoint();
 
-        assertNull(measurementPoint.getId());
         assertNull(measurementPoint.getCode());
         assertNull(measurementPoint.getLatitude());
         assertNull(measurementPoint.getLongitude());
@@ -55,11 +63,12 @@ class MeasurementPointTest {
     }
 
     @Test
-    void testConstructorWithParameters() {
-        final var roof = new Roof("ROOF-002", "Via Test 2");
+    void testParametrizedConstructor() {
+        final var roof = createRoof("ROOF-002");
         final var measurementPoint =
                 new MeasurementPoint(VALID_CODE, roof, VALID_LATITUDE, VALID_LONGITUDE, Orientation.S);
 
+        assertEquals(0, validator.validate(measurementPoint).size());
         assertEquals(VALID_CODE, measurementPoint.getCode());
         assertEquals(VALID_LATITUDE, measurementPoint.getLatitude());
         assertEquals(VALID_LONGITUDE, measurementPoint.getLongitude());
@@ -124,7 +133,7 @@ class MeasurementPointTest {
         final var measurementPoint = new MeasurementPoint();
         assertNull(measurementPoint.getRoof());
 
-        final var roof = new Roof("ROOF-003", "Via Test 3");
+        final var roof = createRoof("ROOF-003");
         measurementPoint.setRoof(roof);
         assertEquals(roof, measurementPoint.getRoof());
     }
@@ -143,7 +152,7 @@ class MeasurementPointTest {
 
     @Test
     void testEqualsHashCodeWithSameCode() {
-        final var roof = new Roof("ROOF-004", "Via Test 4");
+        final var roof = createRoof("ROOF-004");
         final var mp1 = new MeasurementPoint(VALID_CODE, roof, VALID_LATITUDE, VALID_LONGITUDE, Orientation.N);
         final var mp2 = new MeasurementPoint(VALID_CODE, roof, 50.0, 20.0, Orientation.S);
 
@@ -153,12 +162,22 @@ class MeasurementPointTest {
 
     @Test
     void testEqualsHashCodeWithDifferentCodes() {
-        final var roof = new Roof("ROOF-005", "Via Test 5");
+        final var roof = createRoof("ROOF-005");
         final var mp1 = new MeasurementPoint("MP-001", roof, VALID_LATITUDE, VALID_LONGITUDE, Orientation.N);
         final var mp2 = new MeasurementPoint("MP-002", roof, VALID_LATITUDE, VALID_LONGITUDE, Orientation.N);
 
         assertNotEquals(mp1, mp2);
         assertNotEquals(mp1.hashCode(), mp2.hashCode());
+    }
+
+    @Test
+    void testToString() {
+        final var measurementPoint = createValidMeasurementPoint();
+
+        final var toString = measurementPoint.toString();
+
+        assertTrue(toString.contains("MeasurementPoint"));
+        assertTrue(toString.contains(VALID_CODE));
     }
 
     @Test
@@ -171,33 +190,72 @@ class MeasurementPointTest {
     }
 
     @Test
-    void testCodeValidationWithNullCode() {
+    void testCodeValidation() {
         final var measurementPoint = createValidMeasurementPoint();
-        measurementPoint.setCode(null);
+
+        for (final var value : CodeTestValues.VALID) {
+            measurementPoint.setCode(value);
+            final var violations = validator.validate(measurementPoint);
+
+            assertTrue(
+                    violations.isEmpty(),
+                    "Code '" + value + "' should be valid but got violations: " + violations
+            );
+        }
+
+        for (final String value : CodeTestValues.INVALID) {
+            measurementPoint.setCode(value);
+            final var violations = validator.validate(measurementPoint);
+
+            assertEquals(
+                    1,
+                    violations.size(),
+                    "Code '" + value + "' should have exactly one validation violation"
+            );
+
+            final var violation = violations.iterator().next();
+            assertEquals("code", violation.getPropertyPath().toString());
+            assertEquals(ValidCode.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+        }
+    }
+
+    @Test
+    void testLatitudeValidation() {
+        final var measurementPoint = createValidMeasurementPoint();
+        measurementPoint.setLatitude(null);
 
         final var violations = validator.validate(measurementPoint);
 
         assertEquals(1, violations.size());
+        final var violation = violations.iterator().next();
+        assertEquals("latitude", violation.getPropertyPath().toString());
+        assertEquals(NotNull.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
     @Test
-    void testCodeValidationWithInvalidCode() {
+    void testLongitudeValidation() {
         final var measurementPoint = createValidMeasurementPoint();
-        measurementPoint.setCode("invalid code with spaces");
+        measurementPoint.setLongitude(null);
 
         final var violations = validator.validate(measurementPoint);
 
         assertEquals(1, violations.size());
+        final var violation = violations.iterator().next();
+        assertEquals("longitude", violation.getPropertyPath().toString());
+        assertEquals(NotNull.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
     @Test
-    void testToString() {
+    void testOrientationValidation() {
         final var measurementPoint = createValidMeasurementPoint();
+        measurementPoint.setOrientation(null);
 
-        final var toString = measurementPoint.toString();
+        final var violations = validator.validate(measurementPoint);
 
-        assertTrue(toString.contains("MeasurementPoint"));
-        assertTrue(toString.contains(VALID_CODE));
+        assertEquals(1, violations.size());
+        final var violation = violations.iterator().next();
+        assertEquals("orientation", violation.getPropertyPath().toString());
+        assertEquals(NotNull.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
 }
