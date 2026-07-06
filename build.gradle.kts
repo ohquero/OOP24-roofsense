@@ -80,8 +80,8 @@ tasks.named<Test>("test") {
 }
 
 tasks.register<Test>("runShowNodeTest") {
-    group = "verification"
-    description = "Allows to run ShowNode tests, which are excluded by default"
+    //group = "verification"
+    description = "Run tests tagged with \"$showNodeTestsTag\" tag."
 
     useJUnitPlatform {
         includeTags(showNodeTestsTag)
