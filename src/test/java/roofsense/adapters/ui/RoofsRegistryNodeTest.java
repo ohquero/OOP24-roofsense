@@ -45,9 +45,9 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     private static final String ROOF_FORM_CODE_TEXT_FIELD_NQ = "#codeTextField";
     private static final String ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ = "#buildingAddressTextField";
 
-    @SuppressFBWarnings("UwF")
+    @SuppressFBWarnings("UwF") // Field is assigned in @Start method, not in constructor
     private List<Roof> roofs;
-    @SuppressFBWarnings("UwF")
+    @SuppressFBWarnings("UwF") // Field is assigned in @Start method, not in constructor
     private RoofsManager manager;
     private Stage stage;
 
