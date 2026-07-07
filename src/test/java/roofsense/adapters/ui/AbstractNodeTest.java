@@ -24,7 +24,7 @@ abstract class AbstractNodeTest {
      * Run this test to display the {@link Stage} created by TestFX.
      */
     @Test
-    @Tag("show-node")
+    @Tag("showNodeTest")
     void show() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> getStage().setOnHidden(e -> latch.countDown()));

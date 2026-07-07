@@ -63,7 +63,7 @@ dependencies {
 // Tests configuration
 //
 
-val showNodeTestsTag = "show-node"
+val showNodeTestsTag = "showNodeTest"
 
 tasks.named<Test>("test") {
     useJUnitPlatform {
@@ -80,8 +80,8 @@ tasks.named<Test>("test") {
 }
 
 tasks.register<Test>("runShowNodeTest") {
-    //group = "verification"
-    description = "Run tests tagged with \"$showNodeTestsTag\" tag."
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
 
     useJUnitPlatform {
         includeTags(showNodeTestsTag)

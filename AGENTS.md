@@ -16,13 +16,13 @@ Persistence: `persistence.xml` only exists at `src/test/resources/META-INF/` (in
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `./gradlew test` | Unit + integration tests (excludes `show-node`-tagged UI tests) |
-| `./gradlew runShowNodeTest` | Runs only `show-node`-tagged tests (JavaFX visual display) |
-| `./gradlew check` | Checkstyle + PMD + SpotBugs + test + JaCoCo coverage (min 70%) |
-| `./gradlew clean check` | Full clean build + verification (use when build artifacts might be stale) |
-| `./gradlew test --tests "*ClassName*"` | Run a specific test class |
+| Command                                | What it does                                                              |
+|----------------------------------------|---------------------------------------------------------------------------|
+| `./gradlew test`                       | Unit + integration tests (excludes `showNodeTest`-tagged UI tests)        |
+| `./gradlew runShowNodeTest`            | Runs only `showNodeTest`-tagged tests (JavaFX visual display)             |
+| `./gradlew check`                      | Checkstyle + PMD + SpotBugs + test + JaCoCo coverage (min 70%)            |
+| `./gradlew clean check`                | Full clean build + verification (use when build artifacts might be stale) |
+| `./gradlew test --tests "*ClassName*"` | Run a specific test class                                                 |
 
 All tests run headless (`-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw`). No display needed.
 
@@ -30,7 +30,7 @@ All tests run headless (`-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.
 
 - JUnit 5, TestFX 4 (UI), Mockito 5 (with agent config for inline mocking — see `mockitoAgent` configuration in `build.gradle.kts`)
 - DB tests use custom `JPAExtension` — creates fresh H2 in-memory per test, injects `@TestEntityManager` field via reflection
-- UI tests extend `AbstractNodeTest` (TestFX `ApplicationExtension`), start real Guice injector per test, tagged `@Tag("show-node")` for visual-only
+- UI tests extend `AbstractNodeTest` (TestFX `ApplicationExtension`), start real Guice injector per test, tagged `@Tag("showNodeTest")` for visual-only
 - `RoofFormNodeTest` / `RoofsRegistryNodeTest` use `FxRobot` for robot-style interaction
 - JaCoCo 70% line coverage enforced via `jacocoTestCoverageVerification`
 
