@@ -1,7 +1,7 @@
 package roofsense.adapters.ui;
 
-import com.google.inject.Guice;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.avaje.inject.BeanScope;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import org.testfx.service.query.EmptyNodeQueryException;
-import roofsense.config.RoofSenseModule;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
@@ -52,9 +51,11 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
 
     @Start
     void start(final Stage testfxStage) {
-        final var injector = Guice.createInjector(new RoofSenseModule());
+        stage = testfxStage;
 
-        manager = injector.getInstance(RoofsManager.class);
+        final var injector = BeanScope.builder().build();
+
+        manager = injector.get(RoofsManager.class);
 
         roofs = List.of(
                 new Roof("code1", "address1"),
@@ -65,9 +66,7 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
         );
         roofs.forEach(manager::save);
 
-        final var node = injector.getInstance(RoofsRegistryNode.class);
-        stage = testfxStage;
-
+        final var node = injector.get(RoofsRegistryNode.class);
         final var scene = new Scene(node);
         scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
         stage.setScene(scene);

@@ -1,7 +1,7 @@
 package roofsense.adapters.ui;
 
-import com.google.inject.Guice;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.avaje.inject.BeanScope;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -11,7 +11,6 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.TextInputControlMatchers;
-import roofsense.config.RoofSenseModule;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
@@ -26,7 +25,6 @@ import static org.testfx.matcher.base.NodeMatchers.isDisabled;
 import static org.testfx.matcher.base.NodeMatchers.isEnabled;
 import static org.testfx.util.WaitForAsyncUtils.waitForFxEvents;
 
-//@Tag("IntegrationTest")
 @SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 class RoofFormNodeTest {
 
@@ -40,7 +38,6 @@ class RoofFormNodeTest {
     @Nested
     class CreateNewRoofTest extends AbstractNodeTest {
 
-        //private EntityManagerFactory emf;
         private RoofsManager manager;
         private RoofFormNode form;
         private Stage stage;
@@ -52,13 +49,13 @@ class RoofFormNodeTest {
 
         @Start
         void start(final Stage testfxStage) {
-            final var injector = Guice.createInjector(new RoofSenseModule());
-
-            //emf = injector.getInstance(EntityManagerFactory.class);
-            manager = injector.getInstance(RoofsManager.class);
-            form = injector.getInstance(RoofFormNode.class);
             stage = testfxStage;
 
+            final var injector = BeanScope.builder().build();
+
+            manager = injector.get(RoofsManager.class);
+
+            form = injector.get(RoofFormNode.class);
             final var scene = new Scene(form);
             scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
             testfxStage.setScene(scene);
@@ -167,11 +164,11 @@ class RoofFormNodeTest {
 
         @Start
         void start(final Stage testfxStage) {
-            final var injector = Guice.createInjector(new RoofSenseModule());
-
-            manager = injector.getInstance(RoofsManager.class);
-            form = injector.getInstance(RoofFormNode.class);
             stage = testfxStage;
+
+            final var injector = BeanScope.builder().build();
+            manager = injector.get(RoofsManager.class);
+            form = injector.get(RoofFormNode.class);
 
             final var scene = new Scene(form);
             scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
@@ -247,7 +244,6 @@ class RoofFormNodeTest {
     @Nested
     class SetRoofTest extends AbstractNodeTest {
 
-        //private RoofsManager manager;
         private RoofFormNode form;
         private Stage stage;
 
@@ -258,11 +254,10 @@ class RoofFormNodeTest {
 
         @Start
         void start(final Stage testfxStage) {
-            final var injector = Guice.createInjector(new RoofSenseModule());
-
-            // manager = injector.getInstance(RoofsManager.class);
-            form = injector.getInstance(RoofFormNode.class);
             stage = testfxStage;
+
+            final var injector = BeanScope.builder().build();
+            form = injector.get(RoofFormNode.class);
 
             final var scene = new Scene(form);
             scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);

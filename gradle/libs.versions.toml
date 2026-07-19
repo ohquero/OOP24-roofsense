@@ -13,10 +13,11 @@ jakarta-el = "4.0.2"
 jakarta-persistence = "3.2.0"
 hibernate-core = "7.0.4.Final"
 h2-database = "2.3.232"
-google-guice = "7.0.0"
 testfx = "4.0.18"
 hamcrest = "3.0"
 testfx-openjfx-monocle = "21.0.2"
+avaje-inject = "12.6"
+avaje-spi-service = "2.17"
 
 [libraries]
 commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
@@ -33,11 +34,13 @@ jakarta-el = { module = "org.glassfish:jakarta.el", version.ref = "jakarta-el" }
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence" }
 hibernate-core = { module = "org.hibernate:hibernate-core", version.ref = "hibernate-core" }
 h2-database = { module = "com.h2database:h2", version.ref = "h2-database" }
-google-guice = { module = "com.google.inject:guice", version.ref = "google-guice" }
 testfx = { module = "org.testfx:testfx-core", version.ref = "testfx" }
 testfx-junit5 = { module = "org.testfx:testfx-junit5", version.ref = "testfx" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 testfx-openjfx-monocle = { module = "org.testfx:openjfx-monocle", version.ref = "testfx-openjfx-monocle" }
+avaje-inject = { module = "io.avaje:avaje-inject", version.ref = "avaje-inject" }
+avaje-inject-generator = { module = "io.avaje:avaje-inject-generator", version.ref = "avaje-inject" }
+avaje-spi-service = { module = "io.avaje:avaje-spi-service", version.ref = "avaje-spi-service" }
 
 [plugins]
 gradlejavaqa = { id = "org.danilopianini.gradle-java-qa", version.ref = "gradlejavaqa" }

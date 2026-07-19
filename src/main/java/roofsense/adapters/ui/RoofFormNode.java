@@ -1,5 +1,6 @@
 package roofsense.adapters.ui;
 
+import io.avaje.inject.Prototype;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
@@ -23,6 +24,7 @@ import java.util.Objects;
 /**
  * Form for editing {@link Roof} objects.
  */
+@Prototype
 public final class RoofFormNode extends AnchorPane {
 
     private static final int FIELDS_COLUMN_MIN_WIDTH = 350;

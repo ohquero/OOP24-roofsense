@@ -31,7 +31,7 @@ public final class JPAExtension implements BeforeEachCallback, AfterEachCallback
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     @Override
     public void beforeEach(final ExtensionContext context) throws Exception {
-        final var emf = Persistence.createEntityManagerFactory("H2");
+        final var emf = Persistence.createEntityManagerFactory("RoofSense");
         context.getStore(NAMESPACE).put(EMF_KEY, emf);
 
         final EntityManager em = emf.createEntityManager();

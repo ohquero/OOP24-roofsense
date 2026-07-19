@@ -1,6 +1,7 @@
 package roofsense.adapters.persistence;
 
-import com.google.inject.Inject;
+import io.avaje.inject.Primary;
+import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.RoofRepository;
@@ -11,6 +12,8 @@ import java.util.Optional;
 /**
  * {@link AbstractJPARepository} implementation of the {@link RoofRepository} interface.
  */
+@Primary
+@Singleton
 public class JPARoofRepository extends AbstractJPARepository<Roof> implements RoofRepository {
 
     /**
@@ -19,7 +22,6 @@ public class JPARoofRepository extends AbstractJPARepository<Roof> implements Ro
      * @param entityManagerProvider the {@link EntityManagerProvider} used to obtain the {@link EntityManager} instance
      *                              for persistence operations. Must not be {@code null}.
      */
-    @Inject
     public JPARoofRepository(final EntityManagerProvider entityManagerProvider) {
         super(Roof.class, entityManagerProvider);
     }

@@ -1,7 +1,7 @@
 package roofsense.adapters.persistence;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
+import io.avaje.inject.Primary;
+import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceException;
@@ -20,6 +20,7 @@ import java.util.function.Supplier;
  * Nested transactions are not supported: attempting to call {@link #execute(Supplier)} while another transaction is
  * active results in {@link IllegalStateException}.
  */
+@Primary
 @Singleton
 public final class JPAUnitOfWork implements UnitOfWork, EntityManagerProvider {
 
@@ -32,7 +33,6 @@ public final class JPAUnitOfWork implements UnitOfWork, EntityManagerProvider {
      * @param entityManagerFactory the {@link EntityManagerFactory} used to create {@link EntityManager} instances.
      *                             Must not be {@code null}.
      */
-    @Inject
     public JPAUnitOfWork(final EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = Validate.notNull(entityManagerFactory, "entityManagerFactory must not be null.");
     }

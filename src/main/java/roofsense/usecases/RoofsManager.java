@@ -1,6 +1,6 @@
 package roofsense.usecases;
 
-import com.google.inject.Inject;
+import io.avaje.inject.Prototype;
 import org.apache.commons.lang3.Validate;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.Repository;
@@ -12,6 +12,7 @@ import java.util.Collection;
 /**
  * Class providing access to {@link Roof} related use cases.
  */
+@Prototype
 public final class RoofsManager {
 
     private final UnitOfWork unitOfWork;
@@ -24,7 +25,6 @@ public final class RoofsManager {
      * @param repository the {@link Repository} instance for managing {@link Roof} entities. Must not be
      *                   {@code null}.
      */
-    @Inject
     public RoofsManager(final UnitOfWork unitOfWork, final RoofRepository repository) {
         this.unitOfWork = Validate.notNull(unitOfWork, "unit of work must not be null");
         this.repository = Validate.notNull(repository, "repository must not be null.");

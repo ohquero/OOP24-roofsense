@@ -1,6 +1,7 @@
 package roofsense.adapters.ui;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.avaje.inject.Prototype;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
@@ -23,6 +24,7 @@ import static javafx.stage.Modality.WINDOW_MODAL;
 /**
  * Node providing an overview on all the monitored {@link Roof}.
  */
+@Prototype
 public final class RoofsRegistryNode extends AnchorPane {
 
     private static final double ROOFS_TABLE_CODE_COLUMN_MIN_WIDTH = 80.0;
