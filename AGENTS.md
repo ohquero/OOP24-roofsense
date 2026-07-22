@@ -1,18 +1,20 @@
 # RoofSense — Agent Guide
 
-Java 21, Gradle (Kotlin DSL), JavaFX 21, JPA/Hibernate 7 + H2 (PostgreSQL mode), DI with Google Guice 7.
+Java 21, Gradle (Kotlin DSL), JavaFX 21, JPA/Hibernate 7 + H2 (PostgreSQL mode), DI with Avaje Inject 12.6 (compile-time, annotation-processing).
 
 ## Architecture
 
 Hexagonal (Ports & Adapters):
 - `entities/` — domain model (`Roof` is the sole JPA entity, mapped to `roofs` table)
 - `usecases/` — `RoofsManager` (business logic), `ports/` (`Repository<E>`, `RoofRepository`, `UnitOfWork`)
-- `adapters/persistence/` — `AbstractJPARepository`, `JPARoofRepository`, `JPAUnitOfWork` (also implements `EntityManagerProvider`)
+- `adapters/persistence/` — `AbstractJPARepository`, `JPARoofRepository`, `JPAUnitOfWork` (also implements `EntityManagerProvider`), `JPAFactory` (`@Factory` producing `EntityManagerFactory`)
 - `adapters/ui/` — `RoofFormNode`, `RoofsRegistryNode`, `Stages`
 
-Entrypoint: `roofsense.Main::main` — currently a stub (only has `//Guice.createInjector(new RoofSenseModule())` commented out). Real injector is `GuiceInjector::get` (eager singleton). DI wiring in `RoofSenseModule.java`.
+Entrypoint: `roofsense.Main::main` — currently a no-op (empty method body). No manual injector bootstrap; Avaje Inject resolves beans via compile-time annotation processing.
 
-Persistence: `persistence.xml` only exists at `src/test/resources/META-INF/` (in-memory H2, `drop-and-create`, PostgreSQL mode `MODE=PostgreSQL`). No production `persistence.xml` yet.
+DI annotations in use: `@Singleton`, `@Prototype` (new instance per lookup), `@Primary` (disambiguates implementations), `@Factory` + `@Bean` (factory-produced beans). Avaje generates `*$DI.class` files excluded from SpotBugs.
+
+Persistence: `src/main/resources/META-INF/persistence.xml` (persistence unit `RoofSense`). Uses `${db.driver}`, `${db.url}`, etc. placeholders resolved from JPA system properties set in `build.gradle.kts`. DB config for tests: in-memory H2, `drop-and-create`, PostgreSQL mode (`MODE=PostgreSQL`).
 
 ## Commands
 
@@ -30,17 +32,13 @@ All tests run headless (`-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.
 
 - JUnit 5, TestFX 4 (UI), Mockito 5 (with agent config for inline mocking — see `mockitoAgent` configuration in `build.gradle.kts`)
 - DB tests use custom `JPAExtension` — creates fresh H2 in-memory per test, injects `@TestEntityManager` field via reflection
-- UI tests extend `AbstractNodeTest` (TestFX `ApplicationExtension`), start real Guice injector per test, tagged `@Tag("showNodeTest")` for visual-only
+- UI tests extend `AbstractNodeTest` (TestFX `ApplicationExtension`), start a real Avaje `BeanScope` per test via `BeanScope.builder().build()`, tagged `@Tag("showNodeTest")` for visual-only
 - `RoofFormNodeTest` / `RoofsRegistryNodeTest` use `FxRobot` for robot-style interaction
 - JaCoCo 70% line coverage enforced via `jacocoTestCoverageVerification`
 
 ## Linting
 
 Enforced by `org.danilopianini.gradle-java-qa` plugin (Checkstyle, PMD, SpotBugs). No local config files — all rules come from the plugin. Run `./gradlew check` to verify all.
-
-## Pre-commit hook
-
-`.githooks/pre-commit` runs `./gradlew check` on `main`, `develop`, and `release/*` branches. Install: `git config core.hooksPath .githooks`.
 
 ## Conventions
 
