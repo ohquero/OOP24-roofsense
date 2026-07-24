@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import roofsense.entities.validation.annotations.ValidCode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,6 +19,9 @@ class RoofTest {
 
     private static final String VALID_CODE = "ROOF";
     private static final String VALID_BUILDING_ADDRESS = "123 Test Street";
+    private static final double VALID_LATITUDE = 44.14;
+    private static final double VALID_LONGITUDE = 12.34;
+    private static final Coordinates VALID_COORDINATES = new Coordinates(VALID_LATITUDE, VALID_LONGITUDE);
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
 
@@ -33,7 +37,7 @@ class RoofTest {
     }
 
     private static Roof createValidRoof() {
-        return new Roof(VALID_CODE, VALID_BUILDING_ADDRESS);
+        return new Roof(VALID_CODE, VALID_BUILDING_ADDRESS, VALID_COORDINATES);
     }
 
     @Test
@@ -42,23 +46,36 @@ class RoofTest {
 
         assertNull(roof.getCode());
         assertNull(roof.getBuildingAddress());
+        assertNull(roof.getCoordinates());
     }
 
     @Test
     void testParametrizedConstructor() {
-        final var roof = new Roof(VALID_CODE, VALID_BUILDING_ADDRESS);
+        final var roof = new Roof(VALID_CODE, VALID_BUILDING_ADDRESS, VALID_COORDINATES);
 
         assertEquals(VALID_CODE, roof.getCode());
         assertEquals(VALID_BUILDING_ADDRESS, roof.getBuildingAddress());
+        assertEquals(VALID_COORDINATES, roof.getCoordinates());
+        assertEquals(VALID_LATITUDE, roof.getCoordinates().getLatitude());
+        assertEquals(VALID_LONGITUDE, roof.getCoordinates().getLongitude());
     }
 
     @Test
     void testCopyConstructor() {
-        final var original = createValidRoof();
+        final var original = new Roof(VALID_CODE, VALID_BUILDING_ADDRESS, VALID_COORDINATES);
         final var copy = new Roof(original);
 
         assertEquals(original.getCode(), copy.getCode());
         assertEquals(original.getBuildingAddress(), copy.getBuildingAddress());
+        assertEquals(original.getCoordinates(), copy.getCoordinates());
+
+        copy.getCoordinates().setLatitude(0.0);
+
+        assertEquals(
+                VALID_LATITUDE,
+                original.getCoordinates().getLatitude(),
+                "Copy should not affect original coordinates"
+        );
     }
 
     @Test
@@ -82,6 +99,19 @@ class RoofTest {
     }
 
     @Test
+    void testCoordinates() {
+        final var roof = new Roof();
+        assertNull(roof.getCoordinates());
+
+        final var coordinates = new Coordinates(VALID_LATITUDE, VALID_LONGITUDE);
+        roof.setCoordinates(coordinates);
+        assertEquals(coordinates, roof.getCoordinates());
+
+        roof.setCoordinates(null);
+        assertNull(roof.getCoordinates());
+    }
+
+    @Test
     void testEqualsWithNull() {
         final var roof = createValidRoof();
         assertNotEquals(roof, null);
@@ -98,10 +128,11 @@ class RoofTest {
         final var roof1 = new Roof();
         roof1.setCode(VALID_CODE);
         roof1.setBuildingAddress("Address 1");
-
+        roof1.setCoordinates(VALID_COORDINATES);
         final var roof2 = new Roof();
         roof2.setCode(VALID_CODE);
         roof2.setBuildingAddress("Address 2");
+        roof2.setCoordinates(new Coordinates(VALID_LATITUDE + 1, VALID_LONGITUDE + 1));
 
         assertEquals(roof1, roof2);
         assertEquals(roof1.hashCode(), roof2.hashCode());
@@ -112,10 +143,11 @@ class RoofTest {
         final var roof1 = new Roof();
         roof1.setCode("code1");
         roof1.setBuildingAddress(VALID_BUILDING_ADDRESS);
-
+        roof1.setCoordinates(VALID_COORDINATES);
         final var roof2 = new Roof();
         roof2.setCode("code2");
         roof2.setBuildingAddress(VALID_BUILDING_ADDRESS);
+        roof2.setCoordinates(VALID_COORDINATES);
 
         assertNotEquals(roof1, roof2);
         assertNotEquals(roof1.hashCode(), roof2.hashCode());
@@ -125,8 +157,10 @@ class RoofTest {
     void testEqualHashCodeBothRoofsWithNullCode() {
         final var roof1 = new Roof();
         roof1.setBuildingAddress(VALID_BUILDING_ADDRESS);
+        roof1.setCoordinates(VALID_COORDINATES);
         final var roof2 = new Roof();
         roof2.setBuildingAddress("Different Address");
+        roof2.setCoordinates(new Coordinates(VALID_LATITUDE + 1, VALID_LONGITUDE + 1));
 
         assertEquals(roof1, roof2);
         assertEquals(roof1.hashCode(), roof2.hashCode());
@@ -156,22 +190,14 @@ class RoofTest {
         final var roof = createValidRoof();
 
         final String[] validValues = {
-                "validCode",
-                "code123",
-                "CODE",
-                "a",
-                "code-with-dashes",
-                "123456",
+                "validCode", "code123", "CODE", "a", "code-with-dashes", "123456",
         };
 
         for (final var value : validValues) {
             roof.setCode(value);
             final var violations = validator.validate(roof);
 
-            assertTrue(
-                    violations.isEmpty(),
-                    "Code '" + value + "' should be valid but got violations: " + violations
-            );
+            assertTrue(violations.isEmpty(), "Code '" + value + "' should be valid but got violations: " + violations);
         }
 
         final String[] invalidValues = {
@@ -198,11 +224,7 @@ class RoofTest {
             roof.setCode(value);
             final var violations = validator.validate(roof);
 
-            assertEquals(
-                    1,
-                    violations.size(),
-                    "Code '" + value + "' should have exactly one validation violation"
-            );
+            assertEquals(1, violations.size(), "Code '" + value + "' should have exactly one validation violation");
 
             final var violation = violations.iterator().next();
             assertEquals("code", violation.getPropertyPath().toString());
@@ -254,6 +276,36 @@ class RoofTest {
             final var violation = violations.iterator().next();
             assertEquals("buildingAddress", violation.getPropertyPath().toString());
             assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+        }
+    }
+
+    @Test
+    void testValidCoordinates() {
+        final var roof = createValidRoof();
+
+        final Coordinates[] validValues = {
+                VALID_COORDINATES
+        };
+
+        for (final var value : validValues) {
+            roof.setCoordinates(value);
+            final var violations = validator.validate(roof);
+
+            assertTrue(
+                    violations.isEmpty(),
+                    "Coordinates '" + value + "' should be valid but got violations: " + violations
+            );
+        }
+
+        final Coordinates[] invalidValues = {
+                null, new Coordinates(null, null)
+        };
+
+        for (final var value : invalidValues) {
+            roof.setCoordinates(value);
+            final var violations = validator.validate(roof);
+
+            assertFalse(violations.isEmpty(), "Coordinates '" + value + "' should not be valid");
         }
     }
 

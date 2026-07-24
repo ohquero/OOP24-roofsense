@@ -55,7 +55,7 @@ public class Roof {
     public Roof(final String code, final String buildingAddress, final Coordinates coordinates) {
         this.code = code;
         this.buildingAddress = buildingAddress;
-        this.coordinates = new Coordinates(coordinates);
+        this.coordinates = coordinates == null ? null : new Coordinates(coordinates);
     }
 
     /**
@@ -68,7 +68,7 @@ public class Roof {
         this.id = other.id;
         this.code = other.code;
         this.buildingAddress = other.buildingAddress;
-        this.coordinates = new Coordinates(other.coordinates);
+        this.coordinates = other.coordinates == null ? null : new Coordinates(other.coordinates);
     }
 
     /**
@@ -122,7 +122,7 @@ public class Roof {
      * @return the coordinates, or {@code null} if not set
      */
     public Coordinates getCoordinates() {
-        return new Coordinates(coordinates);
+        return coordinates == null ? null : new Coordinates(coordinates);
     }
 
     /**
@@ -131,7 +131,7 @@ public class Roof {
      * @param coordinates the coordinates to set, or {@code null} to clear
      */
     public void setCoordinates(final Coordinates coordinates) {
-        this.coordinates = new Coordinates(coordinates);
+        this.coordinates = coordinates == null ? null : new Coordinates(coordinates);
     }
 
     /**
