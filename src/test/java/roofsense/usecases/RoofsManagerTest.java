@@ -2,6 +2,7 @@ package roofsense.usecases;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import roofsense.entities.Coordinates;
 import roofsense.entities.Roof;
 import roofsense.usecases.ports.RoofRepository;
 import roofsense.usecases.ports.UnitOfWork;
@@ -58,7 +59,7 @@ class RoofsManagerTest {
     @Test
     void existsShouldCallRepositoryExistsMethodAndReturnItsOutputTest() {
         // Given
-        final var roof = new Roof("roof2", "roof2 address");
+        final var roof = new Roof("roof2", "roof2 address", new Coordinates(2.0, 2.0));
         when(repository.exists(roof)).thenReturn(true);
 
         // When
@@ -73,9 +74,9 @@ class RoofsManagerTest {
     @Test
     void getAllShouldCallRepositoryGetAllMethodAndReturnItsOutputTest() {
         // Given
-        final var roof1 = new Roof("roof3", "address3");
-        final var roof2 = new Roof("roof4", "address4");
-        final var roof3 = new Roof("roof5", "address5");
+        final var roof1 = new Roof("roof3", "address3", new Coordinates(3.0, 3.0));
+        final var roof2 = new Roof("roof4", "address4", new Coordinates(4.0, 4.0));
+        final var roof3 = new Roof("roof5", "address5", new Coordinates(5.0, 5.0));
         final var expectedRoofs = List.of(roof1, roof2, roof3);
 
         when(repository.getAll()).thenReturn(expectedRoofs);
@@ -91,7 +92,7 @@ class RoofsManagerTest {
     @Test
     void saveShouldCallRepositorySaveMethodAndReturnItsOutputTest() {
         // given
-        final var roof = new Roof("roof6", "address6");
+        final var roof = new Roof("roof6", "address6", new Coordinates(6.0, 6.0));
         when(repository.save(roof)).thenReturn(roof);
 
         // when
@@ -105,7 +106,7 @@ class RoofsManagerTest {
     @Test
     void removeShouldCallRepositoryRemoveMethodTest() {
         // given
-        final var roof = new Roof("roof7", "address7");
+        final var roof = new Roof("roof7", "address7", new Coordinates(7.0, 7.0));
 
         // when
         roofsManager.remove(roof);
