@@ -122,5 +122,4 @@ public class Coordinates {
                 .add("longitude=" + longitude)
                 .toString();
     }
-
 }
