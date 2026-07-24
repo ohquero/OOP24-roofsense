@@ -1,11 +1,14 @@
 package roofsense.entities;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import roofsense.entities.validation.annotations.ValidCode;
 
 import java.util.Objects;
@@ -30,6 +33,11 @@ public class Roof {
     @Column(name = "building_address", nullable = false)
     private String buildingAddress;
 
+    @NotNull
+    @Valid
+    @Embedded
+    private Coordinates coordinates;
+
     /**
      * Creates a new instance of {@code Roof} with attributes initialized to {@code null}.
      */
@@ -38,14 +46,16 @@ public class Roof {
     }
 
     /**
-     * Creates a new instance of {@code Roof} with attributes initialized to provided value.
+     * Creates a new instance of {@code Roof} with all attributes initialized to provided value.
      *
      * @param code            the unique code identifying the roof
      * @param buildingAddress the address of the building associated with the roof
+     * @param coordinates     the geographic coordinates of the roof, or {@code null}
      */
-    public Roof(final String code, final String buildingAddress) {
+    public Roof(final String code, final String buildingAddress, final Coordinates coordinates) {
         this.code = code;
         this.buildingAddress = buildingAddress;
+        this.coordinates = new Coordinates(coordinates);
     }
 
     /**
@@ -58,6 +68,7 @@ public class Roof {
         this.id = other.id;
         this.code = other.code;
         this.buildingAddress = other.buildingAddress;
+        this.coordinates = new Coordinates(other.coordinates);
     }
 
     /**
@@ -103,6 +114,24 @@ public class Roof {
      */
     public void setBuildingAddress(final String buildingAddress) {
         this.buildingAddress = buildingAddress;
+    }
+
+    /**
+     * Returns the geographic coordinates of the roof.
+     *
+     * @return the coordinates, or {@code null} if not set
+     */
+    public Coordinates getCoordinates() {
+        return new Coordinates(coordinates);
+    }
+
+    /**
+     * Sets the geographic coordinates of the roof.
+     *
+     * @param coordinates the coordinates to set, or {@code null} to clear
+     */
+    public void setCoordinates(final Coordinates coordinates) {
+        this.coordinates = new Coordinates(coordinates);
     }
 
     /**
