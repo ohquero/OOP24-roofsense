@@ -2,10 +2,7 @@ package roofsense.entities;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotBlank;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import roofsense.entities.validation.annotations.ValidCode;
 
@@ -15,26 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+// CHECKSTYLE: MultipleStringLiterals OFF
+
 class RoofTest {
+
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     private static final String VALID_CODE = "ROOF";
     private static final String VALID_BUILDING_ADDRESS = "123 Test Street";
     private static final double VALID_LATITUDE = 44.14;
     private static final double VALID_LONGITUDE = 12.34;
     private static final Coordinates VALID_COORDINATES = new Coordinates(VALID_LATITUDE, VALID_LONGITUDE);
-    private static ValidatorFactory validatorFactory;
-    private static Validator validator;
-
-    @BeforeAll
-    static void setUp() {
-        validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        validatorFactory.close();
-    }
 
     private static Roof createValidRoof() {
         return new Roof(VALID_CODE, VALID_BUILDING_ADDRESS, VALID_COORDINATES);
@@ -180,7 +168,7 @@ class RoofTest {
     void testValidRoof() {
         final var roof = createValidRoof();
 
-        final var violations = validator.validate(roof);
+        final var violations = VALIDATOR.validate(roof);
 
         assertTrue(violations.isEmpty());
     }
@@ -195,7 +183,7 @@ class RoofTest {
 
         for (final var value : validValues) {
             roof.setCode(value);
-            final var violations = validator.validate(roof);
+            final var violations = VALIDATOR.validate(roof);
 
             assertTrue(violations.isEmpty(), "Code '" + value + "' should be valid but got violations: " + violations);
         }
@@ -222,7 +210,7 @@ class RoofTest {
 
         for (final String value : invalidValues) {
             roof.setCode(value);
-            final var violations = validator.validate(roof);
+            final var violations = VALIDATOR.validate(roof);
 
             assertEquals(1, violations.size(), "Code '" + value + "' should have exactly one validation violation");
 
@@ -251,7 +239,7 @@ class RoofTest {
 
         for (final String value : validValues) {
             roof.setBuildingAddress(value);
-            final var violations = validator.validate(roof);
+            final var violations = VALIDATOR.validate(roof);
 
             assertTrue(
                     violations.isEmpty(),
@@ -265,7 +253,7 @@ class RoofTest {
 
         for (final String value : invalidValues) {
             roof.setBuildingAddress(value);
-            final var violations = validator.validate(roof);
+            final var violations = VALIDATOR.validate(roof);
 
             assertEquals(
                     1,
@@ -284,12 +272,12 @@ class RoofTest {
         final var roof = createValidRoof();
 
         final Coordinates[] validValues = {
-                VALID_COORDINATES
+                VALID_COORDINATES,
         };
 
         for (final var value : validValues) {
             roof.setCoordinates(value);
-            final var violations = validator.validate(roof);
+            final var violations = VALIDATOR.validate(roof);
 
             assertTrue(
                     violations.isEmpty(),
@@ -298,12 +286,15 @@ class RoofTest {
         }
 
         final Coordinates[] invalidValues = {
-                null, new Coordinates(null, null)
+                null,
+                new Coordinates(null, null),
+                new Coordinates(VALID_LATITUDE, null),
+                new Coordinates(null, VALID_LONGITUDE),
         };
 
         for (final var value : invalidValues) {
             roof.setCoordinates(value);
-            final var violations = validator.validate(roof);
+            final var violations = VALIDATOR.validate(roof);
 
             assertFalse(violations.isEmpty(), "Coordinates '" + value + "' should not be valid");
         }
