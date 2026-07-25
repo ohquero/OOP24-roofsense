@@ -50,7 +50,7 @@ public class Roof {
      *
      * @param code            the unique code identifying the roof
      * @param buildingAddress the address of the building associated with the roof
-     * @param coordinates     the geographic coordinates of the roof, or {@code null}
+     * @param coordinates     the geographic coordinates of the roof
      */
     public Roof(final String code, final String buildingAddress, final Coordinates coordinates) {
         this.code = code;
@@ -119,7 +119,7 @@ public class Roof {
     /**
      * Returns the geographic coordinates of the roof.
      *
-     * @return the coordinates, or {@code null} if not set
+     * @return the coordinates
      */
     public Coordinates getCoordinates() {
         return coordinates == null ? null : new Coordinates(coordinates);
@@ -128,7 +128,7 @@ public class Roof {
     /**
      * Sets the geographic coordinates of the roof.
      *
-     * @param coordinates the coordinates to set, or {@code null} to clear
+     * @param coordinates the coordinates to set
      */
     public void setCoordinates(final Coordinates coordinates) {
         this.coordinates = coordinates == null ? null : new Coordinates(coordinates);
