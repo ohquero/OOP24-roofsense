@@ -135,6 +135,32 @@ public class Roof {
     }
 
     /**
+     * Sets the latitude of the roof's coordinates.
+     * If the coordinates have not been set yet, a new {@link Coordinates} instance is created.
+     *
+     * @param latitude the latitude to set
+     */
+    public void setLatitude(final Double latitude) {
+        if (this.coordinates == null) {
+            this.coordinates = new Coordinates();
+        }
+        this.coordinates.setLatitude(latitude);
+    }
+
+    /**
+     * Sets the longitude of the roof's coordinates.
+     * If the coordinates have not been set yet, a new {@link Coordinates} instance is created.
+     *
+     * @param longitude the longitude to set
+     */
+    public void setLongitude(final Double longitude) {
+        if (this.coordinates == null) {
+            this.coordinates = new Coordinates();
+        }
+        this.coordinates.setLongitude(longitude);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
