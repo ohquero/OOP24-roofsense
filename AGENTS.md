@@ -42,6 +42,11 @@ All tests run headless (`-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.
 
 Enforced by `org.danilopianini.gradle-java-qa` plugin (Checkstyle, PMD, SpotBugs). No local config files — all rules come from the plugin. Run `./gradlew check` to verify all.
 
+For test files, the following Checkstyle suppressions are permitted via inline comments:
+
+- `// CHECKSTYLE: MultipleStringLiterals OFF` — repeated assertion messages
+- `// CHECKSTYLE: MagicNumber OFF` — numeric test literals
+
 ## Conventions
 
 - Package: `roofsense.*` (not reverse-domain)
