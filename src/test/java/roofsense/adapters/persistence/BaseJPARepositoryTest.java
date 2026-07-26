@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.provider.Arguments;
 import roofsense.entities.Coordinates;
 import roofsense.entities.Roof;
 import testutils.jpa.JPAExtension;
@@ -13,7 +12,6 @@ import testutils.jpa.TestEntityManager;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -274,7 +272,6 @@ class BaseJPARepositoryTest {
      */
     private static final class BaseJPARepositoryForTests extends AbstractJPARepository<Roof> {
 
-        private static final Coordinates VALID_COORDINATES = new Coordinates(44.14, 12.34);
         private static final Random RANDOM = new Random();
 
         BaseJPARepositoryForTests(final EntityManager em) {
@@ -285,23 +282,12 @@ class BaseJPARepositoryTest {
             return Roof.class;
         }
 
-        @SuppressWarnings("MagicNumber")
         static Roof createValidEntity() {
             final var randomNumber = RANDOM.nextInt(100_000_000);
             return new Roof(
                     "R-" + randomNumber,
                     "Address-" + randomNumber,
                     new Coordinates(RANDOM.nextDouble(-90, 90), RANDOM.nextDouble(-180, 180))
-            );
-        }
-
-        static Stream<Arguments> invalidEntitiesWithConstraintViolationsCount() {
-            return Stream.of(
-                    Arguments.of(new Roof(null, null, null), 3),
-                    Arguments.of(new Roof(null, null, VALID_COORDINATES), 2),
-                    Arguments.of(new Roof(null, "roof 3 address", null), 2),
-                    Arguments.of(new Roof("R-04", null, null), 2),
-                    Arguments.of(new Roof("R-04", null, VALID_COORDINATES), 1)
             );
         }
 
