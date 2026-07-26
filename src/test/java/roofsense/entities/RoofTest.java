@@ -4,10 +4,12 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.Arguments;
 import roofsense.entities.validation.annotations.ValidCode;
 
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -285,19 +287,26 @@ class RoofTest {
             );
         }
 
-        final Coordinates[] invalidValues = {
-                null,
-                new Coordinates(null, null),
-                new Coordinates(VALID_LATITUDE, null),
-                new Coordinates(null, VALID_LONGITUDE),
-        };
+        final var invalidValues = Stream.of(
+                Arguments.of(null, 1),
+                Arguments.of(new Coordinates(null, null), 2),
+                Arguments.of(new Coordinates(VALID_LATITUDE, null), 1),
+                Arguments.of(new Coordinates(null, VALID_LONGITUDE), 1)
+        );
 
-        for (final var value : invalidValues) {
-            roof.setCoordinates(value);
+        invalidValues.forEach(value -> {
+            final Coordinates coordinates = (Coordinates) value.get()[0];
+            final int expectedViolationsCount = (int) value.get()[1];
+
+            roof.setCoordinates(coordinates);
             final var violations = VALIDATOR.validate(roof);
 
-            assertFalse(violations.isEmpty(), "Coordinates '" + value + "' should not be valid");
-        }
+            assertEquals(expectedViolationsCount, violations.size());
+            for (final var violation : violations) {
+                final var violationPropertyPathParentNode = violation.getPropertyPath().iterator().next();
+                assertEquals("coordinates", violationPropertyPathParentNode.toString());
+            }
+        });
     }
 
 }
