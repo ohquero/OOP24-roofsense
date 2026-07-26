@@ -21,6 +21,8 @@ import roofsense.utils.Validators;
 
 import java.util.Objects;
 
+// CHECKSTYLE: MagicNumber OFF
+
 /**
  * Form for editing {@link Roof} objects.
  */
@@ -29,6 +31,7 @@ public final class RoofFormNode extends AnchorPane {
 
     private static final int FIELDS_COLUMN_MIN_WIDTH = 350;
     private static final int SAVE_RESULT_LABEL_MIN_WIDTH = 200;
+    private static final String VALIDATION_RESULT_LABEL_STYLE_CLASS = "validation-result-label";
     private final BooleanProperty editedRoofIsValidProperty;
 
     private final Label titleLabel;
@@ -36,6 +39,10 @@ public final class RoofFormNode extends AnchorPane {
     private final Label codeValidationResultLabel;
     private final TextField buildingAddressTextField;
     private final Label buildingAddressValidationResultLabel;
+    private final TextField latitudeTextField;
+    private final Label latitudeValidationResultLabel;
+    private final TextField longitudeTextField;
+    private final Label longitudeValidationResultLabel;
     private final Label saveResultLabel;
 
     private Roof roof;
@@ -74,10 +81,10 @@ public final class RoofFormNode extends AnchorPane {
         final Label codeLabel = new Label("Code:");
         codeTextField = new TextField();
         codeTextField.setId("codeTextField");
-        codeTextField.setPromptText("Enter roof code");
+        codeTextField.setPromptText("enter roof code...");
         codeValidationResultLabel = new Label();
         codeValidationResultLabel.setId("codeValidationResultLabel");
-        codeValidationResultLabel.getStyleClass().add("validation-result-label");
+        codeValidationResultLabel.getStyleClass().add(VALIDATION_RESULT_LABEL_STYLE_CLASS);
         formGrid.addRow(0, codeLabel, codeTextField);
         formGrid.add(codeValidationResultLabel, 1, 1);
 
@@ -85,19 +92,40 @@ public final class RoofFormNode extends AnchorPane {
         final Label buildingAddressLabel = new Label("Building address:");
         buildingAddressTextField = new TextField();
         buildingAddressTextField.setId("buildingAddressTextField");
-        buildingAddressTextField.setPromptText("Enter building address");
+        buildingAddressTextField.setPromptText("enter building address...");
         buildingAddressValidationResultLabel = new Label();
         buildingAddressValidationResultLabel.setId("buildingAddressValidationResultLabel");
-        buildingAddressValidationResultLabel.getStyleClass().add("validation-result-label");
+        buildingAddressValidationResultLabel.getStyleClass().add(VALIDATION_RESULT_LABEL_STYLE_CLASS);
         formGrid.addRow(2, buildingAddressLabel, buildingAddressTextField);
         formGrid.add(buildingAddressValidationResultLabel, 1, 3);
 
+        // Latitude field
+        final Label latitudeLabel = new Label("Latitude:");
+        latitudeTextField = new TextField();
+        latitudeTextField.setId("latitudeTextField");
+        latitudeTextField.setPromptText("enter a number between -90.00 and 90.00...");
+        latitudeValidationResultLabel = new Label();
+        latitudeValidationResultLabel.setId("latitudeValidationResultLabel");
+        latitudeValidationResultLabel.getStyleClass().add(VALIDATION_RESULT_LABEL_STYLE_CLASS);
+        formGrid.addRow(4, latitudeLabel, latitudeTextField);
+        formGrid.add(latitudeValidationResultLabel, 1, 5);
+
+        // Longitude field
+        final Label longitudeLabel = new Label("Longitude:");
+        longitudeTextField = new TextField();
+        longitudeTextField.setId("longitudeTextField");
+        longitudeTextField.setPromptText("enter a number between -180.00 and 180.00...");
+        longitudeValidationResultLabel = new Label();
+        longitudeValidationResultLabel.setId("longitudeValidationResultLabel");
+        longitudeValidationResultLabel.getStyleClass().add(VALIDATION_RESULT_LABEL_STYLE_CLASS);
+        formGrid.addRow(6, longitudeLabel, longitudeTextField);
+        formGrid.add(longitudeValidationResultLabel, 1, 7);
+
         // Create buttons GridPane
         final GridPane buttonGrid = new GridPane();
-        buttonGrid.getColumnConstraints().addAll(
-                new ColumnConstraints(SAVE_RESULT_LABEL_MIN_WIDTH, -1, -1),
-                new ColumnConstraints()
-        );
+        buttonGrid
+                .getColumnConstraints()
+                .addAll(new ColumnConstraints(SAVE_RESULT_LABEL_MIN_WIDTH, -1, -1), new ColumnConstraints());
         buttonGrid.getRowConstraints().add(new RowConstraints());
 
         saveResultLabel = new Label();
@@ -123,21 +151,17 @@ public final class RoofFormNode extends AnchorPane {
         //-----------------------------------------------------------------------------------------
 
         // Reacting to form field changes
-        final Runnable updateEditedRoofIsValidProperty = () -> {
-            final var isValid = Validators.validate(newRoof).isEmpty();
-            editedRoofIsValidProperty.set(isValid);
-        };
         codeTextField.textProperty().addListener((obs, oldVal, newVal) -> {
             newRoof.setCode(newVal);
             final var violations = Validators.validateProperty(newRoof, "code");
             codeValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(violations));
-            updateEditedRoofIsValidProperty.run();
+            updateNewRoofIsValidProperty();
         });
         buildingAddressTextField.textProperty().addListener((obs, oldVal, newVal) -> {
             newRoof.setBuildingAddress(newVal);
             final var violations = Validators.validateProperty(newRoof, "buildingAddress");
             buildingAddressValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(violations));
-            updateEditedRoofIsValidProperty.run();
+            updateNewRoofIsValidProperty();
         });
 
         // Disable the commit button if the form is not valid
@@ -162,6 +186,32 @@ public final class RoofFormNode extends AnchorPane {
         });
     }
 
+    private void updateCoordinateValidationLabels() {
+        final var coordinates = newRoof.getCoordinates();
+        if (coordinates == null) {
+            latitudeValidationResultLabel.setText("");
+            longitudeValidationResultLabel.setText("");
+        } else {
+            latitudeValidationResultLabel.setText(
+                    ConstraintViolations.prettyPrintViolations(
+                            Validators.validateProperty(
+                                    newRoof,
+                                    "coordinates.latitude"
+                            )));
+            longitudeValidationResultLabel.setText(
+                    ConstraintViolations.prettyPrintViolations(
+                            Validators.validateProperty(
+                                    newRoof,
+                                    "coordinates.longitude"
+                            )));
+        }
+    }
+
+    private void updateNewRoofIsValidProperty() {
+        final var isValid = Validators.validate(newRoof).isEmpty();
+        editedRoofIsValidProperty.set(isValid);
+    }
+
     /**
      * Set the {@link Roof} to be edited. If {@link null} a new {@link Roof} will be created.
      *
@@ -181,6 +231,20 @@ public final class RoofFormNode extends AnchorPane {
         // populating form fields
         codeTextField.setText(newRoof.getCode() != null ? newRoof.getCode() : "");
         buildingAddressTextField.setText(newRoof.getBuildingAddress() != null ? newRoof.getBuildingAddress() : "");
+
+        final var coords = newRoof.getCoordinates();
+        latitudeTextField.setText(coords != null && coords.getLatitude() != null
+                ? String.valueOf(coords.getLatitude())
+                : "");
+        longitudeTextField.setText(coords != null && coords.getLongitude() != null
+                ? String.valueOf(coords.getLongitude())
+                : "");
+
+        // clearing validation labels
+        codeValidationResultLabel.setText("");
+        buildingAddressValidationResultLabel.setText("");
+        latitudeValidationResultLabel.setText("");
+        longitudeValidationResultLabel.setText("");
 
         // disabling the codeTextField if editing an existing roof
         codeTextField.setDisable(roof != null);
