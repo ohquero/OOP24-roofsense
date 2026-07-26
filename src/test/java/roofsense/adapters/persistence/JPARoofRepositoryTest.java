@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import roofsense.entities.Coordinates;
 import roofsense.entities.Roof;
 import testutils.jpa.JPAExtension;
 import testutils.jpa.TestEntityManager;
@@ -18,10 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JPARoofRepositoryTest {
 
     private final Collection<Roof> roofs = new ArrayList<>(List.of(
-            new Roof("R-02", "street 1 02"),
-            new Roof("R-03", "street 1 03"),
-            new Roof("R-04", "street 2 04"),
-            new Roof("R-05", "street 2 05")
+            new Roof("R-02", "street 1 02", new Coordinates(2.0, 2.0)),
+            new Roof("R-03", "street 1 03", new Coordinates(3.0, 3.0)),
+            new Roof("R-04", "street 2 04", new Coordinates(4.0, 4.0)),
+            new Roof("R-05", "street 2 05", new Coordinates(5.0, 5.0))
     ));
 
     @TestEntityManager
