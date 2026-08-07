@@ -8,20 +8,21 @@ import javafx.event.EventType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import org.apache.commons.lang3.StringUtils;
 import roofsense.adapters.ui.events.SaveEvent;
+import roofsense.entities.Coordinates;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 import roofsense.utils.ConstraintViolations;
 import roofsense.utils.Validators;
 
 import java.util.Objects;
-
-// CHECKSTYLE: MagicNumber OFF
 
 /**
  * Form for editing {@link Roof} objects.
@@ -62,6 +63,7 @@ public final class RoofFormNode extends AnchorPane {
         //-----------------------------------------------------------------------------------------
         // NODE LAYOUT
         //-----------------------------------------------------------------------------------------
+        // CHECKSTYLE: MagicNumber OFF
 
         final VBox rootNode = new VBox();
         rootNode.setId("roofFormNode");
@@ -104,6 +106,7 @@ public final class RoofFormNode extends AnchorPane {
         latitudeTextField = new TextField();
         latitudeTextField.setId("latitudeTextField");
         latitudeTextField.setPromptText("enter a number between -90.00 and 90.00...");
+        latitudeTextField.setTextFormatter(new TextFormatter<>(TextFormatterFilters.GEOGRAPHICAL_COORDINATES_FILTER));
         latitudeValidationResultLabel = new Label();
         latitudeValidationResultLabel.setId("latitudeValidationResultLabel");
         latitudeValidationResultLabel.getStyleClass().add(VALIDATION_RESULT_LABEL_STYLE_CLASS);
@@ -115,6 +118,7 @@ public final class RoofFormNode extends AnchorPane {
         longitudeTextField = new TextField();
         longitudeTextField.setId("longitudeTextField");
         longitudeTextField.setPromptText("enter a number between -180.00 and 180.00...");
+        longitudeTextField.setTextFormatter(new TextFormatter<>(TextFormatterFilters.GEOGRAPHICAL_COORDINATES_FILTER));
         longitudeValidationResultLabel = new Label();
         longitudeValidationResultLabel.setId("longitudeValidationResultLabel");
         longitudeValidationResultLabel.getStyleClass().add(VALIDATION_RESULT_LABEL_STYLE_CLASS);
@@ -146,6 +150,8 @@ public final class RoofFormNode extends AnchorPane {
         setTopAnchor(rootNode, 0.0);
         getChildren().add(rootNode);
 
+        // CHECKSTYLE: MagicNumber ON
+
         //-----------------------------------------------------------------------------------------
         // NODE LOGIC
         //-----------------------------------------------------------------------------------------
@@ -161,6 +167,16 @@ public final class RoofFormNode extends AnchorPane {
             newRoof.setBuildingAddress(newVal);
             final var violations = Validators.validateProperty(newRoof, "buildingAddress");
             buildingAddressValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(violations));
+            updateNewRoofIsValidProperty();
+        });
+        latitudeTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+            updateCoordinatesFromTextFields();
+            updateCoordinateValidationLabels();
+            updateNewRoofIsValidProperty();
+        });
+        longitudeTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+            updateCoordinatesFromTextFields();
+            updateCoordinateValidationLabels();
             updateNewRoofIsValidProperty();
         });
 
@@ -186,24 +202,47 @@ public final class RoofFormNode extends AnchorPane {
         });
     }
 
-    private void updateCoordinateValidationLabels() {
-        final var coordinates = newRoof.getCoordinates();
-        if (coordinates == null) {
-            latitudeValidationResultLabel.setText("");
-            longitudeValidationResultLabel.setText("");
+    private void updateCoordinatesFromTextFields() {
+        final var lat = parseCoordinate(latitudeTextField.getText());
+        final var lon = parseCoordinate(longitudeTextField.getText());
+        if (lat != null || lon != null) {
+            newRoof.setCoordinates(new Coordinates(lat, lon));
         } else {
-            latitudeValidationResultLabel.setText(
-                    ConstraintViolations.prettyPrintViolations(
-                            Validators.validateProperty(
-                                    newRoof,
-                                    "coordinates.latitude"
-                            )));
-            longitudeValidationResultLabel.setText(
-                    ConstraintViolations.prettyPrintViolations(
-                            Validators.validateProperty(
-                                    newRoof,
-                                    "coordinates.longitude"
-                            )));
+            newRoof.setCoordinates(null);
+        }
+    }
+
+    private Double parseCoordinate(final String text) {
+        final var coordinateString = StringUtils.stripToNull(text);
+        if (coordinateString == null) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(text);
+        } catch (final NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private void updateCoordinateValidationLabels() {
+        final var coordinatesViolations = Validators.validateProperty(newRoof, "coordinates");
+        if (!coordinatesViolations.isEmpty()) {
+            final var coordinatesViolationsString = ConstraintViolations.prettyPrintViolations(coordinatesViolations);
+            latitudeValidationResultLabel.setText(coordinatesViolationsString);
+            longitudeValidationResultLabel.setText(coordinatesViolationsString);
+        } else if (newRoof.getCoordinates() != null) {
+            latitudeValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(
+                    Validators.validateProperty(
+                            newRoof,
+                            "coordinates.latitude"
+                    ))
+            );
+            longitudeValidationResultLabel.setText(ConstraintViolations.prettyPrintViolations(
+                    Validators.validateProperty(
+                            newRoof,
+                            "coordinates.longitude"
+                    ))
+            );
         }
     }
 

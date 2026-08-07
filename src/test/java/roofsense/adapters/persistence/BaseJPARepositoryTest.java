@@ -266,6 +266,7 @@ class BaseJPARepositoryTest {
         assertThrows(IllegalArgumentException.class, () -> repository.remove(entity));
     }
 
+    // CHECKSTYLE: MagicNumber OFF
     /**
      * Test implementation of {@link AbstractJPARepository} for testing purposes. Uses {@link Roof} as the entity
      * type just for convenience.
@@ -305,5 +306,6 @@ class BaseJPARepositoryTest {
         }
 
     }
+    // CHECKSTYLE: MagicNumber ON
 
 }
