@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import org.testfx.service.query.EmptyNodeQueryException;
+import roofsense.entities.Coordinates;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
@@ -42,6 +43,8 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     private static final String ROOF_FORM_SAVE_BUTTON_NQ = "#saveButton";
     private static final String ROOF_FORM_CODE_TEXT_FIELD_NQ = "#codeTextField";
     private static final String ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ = "#buildingAddressTextField";
+    public static final String ROOF_FORM_LATITUDE_TEXT_FIELD_NQ = "#latitudeTextField";
+    public static final String ROOF_FORM_LONGITUDE_TEXT_FIELD_NQ = "#longitudeTextField";
 
     @SuppressFBWarnings("UwF")
     private List<Roof> roofs;
@@ -58,11 +61,11 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
         manager = injector.get(RoofsManager.class);
 
         roofs = List.of(
-                new Roof("code1", "address1"),
-                new Roof("code2", "address2"),
-                new Roof("code3", "address3"),
-                new Roof("code4", "address4"),
-                new Roof("code5", "address5")
+                new Roof("code1", "address1", new Coordinates(44.14, 12.34)),
+                new Roof("code2", "address2", new Coordinates(44.15, 12.35)),
+                new Roof("code3", "address3", new Coordinates(44.16, 12.36)),
+                new Roof("code4", "address4", new Coordinates(44.17, 12.37)),
+                new Roof("code5", "address5", new Coordinates(44.18, 12.38))
         );
         roofs.forEach(manager::save);
 
@@ -138,7 +141,8 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
         final var searchTerm = "code1";
         final var newRoofCode = "code12";
         final var newRoofBuildingAddress = "address 12";
-        final var newRoof = new Roof(newRoofCode, newRoofBuildingAddress);
+        final var newRoofCoords = new Coordinates(44.20, 12.40);
+        final var newRoof = new Roof(newRoofCode, newRoofBuildingAddress, newRoofCoords);
         final var roofsTableView = robot.lookup(ROOFS_TABLE_NQ).queryTableView();
 
         // when
@@ -147,6 +151,8 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
         waitForFxEvents();
         robot.clickOn(ROOF_FORM_CODE_TEXT_FIELD_NQ).write(newRoofCode);
         robot.clickOn(ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ).write(newRoofBuildingAddress);
+        robot.clickOn(ROOF_FORM_LATITUDE_TEXT_FIELD_NQ).write("44.2");
+        robot.clickOn(ROOF_FORM_LONGITUDE_TEXT_FIELD_NQ).write("12.4");
         robot.clickOn(ROOF_FORM_SAVE_BUTTON_NQ);
         waitForFxEvents();
         // wait for the roof form to be closed
