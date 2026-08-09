@@ -43,8 +43,8 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     private static final String ROOF_FORM_SAVE_BUTTON_NQ = "#saveButton";
     private static final String ROOF_FORM_CODE_TEXT_FIELD_NQ = "#codeTextField";
     private static final String ROOF_FORM_BUILDING_ADDRESS_TEXT_FIELD_NQ = "#buildingAddressTextField";
-    public static final String ROOF_FORM_LATITUDE_TEXT_FIELD_NQ = "#latitudeTextField";
-    public static final String ROOF_FORM_LONGITUDE_TEXT_FIELD_NQ = "#longitudeTextField";
+    private static final String ROOF_FORM_LATITUDE_TEXT_FIELD_NQ = "#latitudeTextField";
+    private static final String ROOF_FORM_LONGITUDE_TEXT_FIELD_NQ = "#longitudeTextField";
 
     @SuppressFBWarnings("UwF")
     private List<Roof> roofs;
