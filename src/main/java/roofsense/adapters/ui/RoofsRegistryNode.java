@@ -5,6 +5,7 @@ import io.avaje.inject.Prototype;
 import io.github.makbn.jlmap.fx.JLMapView;
 import io.github.makbn.jlmap.map.JLMapProvider;
 import io.github.makbn.jlmap.model.JLLatLng;
+import io.github.makbn.jlmap.model.JLMarker;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Worker;
@@ -22,6 +23,8 @@ import javafx.util.Duration;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static javafx.stage.Modality.WINDOW_MODAL;
@@ -39,7 +42,9 @@ public final class RoofsRegistryNode extends SplitPane {
     private final RoofsManager manager;
     private final TableView<Roof> roofsTableView;
     private final TextField searchStringTextField;
+
     private final JLMapView map;
+    private final List<JLMarker> mapCurrentMarkers = new ArrayList<>();
     private boolean mapLoaded;
 
     /**
@@ -201,13 +206,21 @@ public final class RoofsRegistryNode extends SplitPane {
     private void performSearch() {
         final var roofs = manager.search(searchStringTextField.getText());
         roofsTableView.getItems().setAll(roofs);
+
+        // Updating the map node
         if (mapLoaded) {
+            for (final var marker : mapCurrentMarkers) {
+                marker.remove();
+            }
+            mapCurrentMarkers.clear();
+
             for (final var roof : roofs) {
                 final var jlCoordinates = JLLatLng.builder()
                         .lat(roof.getCoordinates().getLatitude())
                         .lng(roof.getCoordinates().getLongitude())
                         .build();
-                map.getUiLayer().addMarker(jlCoordinates, roof.getCode(), false);
+                final var marker = map.getUiLayer().addMarker(jlCoordinates, roof.getCode(), false);
+                mapCurrentMarkers.add(marker);
             }
         }
     }
