@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.hibernate.core)
     runtimeOnly(libs.h2.database)
 
+    // JavaFX dependencies
+    implementation("io.github.makbn:jlmap-fx:2.0.0")
+
     // Test dependencies
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.platform.launcher)

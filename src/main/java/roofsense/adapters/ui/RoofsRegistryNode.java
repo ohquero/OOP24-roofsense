@@ -2,16 +2,21 @@ package roofsense.adapters.ui;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.avaje.inject.Prototype;
+import io.github.makbn.jlmap.fx.JLMapView;
+import io.github.makbn.jlmap.map.JLMapProvider;
+import io.github.makbn.jlmap.model.JLLatLng;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import roofsense.entities.Roof;
@@ -25,14 +30,17 @@ import static javafx.stage.Modality.WINDOW_MODAL;
  * Node providing an overview on all the monitored {@link Roof}.
  */
 @Prototype
-public final class RoofsRegistryNode extends AnchorPane {
+public final class RoofsRegistryNode extends SplitPane {
 
     private static final double ROOFS_TABLE_CODE_COLUMN_MIN_WIDTH = 80.0;
     private static final double ROOFS_TABLE_BUILDING_ADDRESS_COLUMN_MIN_WIDTH = 300.0;
+    private static final double SPLITPANE_DIVIDER_POSITION = 0.7;
 
     private final RoofsManager manager;
     private final TableView<Roof> roofsTableView;
-    private final TextField searchRoofsTextField;
+    private final TextField searchStringTextField;
+    private final JLMapView map;
+    private boolean mapLoaded;
 
     /**
      * Constructor.
@@ -47,17 +55,27 @@ public final class RoofsRegistryNode extends AnchorPane {
         // NODE LAYOUT
         //-----------------------------------------------------------------------------------------
 
-        final VBox rootNode = new VBox();
-        rootNode.setId("roofRegistryNode");
+        this.setId("roofRegistryNode");
 
-        final Label titleLabel = new Label("Roofs");
+        final var leftPane = new VBox();
+        final var rightPane = new VBox();
+        this.getItems().addAll(new StackPane(leftPane), new StackPane(rightPane));
+        this.setDividerPositions(SPLITPANE_DIVIDER_POSITION);
+
+        // Title label
+        final var titleLabel = new Label("Roofs");
         titleLabel.getStyleClass().add("h1");
 
-        searchRoofsTextField = new TextField();
-        searchRoofsTextField.setId("searchRoofsTextField");
-        searchRoofsTextField.setPromptText("Search...");
+        leftPane.getChildren().add(titleLabel);
 
-        // Create TableView and columns
+        // Roofs search text field
+        searchStringTextField = new TextField();
+        searchStringTextField.setId("searchRoofsTextField");
+        searchStringTextField.setPromptText("Search...");
+
+        leftPane.getChildren().add(searchStringTextField);
+
+        // Roofs table
         roofsTableView = new TableView<>();
         roofsTableView.setId("roofsTableView");
         VBox.setVgrow(roofsTableView, javafx.scene.layout.Priority.ALWAYS);
@@ -73,7 +91,9 @@ public final class RoofsRegistryNode extends AnchorPane {
         roofsTableView.getColumns().add(roofsTableCodeColumn);
         roofsTableView.getColumns().add(roofsTableBuildingAddressColumn);
 
-        // Create buttons
+        leftPane.getChildren().add(roofsTableView);
+
+        // Buttons
         final Button addRoofButton = new Button("Add");
         addRoofButton.setId("addRoofButton");
         final Button editRoofButton = new Button("Edit");
@@ -81,25 +101,27 @@ public final class RoofsRegistryNode extends AnchorPane {
         final Button removeRoofButton = new Button("Delete");
         removeRoofButton.setId("removeRoofButton");
 
-        // Create container for buttons
         final var buttonsContainer = new HBox();
         buttonsContainer.setAlignment(Pos.BASELINE_RIGHT);
         buttonsContainer.getChildren().addAll(addRoofButton, editRoofButton, removeRoofButton);
 
-        // Add all components to this region
-        rootNode.getChildren().addAll(titleLabel, searchRoofsTextField, roofsTableView, buttonsContainer);
-        setBottomAnchor(rootNode, 0.0);
-        setLeftAnchor(rootNode, 0.0);
-        setRightAnchor(rootNode, 0.0);
-        setTopAnchor(rootNode, 0.0);
-        getChildren().add(rootNode);
+        leftPane.getChildren().add(buttonsContainer);
+
+        // Roofs satellite map
+        map = JLMapView.builder()
+                .jlMapProvider(JLMapProvider.OSM_MAPNIK.build())
+                .showZoomController(true)
+                .startCoordinate(new JLLatLng(48.864716, 2.349014))
+                .build();
+
+        rightPane.getChildren().add(map);
 
         //-----------------------------------------------------------------------------------------
         // NODE LOGIC
         //-----------------------------------------------------------------------------------------
 
         // Search field action
-        searchRoofsTextField.textProperty().addListener(invalidation -> performSearch());
+        searchStringTextField.textProperty().addListener(invalidation -> performSearch());
 
         // Initialize table columns
         roofsTableCodeColumn.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCode()));
@@ -160,14 +182,34 @@ public final class RoofsRegistryNode extends AnchorPane {
             roofsTableView.getSelectionModel().clearSelection();
         });
 
-        // Filling the roofsTableView with the roofs retrieved with an empty-string search, in order that when the
-        // searchRoofsTextField is cleared, the same roofs will appear
-        performSearch();
+        //-----------------------------------------------------------------------------------------
+        // NODE INITIALIZATION
+        //-----------------------------------------------------------------------------------------
+
+        // Loading some roof by performing a search with the search term in searchStringTextField after the node is
+        // fully loaded, meaning that the map is loaded
+        map.getWebView().getEngine().getLoadWorker().stateProperty().addListener(
+                (obs, oldState, newState) -> {
+                    if (newState == Worker.State.SUCCEEDED) {
+                        mapLoaded = true;
+                        performSearch();
+                    }
+                }
+        );
     }
 
     private void performSearch() {
-        final var roofs = manager.search(searchRoofsTextField.getText());
+        final var roofs = manager.search(searchStringTextField.getText());
         roofsTableView.getItems().setAll(roofs);
+        if (mapLoaded) {
+            for (final var roof : roofs) {
+                final var jlCoordinates = JLLatLng.builder()
+                        .lat(roof.getCoordinates().getLatitude())
+                        .lng(roof.getCoordinates().getLongitude())
+                        .build();
+                map.getUiLayer().addMarker(jlCoordinates, roof.getCode(), false);
+            }
+        }
     }
 
 }

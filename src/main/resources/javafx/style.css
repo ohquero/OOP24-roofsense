@@ -38,6 +38,6 @@ VBox, HBox {
     -fx-spacing: 1em;
 }
 
-SplitPane VBox {
+StackPane {
     -fx-padding: 1em;
 }
