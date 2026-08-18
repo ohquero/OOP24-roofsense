@@ -26,6 +26,8 @@ Persistence: `src/main/resources/META-INF/persistence.xml` (persistence unit `Ro
 | `./gradlew clean check`                | Full clean build + verification (use when build artifacts might be stale) |
 | `./gradlew test --tests "*ClassName*"` | Run a specific test class                                                 |
 
+When writing code, an agent must NOT run the `check` task to verify its work — only `./gradlew test` (or a scoped test run). The results of `check` are validated manually by the programmer afterwards.
+
 All tests run headless (`-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw`). No display needed.
 
 ## Testing
