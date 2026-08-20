@@ -2,13 +2,8 @@ package roofsense.adapters.ui;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.avaje.inject.Prototype;
-import io.github.makbn.jlmap.fx.JLMapView;
-import io.github.makbn.jlmap.map.JLMapProvider;
-import io.github.makbn.jlmap.model.JLLatLng;
-import io.github.makbn.jlmap.model.JLMarker;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,8 +18,6 @@ import javafx.util.Duration;
 import roofsense.entities.Roof;
 import roofsense.usecases.RoofsManager;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import static javafx.stage.Modality.WINDOW_MODAL;
@@ -43,9 +36,7 @@ public final class RoofsRegistryNode extends SplitPane {
     private final TableView<Roof> roofsTableView;
     private final TextField searchStringTextField;
 
-    private final JLMapView map;
-    private final List<JLMarker> mapCurrentMarkers = new ArrayList<>();
-    private boolean mapLoaded;
+    private final OsmMap map;
 
     /**
      * Constructor.
@@ -113,11 +104,7 @@ public final class RoofsRegistryNode extends SplitPane {
         leftPane.getChildren().add(buttonsContainer);
 
         // Roofs satellite map
-        map = JLMapView.builder()
-                .jlMapProvider(JLMapProvider.OSM_MAPNIK.build())
-                .showZoomController(true)
-                .startCoordinate(new JLLatLng(48.864716, 2.349014))
-                .build();
+        map = new OsmMap();
 
         rightPane.getChildren().add(map);
 
@@ -193,10 +180,9 @@ public final class RoofsRegistryNode extends SplitPane {
 
         // Loading some roof by performing a search with the search term in searchStringTextField after the node is
         // fully loaded, meaning that the map is loaded
-        map.getWebView().getEngine().getLoadWorker().stateProperty().addListener(
+        map.loadedProperty().addListener(
                 (obs, oldState, newState) -> {
-                    if (newState == Worker.State.SUCCEEDED) {
-                        mapLoaded = true;
+                    if (newState) {
                         performSearch();
                     }
                 }
@@ -208,19 +194,11 @@ public final class RoofsRegistryNode extends SplitPane {
         roofsTableView.getItems().setAll(roofs);
 
         // Updating the map node
-        if (mapLoaded) {
-            for (final var marker : mapCurrentMarkers) {
-                marker.remove();
-            }
-            mapCurrentMarkers.clear();
+        if (map.loadedProperty().get()) {
+            map.removeAllMarkers();
 
             for (final var roof : roofs) {
-                final var jlCoordinates = JLLatLng.builder()
-                        .lat(roof.getCoordinates().getLatitude())
-                        .lng(roof.getCoordinates().getLongitude())
-                        .build();
-                final var marker = map.getUiLayer().addMarker(jlCoordinates, roof.getCode(), false);
-                mapCurrentMarkers.add(marker);
+                map.addMarker(roof.getCoordinates(), roof.getCode());
             }
         }
     }

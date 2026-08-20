@@ -19,7 +19,7 @@ java {
 
 javafx {
     version = "21"
-    modules("javafx.controls", "javafx.controls", "javafx.fxml", "javafx.swing", "javafx.graphics")
+    modules("javafx.controls", "javafx.fxml", "javafx.swing", "javafx.graphics", "javafx.web")
 }
 
 val mockitoAgent = configurations.create("mockitoAgent")
@@ -47,9 +47,6 @@ dependencies {
     implementation(libs.jakarta.persistence.api)
     implementation(libs.hibernate.core)
     runtimeOnly(libs.h2.database)
-
-    // JavaFX dependencies
-    implementation("io.github.makbn:jlmap-fx:2.0.0")
 
     // Test dependencies
     testImplementation(libs.junit.jupiter)
