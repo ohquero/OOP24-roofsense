@@ -3,6 +3,7 @@ package roofsense.adapters.ui;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.concurrent.Worker;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
 import roofsense.entities.Coordinates;
@@ -36,17 +37,32 @@ public final class OsmMap extends Region {
      */
     public OsmMap() {
         webView = new WebView();
-        getChildren().add(webView);
 
         webView.prefWidthProperty().bind(widthProperty());
         webView.prefHeightProperty().bind(heightProperty());
 
-        final String html = buildHtml();
-        webView.getEngine().loadContent(html);
+//        final String html = buildHtml();
+//        webView.getEngine().loadContent(html);
 
         loaded.bind(
                 webView.getEngine().getLoadWorker().stateProperty().isEqualTo(Worker.State.SUCCEEDED)
         );
+//        loaded.addListener((obs, was, isNow) -> {
+//            if (isNow) {
+//                webView.getEngine().executeScript("map.invalidateSize()");
+//            }
+//        });
+
+        this.getChildren().add(webView);
+
+        final var button = new Button("Load WebView");
+        button.setOnAction(event -> {
+            final String html = buildHtml();
+            webView.getEngine().loadContent(html);
+        });
+
+        this.getChildren().add(button);
+
     }
 
     /**
