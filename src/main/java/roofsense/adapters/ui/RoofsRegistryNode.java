@@ -36,7 +36,7 @@ public final class RoofsRegistryNode extends SplitPane {
     private final TableView<Roof> roofsTableView;
     private final TextField searchStringTextField;
 
-    private final OsmMap map;
+    private final LeafletMap map;
 
     /**
      * Constructor.
@@ -104,7 +104,7 @@ public final class RoofsRegistryNode extends SplitPane {
         leftPane.getChildren().add(buttonsContainer);
 
         // Roofs satellite map
-        map = new OsmMap();
+        map = new LeafletMap();
 
         rightPane.getChildren().add(map);
 

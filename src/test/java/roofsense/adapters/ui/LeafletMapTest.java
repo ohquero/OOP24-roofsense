@@ -4,27 +4,30 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.testfx.framework.junit5.Start;
 
-class OsmMapTest extends AbstractNodeTest {
-
-    private Stage stage;
+class LeafletMapTest extends AbstractNodeTest {
 
     @Override
     protected Stage getStage() {
+        final var stage = new Stage();
+        stage.setTitle("LeafletMap node demo");
+        stage.setScene(buildScene());
+        stage.show();
         return stage;
     }
 
     @Start
     void start(final Stage testfxStage) {
-        stage = testfxStage;
+        testfxStage.setScene(buildScene());
+        testfxStage.show();
+    }
 
-        final var map = new OsmMap();
-        map.setPrefHeight(500);
-        map.setPrefWidth(500);
+    private Scene buildScene() {
+        final var map = new LeafletMap();
 
         final var scene = new Scene(map);
         scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
-        testfxStage.setScene(scene);
-        stage.show();
+
+        return scene;
     }
 
 }
