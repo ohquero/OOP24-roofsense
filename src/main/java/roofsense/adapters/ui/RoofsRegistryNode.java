@@ -105,6 +105,8 @@ public final class RoofsRegistryNode extends SplitPane {
 
         // Roofs satellite map
         map = new LeafletMap();
+        map.prefWidthProperty().bind(rightPane.widthProperty());
+        map.prefHeightProperty().bind(leftPane.heightProperty());
 
         rightPane.getChildren().add(map);
 

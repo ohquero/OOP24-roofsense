@@ -50,12 +50,14 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     private List<Roof> roofs;
     @SuppressFBWarnings("UwF")
     private RoofsManager manager;
-    private Stage stage;
 
     @Start
     void start(final Stage testfxStage) {
-        stage = testfxStage;
+        testfxStage.setScene(buildScene());
+        testfxStage.show();
+    }
 
+    private Scene buildScene() {
         final var injector = BeanScope.builder().build();
 
         manager = injector.get(RoofsManager.class);
@@ -70,15 +72,18 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
         roofs.forEach(manager::save);
 
         final var node = injector.get(RoofsRegistryNode.class);
+
         final var scene = new Scene(node);
         scene.getStylesheets().add(Stages.STYLESHEET_URL_STRING);
-        stage.setScene(scene);
-        stage.show();
+        return scene;
     }
 
     @Override
     protected Stage getStage() {
-        return this.stage;
+        final var stage = new Stage();
+        stage.setScene(buildScene());
+        stage.show();
+        return stage;
     }
 
     @Test
