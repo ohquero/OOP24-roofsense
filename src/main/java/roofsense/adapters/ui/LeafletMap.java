@@ -33,9 +33,7 @@ public final class LeafletMap extends Region {
         webView.prefWidthProperty().bind(widthProperty());
         webView.prefHeightProperty().bind(heightProperty());
 
-        loaded.bind(
-                webView.getEngine().getLoadWorker().stateProperty().isEqualTo(Worker.State.SUCCEEDED)
-        );
+        loaded.bind(webView.getEngine().getLoadWorker().stateProperty().isEqualTo(Worker.State.SUCCEEDED));
         webView.getEngine().load(ClassLoader.getSystemResource(MAP_HTML_PATH).toExternalForm());
 
         getChildren().add(webView);
@@ -48,18 +46,20 @@ public final class LeafletMap extends Region {
      *
      * @param coordinates the coordinates where the marker will be placed
      * @param title       the title (popup text) of the marker
+     *
+     * @return a {@link LeafletMapMarker} representing the marker created.
      */
-    public void addMarker(final Coordinates coordinates, final String title) {
+    public LeafletMapMarker addMarker(final Coordinates coordinates, final String title) {
         Objects.requireNonNull(coordinates, "coordinates must not be null");
         Objects.requireNonNull(title, "title must not be null");
 
-        final String script = "addMarker(%s, %s, '%s')"
-                .formatted(
-                        coordinates.getLatitude(),
-                        coordinates.getLongitude(),
-                        title.replace("'", "\\'")
-                );
-        webView.getEngine().executeScript(script);
+        final var script = "addMarker(%s, %s, '%s')".formatted(
+                coordinates.getLatitude(),
+                coordinates.getLongitude(),
+                title.replace("'", "\\'")
+        );
+        final var markerId = (Integer) webView.getEngine().executeScript(script);
+        return new LeafletMapMarker(markerId);
     }
 
     /**
