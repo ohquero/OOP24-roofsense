@@ -36,11 +36,6 @@ public final class LeafletMap extends Region {
         loaded.bind(
                 webView.getEngine().getLoadWorker().stateProperty().isEqualTo(Worker.State.SUCCEEDED)
         );
-//        loaded.addListener((observable, oldValue, newValue) -> {
-//            if (newValue) {
-//                webView.getEngine().executeScript("map.invalidateSize()");
-//            }
-//        });
         webView.getEngine().load(ClassLoader.getSystemResource(MAP_HTML_PATH).toExternalForm());
 
         getChildren().add(webView);

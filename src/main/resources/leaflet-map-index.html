@@ -35,10 +35,10 @@
     }).addTo(map);
 
     let markers = {};
-    let nextId = 0;
+    let nextMakerId = 0;
 
     function addMarker(lat, lng, title) {
-        let id = nextId++;
+        let id = nextMakerId++;
         markers[id] = L.marker([lat, lng]).addTo(map).bindPopup(title);
         return id;
     }
