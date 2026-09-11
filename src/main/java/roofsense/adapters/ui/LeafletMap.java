@@ -1,6 +1,6 @@
 package roofsense.adapters.ui;
 
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
 import roofsense.entities.Coordinates;
@@ -65,7 +65,7 @@ public final class LeafletMap extends Region {
                 coordinates.getLongitude(),
                 title.replace("'", "\\'")
         );
-        final var markerId = ((Number) webEngineAdapter.executeScript(script)).intValue();
+        final var markerId = (String) webEngineAdapter.executeScript(script);
         return new LeafletMapMarker(markerId);
     }
 
@@ -84,7 +84,7 @@ public final class LeafletMap extends Region {
      *
      * @return the loaded property
      */
-    public BooleanProperty loadedProperty() {
+    public ReadOnlyBooleanProperty loadedProperty() {
         return webEngineAdapter.loadedProperty();
     }
 

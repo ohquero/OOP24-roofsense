@@ -1,7 +1,6 @@
 package roofsense.adapters.ui;
 
-import javafx.beans.property.BooleanProperty;
-
+import javafx.beans.property.ReadOnlyBooleanProperty;
 
 /**
  * Adapter over a web engine used to display web content and execute JavaScript code.
@@ -17,7 +16,7 @@ public interface WebEngineAdapter {
      *
      * @param url the URL of the webpage to load
      */
-    void load(final String url);
+    void load(String url);
 
     /**
      * Executes the given JavaScript code on the webpage.
@@ -26,13 +25,13 @@ public interface WebEngineAdapter {
      *
      * @return the result of the execution, if any.
      */
-    Object executeScript(final String script);
+    Object executeScript(String script);
 
     /**
      * Returns a property which well become {@code true} once the webpage is completely loaded.
      *
      * @return the loaded property.
      */
-    BooleanProperty loadedProperty();
+    ReadOnlyBooleanProperty loadedProperty();
 
 }

@@ -1,7 +1,7 @@
 package roofsense.adapters.ui;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.concurrent.Worker;
 
 import java.util.Objects;
@@ -16,7 +16,7 @@ import java.util.Objects;
 public final class JavaFxWebEngineAdapter implements WebEngineAdapter {
 
     private final javafx.scene.web.WebEngine engine;
-    private final BooleanProperty loaded = new SimpleBooleanProperty(false);
+    private final ReadOnlyBooleanWrapper loaded = new ReadOnlyBooleanWrapper(false);
 
     /**
      * Default constructor.
@@ -51,8 +51,8 @@ public final class JavaFxWebEngineAdapter implements WebEngineAdapter {
      * {@inheritDoc}
      */
     @Override
-    public BooleanProperty loadedProperty() {
-        return loaded;
+    public ReadOnlyBooleanProperty loadedProperty() {
+        return loaded.getReadOnlyProperty();
     }
 
 }

@@ -35,10 +35,9 @@
     }).addTo(map);
 
     let markers = {};
-    let nextMakerId = 0;
 
     function addMarker(lat, lng, title) {
-        let id = nextMakerId++;
+        let id = crypto.randomUUID();
         markers[id] = L.marker([lat, lng]).addTo(map).bindPopup(title);
         return id;
     }

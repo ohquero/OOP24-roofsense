@@ -1,6 +1,5 @@
 package roofsense.adapters.ui;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.avaje.inject.BeanScope;
 import javafx.scene.Scene;
 import javafx.scene.control.TableView;
@@ -46,9 +45,7 @@ class RoofsRegistryNodeTest extends AbstractNodeTest {
     private static final String ROOF_FORM_LATITUDE_TEXT_FIELD_NQ = "#latitudeTextField";
     private static final String ROOF_FORM_LONGITUDE_TEXT_FIELD_NQ = "#longitudeTextField";
 
-    @SuppressFBWarnings("UwF")
     private List<Roof> roofs;
-    @SuppressFBWarnings("UwF")
     private RoofsManager manager;
 
     @Start
